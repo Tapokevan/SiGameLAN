@@ -1,7 +1,7 @@
 [Setup]
 AppId={{FD01271C-30B2-4A69-93A2-5F18AFA22D71}
 AppName=СИ — Домашняя игра
-AppVersion=1.1.0
+AppVersion=1.2.0
 AppPublisher=SI LAN community build
 DefaultDirName={autopf}\SI-LAN
 DefaultGroupName=СИ — Домашняя игра

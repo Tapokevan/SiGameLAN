@@ -64,15 +64,16 @@
     <Grid x:Name="root" Background="#111111" Margin="16">
         <Grid>
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="254" />
+                <ColumnDefinition Width="*" MinWidth="350" />
+                <ColumnDefinition Width="10" />
+                <ColumnDefinition Width="300" MinWidth="208" />
             </Grid.ColumnDefinitions>
 
-            <Grid Margin="0,0,14,0">
+            <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="36" />
-                    <RowDefinition Height="130" />
-                    <RowDefinition Height="*" />
+                    <RowDefinition Height="160" MinHeight="76" />
+                    <RowDefinition Height="*" MinHeight="110" />
                     <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
 
@@ -99,6 +100,11 @@
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
+
+                <GridSplitter Grid.Row="1" VerticalAlignment="Bottom" HorizontalAlignment="Stretch"
+                              Height="8" Background="#59412F" ResizeDirection="Rows" ResizeBehavior="CurrentAndNext"
+                              ShowsPreview="True" ToolTip="Потяните, чтобы изменить высоту карточек игроков"
+                              AutomationProperties.Name="Высота карточек игроков"/>
 
                 <Border Grid.Row="2" Background="#181818" BorderBrush="#36312E" BorderThickness="1">
                     <Grid ClipToBounds="True">
@@ -276,23 +282,33 @@
                 </Grid>
             </Grid>
 
-            <Grid Grid.Column="1">
+            <GridSplitter Grid.Column="1" Width="6" HorizontalAlignment="Center" VerticalAlignment="Stretch"
+                          Background="#59412F" ResizeDirection="Columns" ResizeBehavior="PreviousAndNext"
+                          ShowsPreview="True" ToolTip="Потяните, чтобы изменить ширину правой панели"
+                          AutomationProperties.Name="Ширина правой панели"/>
+
+            <Grid Grid.Column="2">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="36"/>
-                    <RowDefinition Height="190"/>
-                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="222" MinHeight="100"/>
+                    <RowDefinition Height="*" MinHeight="72"/>
                 </Grid.RowDefinitions>
                 <ToggleButton x:Name="roomMenu" Content="☰  Меню комнаты" HorizontalAlignment="Stretch"
                               Style="{StaticResource RoomMenuToggle}" Margin="0,0,0,8"/>
 
                 <Border Grid.Row="1" Background="#231B15" BorderBrush="#B66B32" BorderThickness="1"
-                        CornerRadius="10" Padding="10" ClipToBounds="True">
+                        CornerRadius="10" Padding="10" ClipToBounds="True" Margin="0,0,0,8">
                     <DockPanel>
                         <TextBlock DockPanel.Dock="Top" Text="ВЕДУЩИЙ" Foreground="#FF9B47"
                                    FontSize="12" FontWeight="Bold" Margin="0,0,0,4"/>
                         <local:ShowmanView DataContext="{Binding Showman}"/>
                     </DockPanel>
                 </Border>
+
+                <GridSplitter Grid.Row="1" VerticalAlignment="Bottom" HorizontalAlignment="Stretch"
+                              Height="6" Background="#59412F" ResizeDirection="Rows" ResizeBehavior="CurrentAndNext"
+                              ShowsPreview="True" ToolTip="Потяните, чтобы изменить высоту карточки ведущего"
+                              AutomationProperties.Name="Высота карточки ведущего"/>
 
                 <TextBlock Grid.Row="2" Margin="8,12" Text="{Binding Showman.Model.Replic}"
                            Foreground="#E6DBD1" VerticalAlignment="Top">

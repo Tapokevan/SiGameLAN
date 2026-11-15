@@ -64,7 +64,7 @@
                                             <Setter.Value>
                                                 <DataTemplate>
                                                     <wv2:WebView2
-                                                        Source="{Binding Model.AvatarVideoUri}"
+                                                        Source="{Binding AvatarVideoUri}"
                                                         uwb:WebView2Behavior.IsAttached="True"
                                                         HorizontalAlignment="Stretch"
                                                         VerticalAlignment="Stretch" />
