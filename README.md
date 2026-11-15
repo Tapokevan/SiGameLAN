@@ -2,7 +2,7 @@
 
 Локальная «Своя игра» для Windows 10 и 11 x64 на основе SIGame Владимира Хиля. Один компьютер открывает комнату, друзья подключаются по IP и имени. Игра и медиа из пакета работают по локальной сети без внешнего игрового сервера.
 
-[Скачать установщик SI-LAN-Setup.exe](https://github.com/Tapokevan/SiGameLAN/releases/download/v1.1.0/SI-LAN-Setup.exe) · [Переносимая версия ZIP](https://github.com/Tapokevan/SiGameLAN/releases/download/v1.1.0/SI-LAN-Portable.zip)
+[Скачать установщик Windows](https://github.com/Tapokevan/SiGameLAN/releases/download/v1.2.0/SI-LAN-Setup-1.2.0.exe) · [Переносимая версия ZIP](https://github.com/Tapokevan/SiGameLAN/releases/download/v1.2.0/SiGameLAN-Portable-1.2.0.zip)
 
 1. Скачайте установщик или переносимую сборку на вкладке Releases.
 2. Ведущий выбирает «Создать комнату» и открывает пакет `.siq`.
