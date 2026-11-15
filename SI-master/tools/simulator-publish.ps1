@@ -1,0 +1,1 @@
+dotnet publish ..\src\SImulator\SImulator\SImulator.csproj -c Release -p:PublishSingleFile=true -r win-x86 --self-contained true -p:EnableCompressionInSingleFile=true

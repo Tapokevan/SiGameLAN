@@ -1,0 +1,216 @@
+﻿using Microsoft.AspNetCore.SignalR.Client;
+using Microsoft.Extensions.DependencyInjection;
+using SI.GameServer.Client.Properties;
+using SI.GameServer.Contract;
+using SIData;
+
+namespace SI.GameServer.Client;
+
+/// <summary>
+/// Defines SIHost client.
+/// </summary>
+public sealed class SIHostClient : IGameClient
+{
+    private readonly HubConnection _connection;
+    private readonly SIHostClientOptions _options;
+
+    private JoinGameRequest? _joinGameRequest;
+
+    private JoinGameRequest2? _joinGameRequest2;
+
+    private bool _reconnect = true;
+
+    public event Action<Message>? IncomingMessage;
+
+    public event Action<int, ConnectionPersonData[]>? PersonChanged;
+
+    public event Func<Exception?, Task>? Reconnecting;
+    public event Func<string?, Task>? Reconnected;
+    public event Func<Exception?, Task>? Closed;
+
+    public SIHostClient(HubConnection connection, SIHostClientOptions options)
+    {
+        _connection = connection;
+        _options = options;
+
+        _connection.Reconnecting += OnReconnecting;
+        _connection.Reconnected += OnReconnected;
+        _connection.Closed += OnConnectionClosedAsync;
+
+        _connection.On<Message>(nameof(ISIHostClient.Receive), (message) => IncomingMessage?.Invoke(message));
+
+        _connection.On(nameof(ISIHostClient.Disconnect), async () =>
+        {
+            IncomingMessage?.Invoke(new Message(Resources.YourWereKicked, "@", isSystem: false));
+            _reconnect = false;
+            await _connection.StopAsync();
+        });
+
+        _connection.On<int, ConnectionPersonData[]>(
+            nameof(ISIHostClient.GamePersonsChanged),
+            (gameId, persons) => PersonChanged?.Invoke(gameId, persons));
+    }
+
+    private async Task OnReconnecting(Exception? ex)
+    {
+        if (Reconnecting != null)
+        {
+            await Reconnecting(ex);
+        }
+    }
+
+    private async Task OnReconnected(string? connectionId)
+    {
+        if (Reconnected != null)
+        {
+            await Reconnected(connectionId);
+        }
+    }
+
+    public static async Task<SIHostClient> CreateAsync(SIHostClientOptions options, CancellationToken cancellationToken = default)
+    {
+        if (options.ServiceUri == null)
+        {
+            throw new ArgumentNullException(nameof(options.ServiceUri));
+        }
+
+        if (options.ProxyUri != null)
+        {
+            try
+            {
+                return await CreateWithUriAsync(options, options.ProxyUri, cancellationToken);
+            }
+            catch
+            {
+                // Fall back to direct host Uri
+            }
+        }
+
+        return await CreateWithUriAsync(options, options.ServiceUri, cancellationToken);
+    }
+
+    private static async Task<SIHostClient> CreateWithUriAsync(
+        SIHostClientOptions options,
+        Uri serviceUri,
+        CancellationToken cancellationToken)
+    {
+        var serviceUriString = serviceUri.ToString();
+
+        if (!serviceUriString.EndsWith('/'))
+        {
+            serviceUriString += "/";
+        }
+
+        var connection = new HubConnectionBuilder()
+            .WithUrl($"{serviceUriString}sihost")
+                .WithAutomaticReconnect(new ReconnectPolicy())
+                .AddMessagePackProtocol()
+                .Build();
+
+        connection.HandshakeTimeout = options.HandshakeTimeout;
+
+        try
+        {
+            await connection.StartAsync(cancellationToken);
+        }
+        catch
+        {
+            await connection.DisposeAsync();
+            throw;
+        }
+
+        return new SIHostClient(connection, options);
+    }
+
+    public async Task<JoinGameResponse> JoinGameAsync(
+        JoinGameRequest joinGameRequest,
+        CancellationToken cancellationToken = default)
+    {
+        var response = await _connection.InvokeAsync<JoinGameResponse>("JoinGame", joinGameRequest, cancellationToken);
+
+        if (response.IsSuccess)
+        {
+            _joinGameRequest = joinGameRequest;
+            _joinGameRequest2 = null;
+        }
+
+        return response;
+    }
+
+    public async Task<JoinGame2Result> JoinGame2Async(
+        JoinGameRequest2 joinGameRequest,
+        CancellationToken cancellationToken = default)
+    {
+        var response = await _connection.InvokeAsync<JoinGame2Result>("JoinGame2", joinGameRequest, cancellationToken);
+
+        if (response == JoinGame2Result.Success)
+        {
+            _joinGameRequest = null;
+            _joinGameRequest2 = joinGameRequest;
+        }
+
+        return response;
+    }
+
+    public Task SendMessageAsync(Message message, CancellationToken cancellationToken = default) =>
+        _connection.SendAsync("SendMessage", message, cancellationToken);
+
+    public Task LeaveGameAsync(CancellationToken cancellationToken = default) =>
+        _connection.SendAsync("LeaveGame", cancellationToken);
+
+    private async Task OnConnectionClosedAsync(Exception? exc)
+    {
+        if (_reconnect && await TryReconnectAsync())
+        {
+            return;
+        }
+
+        if (Closed != null)
+        {
+            await Closed(exc);
+        }
+    }
+
+    private async Task<bool> TryReconnectAsync()
+    {
+        if (_joinGameRequest == null && _joinGameRequest2 == null)
+        {
+            return false;
+        }
+
+        try
+        {
+            await Task.Delay(5000);
+            await _connection.StartAsync();
+
+            if (_joinGameRequest2 != null)
+            {
+                await JoinGame2Async(_joinGameRequest2);
+            }
+            else if (_joinGameRequest != null)
+            {
+                await JoinGameAsync(_joinGameRequest);
+            }
+
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        _connection.Reconnecting -= OnReconnecting;
+        _connection.Reconnected -= OnReconnected;
+        _connection.Closed -= OnConnectionClosedAsync;
+
+        await _connection.DisposeAsync();
+    }
+
+    private sealed class ReconnectPolicy : IRetryPolicy
+    {
+        public TimeSpan? NextRetryDelay(RetryContext retryContext) => TimeSpan.FromSeconds(5);
+    }
+}

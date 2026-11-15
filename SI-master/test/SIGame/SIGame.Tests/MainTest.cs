@@ -1,0 +1,191 @@
+﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using NUnit.Framework;
+using SI.GameServer.Client;
+using SICore.PlatformSpecific;
+using SIData;
+using SIGame.ViewModel;
+using SIGame.ViewModel.Models;
+using SIGame.ViewModel.PackageSources;
+using SIGame.ViewModel.Settings;
+using SIStatisticsService.Client;
+using SIStorage.Service.Client;
+using SIUI.ViewModel;
+using System.ComponentModel;
+using System.Net;
+
+namespace SIGame.Tests;
+
+[Parallelizable(ParallelScope.All)]
+[TestFixture]
+public class MainTest
+{
+    private static readonly HttpClient HttpClient = new() { DefaultRequestVersion = HttpVersion.Version20 };
+
+    [TestCase(PackageSourceTypes.RandomServer, GameRole.Player)]
+    [TestCase(PackageSourceTypes.SIStorage, GameRole.Player)]
+    [TestCase(PackageSourceTypes.Local, GameRole.Player)]
+    [TestCase(PackageSourceTypes.RandomServer, GameRole.Viewer)]
+    [TestCase(PackageSourceTypes.RandomServer, GameRole.Showman)]
+    public async Task GameCreateAndRun_Ok_Async(
+        PackageSourceTypes packageSourceType,
+        GameRole gameRole)
+    {
+        var coreManager = new DesktopCoreManager();
+        var manager = new TestManager();
+
+        var commonSettings = new CommonSettings();
+        commonSettings.Humans2.Add(new HumanAccount { Name = "test_" + new Random().Next(10000), BirthDate = DateTime.Now });
+
+        var userSettings = new UserSettings();
+
+        var appState = new AppState();
+
+        var configurationBuilder = new ConfigurationBuilder();
+
+        configurationBuilder.AddJsonFile("appsettings.json");
+
+        var configuration = configurationBuilder.Build();
+
+        var services = new ServiceCollection();
+
+        services.AddSIGameServerClient(configuration);
+        services.AddSingleton<IUIThreadExecutor>(manager);
+        services.AddSIStorageServiceClient(configuration);
+        services.AddSIStatisticsServiceClient(configuration);
+
+        services.AddSingleton(commonSettings);
+        services.AddSingleton(userSettings);
+        services.AddSingleton(appState);
+
+        services.AddSIGame();
+
+        var serviceProvider = services.BuildServiceProvider();
+        manager.ServiceProvider = serviceProvider;
+
+        var mainViewModel = serviceProvider.GetRequiredService<MainViewModel>();
+
+        await mainViewModel.Open.ExecuteAsync(null);
+
+        var contentBox = mainViewModel.ActiveView as ContentBox;
+        Assert.That(contentBox, Is.Null, ((LoginViewModel?)contentBox?.Data)?.Error);
+
+        var siOnline = (SIOnlineViewModel?)mainViewModel.ActiveView;
+
+        Assert.That(siOnline, Is.Not.Null);
+
+        await siOnline!.InitAsync();
+
+        siOnline.NewGame.Execute(null);
+
+        Assert.That(siOnline.Content, Is.Not.Null);
+
+        var gameSettings = (GameSettingsViewModel)siOnline.Content!.Content.Data;
+        gameSettings.NetworkGameName = "testGame" + new Random().Next(10000);
+        gameSettings.NetworkGamePassword = "testpass";
+        gameSettings.Role = gameRole;
+
+        if (packageSourceType == PackageSourceTypes.RandomServer)
+        {
+            await gameSettings.SelectPackage.ExecuteAsync(new SIStorageParameters { StorageIndex = 0, IsRandom = true });
+        }
+        else if (packageSourceType == PackageSourceTypes.SIStorage)
+        {
+            await gameSettings.SelectPackage.ExecuteAsync(new SIStorageParameters { StorageIndex = 0, IsRandom = false });
+
+            var counter = 10;
+
+            var storageInfo = (SIStorageViewModel)siOnline.Content.Content.Data;
+
+            storageInfo.Model.CurrentRestriction = storageInfo.Model.Restrictions[0];
+
+            while ((storageInfo.Model.Packages == null || storageInfo.Model.Packages.Length == 0) && counter > 0)
+            {
+                counter--;
+                await Task.Delay(1000);
+            }
+
+            if (storageInfo.Model.Packages == null || storageInfo.Model.Packages.Length == 0)
+            {
+                Assert.Fail("Could not load storage packages");
+                return;
+            }
+
+            var packageId = Guid.Parse("45e8042a-9d5e-4a8f-8552-6cdf1b6d09b2");
+
+            var package = storageInfo.Model.Packages.FirstOrDefault(p => p.Model.Id == packageId);
+
+            Assert.That(package, Is.Not.Null, "Package not found");
+
+            var storage = storageInfo.Model.CurrentPackage = package;
+
+            storageInfo.LoadStorePackage.Execute(null);
+        }
+        else
+        {
+            await gameSettings.SelectPackage.ExecuteAsync(packageSourceType);
+        }
+
+        await gameSettings.BeginGame.ExecuteAsync(null);
+
+        Assert.That(gameSettings.IsProgress, Is.False);
+        Assert.That(gameSettings.ErrorMessage, Is.Null);
+
+        siOnline = mainViewModel.ActiveView as SIOnlineViewModel;
+        Assert.That(siOnline, Is.Null, siOnline?.Error);
+
+        var game = (GameViewModel?)mainViewModel.ActiveView;
+
+        var tInfo = game!.TInfo;
+        tInfo.PropertyChanged += TInfo_PropertyChanged;
+
+        await Task.Delay(5000);
+
+        if (gameRole != GameRole.Viewer)
+        {
+            game.Ready.Execute(null);
+        }
+
+        if (packageSourceType == PackageSourceTypes.Local) // One mode check is enough
+        {
+            var host = game.Host;
+
+            await Task.Delay(50000);
+        }
+
+        game.EndGame.Execute(null);
+
+        await Task.Delay(5000);
+
+        // Sometimes it does not have time to login again
+
+        var contentBox2 = mainViewModel.ActiveView as ContentBox;
+        Assert.That(contentBox2, Is.Null, ((LoginViewModel?)contentBox2?.Data)?.Error);
+
+        var siOnline2 = (SIOnlineViewModel?)mainViewModel.ActiveView;
+        siOnline2?.Cancel.Execute(null);
+    }
+
+    private static async void TInfo_PropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (sender == null)
+        {
+            return;
+        }
+
+        if (e.PropertyName == nameof(TableInfoViewModel.MediaSource))
+        {
+            var mediaSource = ((TableInfoViewModel)sender).MediaSource;
+
+            if (mediaSource != null)
+            {
+                var result = await HttpClient.GetAsync(mediaSource.Uri);
+                Assert.That(result.IsSuccessStatusCode, Is.True);
+            }
+        }
+        else if (e.PropertyName == nameof(TableInfoViewModel.SoundSource))
+        {
+            await HttpClient.GetAsync(((TableInfoViewModel)sender).SoundSource?.Uri);
+        }
+    }
+}

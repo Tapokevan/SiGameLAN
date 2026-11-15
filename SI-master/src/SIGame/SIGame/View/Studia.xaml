@@ -1,0 +1,352 @@
+<UserControl
+    x:Class="SIGame.Studia"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+    xmlns:ui="clr-namespace:SIUI;assembly=SIUI"
+    xmlns:uib="clr-namespace:SIUI.Behaviors;assembly=SIUI"
+    xmlns:uivm="clr-namespace:SIUI.ViewModel;assembly=SIUI.ViewModel"
+    xmlns:local="clr-namespace:SIGame"
+    xmlns:lvm="clr-namespace:SIGame.ViewModel;assembly=SIGame.ViewModel"
+    xmlns:localc="clr-namespace:SIGame.Converters"
+    xmlns:uic="clr-namespace:SIUI.Converters;assembly=SIUI"
+    xmlns:lp="clr-namespace:SIGame.Properties"
+    xmlns:lb="clr-namespace:SIGame.Behaviors"
+    mc:Ignorable="d"
+    d:DataContext="{d:DesignInstance Type=lvm:GameViewModel}"
+    d:DesignHeight="5391.093"
+    d:DesignWidth="7812.698"
+    MouseRightButtonDown="UserControl_MouseRightButtonDown">
+    <UserControl.Resources>
+        <localc:EqualNumberToVisibilityConverter x:Key="ReplicC" />
+        <localc:BackgroundConverter x:Key="BackgroundConverter" />
+        <localc:DialogPositionConverter x:Key="DialogPositionConverter" />
+        <localc:ReverseTimeConverter x:Key="ReverseTimeConverter" />
+        <uic:FontConverter x:Key="FontConverter" />
+
+        <Style x:Key="SIProgressBar" TargetType="{x:Type ProgressBar}" BasedOn="{StaticResource {x:Type ProgressBar}}">
+            <Setter Property="Opacity" Value="0.75" />
+            <Setter Property="Margin" Value="1" />
+            <Setter Property="Minimum" Value="0" />
+            <Setter Property="Maximum" Value="100" />
+            <Setter Property="Foreground" Value="#FF9B47" />
+        </Style>
+
+        <Style x:Key="HiddenTextBlock" TargetType="{x:Type TextBlock}" BasedOn="{StaticResource SIText}">
+            <Setter Property="Foreground" Value="{StaticResource MainColor}" />
+            
+            <Style.Triggers>
+                <Trigger Property="Text" Value="">
+                    <Setter Property="Visibility" Value="Collapsed" />
+                </Trigger>
+                
+                <DataTrigger Binding="{Binding UseDialogWindow}" Value="True">
+                    <Setter Property="Visibility" Value="Collapsed" />
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="ReplicContent" TargetType="{x:Type ContentPresenter}">
+            <Setter Property="VerticalAlignment" Value="Stretch" />
+            <Setter Property="HorizontalAlignment" Value="Stretch" />
+            <Setter Property="Margin" Value="4" />
+        </Style>
+        <Style x:Key="AvailableRoomAction" TargetType="Button" BasedOn="{StaticResource LanButton}">
+            <Style.Triggers>
+                <Trigger Property="IsEnabled" Value="False">
+                    <Setter Property="Visibility" Value="Collapsed"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+    </UserControl.Resources>
+
+    <Grid x:Name="root" Background="#111111" Margin="16">
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="254" />
+            </Grid.ColumnDefinitions>
+
+            <Grid Margin="0,0,14,0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="36" />
+                    <RowDefinition Height="130" />
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <Grid Margin="0,0,0,8">
+                    <ProgressBar Height="2" VerticalAlignment="Bottom" Foreground="#FF9B47"
+                                 Background="#333333" Maximum="100" Value="{Binding Timers[0].Time}"
+                                 ToolTip="{x:Static lp:Resources.Time_Round}" />
+                    <TextBlock Text="{Binding StageName}" FontSize="15" Foreground="#D0C7BF"
+                               TextTrimming="CharacterEllipsis" VerticalAlignment="Top" />
+                </Grid>
+
+                <ItemsControl Grid.Row="1" ItemsSource="{Binding Players}" Margin="0,0,0,10">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <UniformGrid Rows="1" />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border Background="#1C1C1C" BorderBrush="#333333" BorderThickness="1"
+                                    CornerRadius="8" Margin="0,0,5,0" Padding="4" ClipToBounds="True">
+                                <local:PersonView />
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+
+                <Border Grid.Row="2" Background="#181818" BorderBrush="#36312E" BorderThickness="1">
+                    <Grid ClipToBounds="True">
+                        <ui:Table
+                x:Name="table"
+                Background="{Binding TInfo.Settings.Model.TableBackColorString}"
+                
+                
+                MediaElement.MediaEnded="Table_MediaEnded"
+                TextOptions.TextFormattingMode="Display"
+                SnapsToDevicePixels="True"
+                DataContext="{Binding TInfo}" />
+
+            <Grid
+                
+                Visibility="{Binding ShowMainTimer, Converter={StaticResource BooleanToVisibilityConverter1}}">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="15*" />
+                </Grid.RowDefinitions>
+
+                <ProgressBar
+                    Height="13"
+                    Foreground="Orange"
+                    VerticalAlignment="Top"
+                    Value="{Binding Timers[2].Time, Converter={StaticResource ReverseTimeConverter}}"
+                    ToolTip="{x:Static lp:Resources.Time_Decide}"
+                    Opacity="1">
+                    <ProgressBar.Style>
+                        <Style TargetType="ProgressBar" BasedOn="{StaticResource SIProgressBar}">
+                            <Setter Property="Grid.Row" Value="0" />
+
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding TInfo.TStage}" Value="{x:Static uivm:TableStage.Question}">
+                                    <Setter Property="Grid.Row" Value="1" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </ProgressBar.Style>
+                </ProgressBar>
+            </Grid>
+
+            <Button
+                
+                Style="{StaticResource SIButtonSimple}"
+                Content="{x:Static lp:Resources.EnableMediaLoad}"
+                Command="{Binding EnableExtrenalMediaLoad}"
+                Visibility="{Binding EnableMediaLoadButton, Converter={StaticResource BooleanToVisibilityConverter1}}"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Bottom"
+                Margin="20"
+                Padding="30,5"
+                FontSize="20" />
+
+            <ContentControl  >
+                <Border VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Background="#44000000">
+                    <TextBlock
+                        VerticalAlignment="Center"
+                        HorizontalAlignment="Center"
+                        Foreground="{StaticResource MainColor}"
+                        Text="{x:Static lp:Resources.Pause}"
+                        FontFamily="{Binding TInfo.Settings.TableFontFamily, Converter={StaticResource FontConverter}}"
+                        uib:FillManager.Fill="True"
+                        uib:FillManager.MaxFontSize="150">
+
+                        <TextBlock.Effect>
+                            <DropShadowEffect BlurRadius="10" Opacity="1" ShadowDepth="1" />
+                        </TextBlock.Effect>
+                    </TextBlock>
+                </Border>
+
+                <ContentControl.Style>
+                    <Style TargetType="ContentControl">
+                        <Setter Property="Visibility" Value="Collapsed" />
+
+                        <Style.Triggers>
+                            <MultiDataTrigger>
+                                <MultiDataTrigger.Conditions>
+                                    <Condition Binding="{Binding TInfo.Pause}" Value="True" />
+                                    <Condition Binding="{Binding TInfo.IsEditable}" Value="False" />
+                                </MultiDataTrigger.Conditions>
+                                
+                                <Setter Property="Visibility" Value="Visible" />
+                            </MultiDataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </ContentControl.Style>
+            </ContentControl>
+
+            <ContentControl   Visibility="{Binding Ad,Converter={StaticResource NotNullToVisibilityConverter1}}">
+                <Border VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+                    <TextBlock
+                        VerticalAlignment="Center"
+                        HorizontalAlignment="Center"
+                        Foreground="{StaticResource MainColor}"
+                        Text="{Binding Ad}"
+                        TextWrapping="Wrap"
+                        TextAlignment="Center"
+                        Margin="15"
+                        FontFamily="{Binding TInfo.Settings.TableFontFamily, Converter={StaticResource FontConverter}}"
+                        lb:NavigationService.Text="{Binding Ad}"
+                        uib:FillManager.Fill="True"
+                        uib:FillManager.MaxFontSize="130">
+                        <TextBlock.Effect>
+                            <DropShadowEffect BlurRadius="2" Opacity="1" ShadowDepth="1" />
+                        </TextBlock.Effect>
+                    </TextBlock>
+                </Border>
+            </ContentControl>
+                    </Grid>
+                </Border>
+
+                <Grid Grid.Row="3" Margin="0,8,0,0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <TextBlock Text="{Binding Hint}" Style="{StaticResource HiddenTextBlock}"
+                               Foreground="#FFC79B" TextWrapping="Wrap" TextAlignment="Center"
+                               FontSize="15" Padding="4" />
+
+                    <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center">
+                        <Button Content="Пас" Command="{Binding Pass}" Style="{StaticResource LanButton}"
+                                Padding="20,8" MinWidth="122" Margin="4,0"
+                                Visibility="{Binding IsPlayer, Converter={StaticResource BooleanToVisibilityConverter1}}"/>
+                        <Button Content="Ответ" Command="{Binding PressGameButton}" Style="{StaticResource LanButton}"
+                                Padding="20,8" MinWidth="152" Margin="4,0" Background="#FF9B47" Foreground="#17110D"
+                                FontWeight="SemiBold" ToolTip="{Binding UserSettings.GameSettings.AppSettings.GameButtonKey2, Converter={StaticResource ToStringConverter}}"
+                                Visibility="{Binding IsPlayer, Converter={StaticResource BooleanToVisibilityConverter1}}"/>
+                        <Button Content="Начать игру" Command="{Binding ForceStart}" Padding="20,8" Margin="4,0"
+                                Background="#FF9B47" Foreground="#17110D">
+                            <Button.Style>
+                                <Style TargetType="Button" BasedOn="{StaticResource LanButton}">
+                                    <Style.Triggers>
+                                        <Trigger Property="IsEnabled" Value="False">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                        </Button>
+                        <Button Padding="20,8" Margin="4,0" Command="{Binding ChangePauseInGame}">
+                            <Button.Style>
+                                <Style TargetType="Button" BasedOn="{StaticResource AvailableRoomAction}">
+                                    <Setter Property="Content" Value="Пауза"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsPaused}" Value="True">
+                                            <Setter Property="Content" Value="Продолжить"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                        </Button>
+                        <Button Content="Дальше" Command="{Binding Move}" CommandParameter="1"
+                                Style="{StaticResource AvailableRoomAction}" Padding="20,8" Margin="4,0"
+                                ToolTip="Стрелка вправо"/>
+                        <Button Padding="20,8" Margin="4,0">
+                            <Button.Style>
+                                <Style TargetType="Button" BasedOn="{StaticResource ReadyButton}">
+                                    <Setter Property="Template" Value="{StaticResource LanButtonTemplate}"/>
+                                    <Setter Property="Background" Value="#302318"/>
+                                    <Setter Property="Foreground" Value="#FFD8B8"/>
+                                    <Setter Property="Command" Value="{Binding Ready}"/>
+                                    <Setter Property="Content" Value="{Binding Data.Me.IsMale, ConverterParameter=Ready, Converter={StaticResource SexConverter}}"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding Data.Me.Ready}" Value="True">
+                                            <Setter Property="Command" Value="{Binding UnReady}"/>
+                                            <Setter Property="Content" Value="{Binding Data.Me.IsMale, ConverterParameter=NotReady, Converter={StaticResource SexConverter}}"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                        </Button>
+                    </StackPanel>
+                </Grid>
+            </Grid>
+
+            <Grid Grid.Column="1">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="36"/>
+                    <RowDefinition Height="190"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <ToggleButton x:Name="roomMenu" Content="☰  Меню комнаты" HorizontalAlignment="Stretch"
+                              Style="{StaticResource RoomMenuToggle}" Margin="0,0,0,8"/>
+
+                <Border Grid.Row="1" Background="#231B15" BorderBrush="#B66B32" BorderThickness="1"
+                        CornerRadius="10" Padding="10" ClipToBounds="True">
+                    <DockPanel>
+                        <TextBlock DockPanel.Dock="Top" Text="ВЕДУЩИЙ" Foreground="#FF9B47"
+                                   FontSize="12" FontWeight="Bold" Margin="0,0,0,4"/>
+                        <local:ShowmanView DataContext="{Binding Showman}"/>
+                    </DockPanel>
+                </Border>
+
+                <TextBlock Grid.Row="2" Margin="8,12" Text="{Binding Showman.Model.Replic}"
+                           Foreground="#E6DBD1" VerticalAlignment="Top">
+                    <TextBlock.Style>
+                        <Style TargetType="TextBlock" BasedOn="{StaticResource LanText}">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsChecked, ElementName=roomMenu}" Value="True">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBlock.Style>
+                </TextBlock>
+
+                <Border Grid.Row="2" Background="#1C1C1C" BorderBrush="#39332E" BorderThickness="1"
+                        CornerRadius="8" Margin="0,8,0,0"
+                        Visibility="{Binding IsChecked, ElementName=roomMenu, Converter={StaticResource BooleanToVisibilityConverter1}}">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                        <StackPanel Margin="8">
+                            <TextBlock Text="Громкость" Style="{StaticResource LanText}" FontSize="14"/>
+                            <Slider Value="{Binding Volume}" Maximum="100" IsMoveToPointEnabled="True" Margin="0,0,0,6"/>
+                            <Button Content="Камера VDO.Ninja…" Command="{Binding SetVideoAvatar}" Style="{StaticResource RoomMenuButton}"/>
+                            <Button Content="Убрать камеру" Command="{Binding DeleteVideoAvatar}" Style="{StaticResource RoomMenuButton}"/>
+                            <Button Content="Настройки игры" Command="{Binding DataContext.ShowSlideMenu, RelativeSource={RelativeSource AncestorType=local:MainView}}" Style="{StaticResource RoomMenuButton}"/>
+                            <StackPanel Visibility="{Binding IsShowman, Converter={StaticResource BooleanToVisibilityConverter1}}">
+                                <Button Content="Предыдущий раунд" Command="{Binding Move}" CommandParameter="-2" Style="{StaticResource RoomMenuButton}"/>
+                                <Button Content="Следующий раунд" Command="{Binding Move}" CommandParameter="2" Style="{StaticResource RoomMenuButton}"/>
+                                <Button Content="Редактировать табло" Command="{Binding ManageTable}" Style="{StaticResource RoomMenuButton}"/>
+                                <Button Content="Передать ход" Command="{Binding ChangeActivePlayer}" Style="{StaticResource RoomMenuButton}"/>
+                                <Button Content="Изменить счёт" Command="{Binding ChangeSums}" Style="{StaticResource RoomMenuButton}"/>
+                            </StackPanel>
+                            <Button Content="Выйти из комнаты…" Click="LeaveRoom_Click" Style="{StaticResource RoomMenuButton}"/>
+                            <local:GameChat Height="300" Margin="0,8,0,0"/>
+                        </StackPanel>
+                    </ScrollViewer>
+                </Border>
+            </Grid>
+        </Grid>
+
+        <ContentControl
+            Content="{Binding}"
+            ContentTemplate="{Binding DialogMode, Converter={StaticResource DialogSelector}}"
+            VerticalAlignment="Center"
+            HorizontalAlignment="Center"
+            VerticalContentAlignment="Center">
+<ContentControl.Style>
+                <Style TargetType="ContentControl">
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding UseDialogWindow}" Value="True">
+                            <Setter Property="Visibility" Value="Collapsed" />
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </ContentControl.Style>
+        </ContentControl>
+    </Grid>
+</UserControl>

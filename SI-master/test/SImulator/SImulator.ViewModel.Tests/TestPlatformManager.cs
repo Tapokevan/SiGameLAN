@@ -1,0 +1,113 @@
+﻿using NUnit.Framework;
+using SImulator.ViewModel.ButtonManagers;
+using SImulator.ViewModel.Contracts;
+using SImulator.ViewModel.Core;
+using SImulator.ViewModel.Model;
+using SImulator.ViewModel.PlatformSpecific;
+using Utils.Timers;
+
+namespace SImulator.ViewModel.Tests;
+
+internal sealed class TestPlatformManager : PlatformManager, IPlatformService
+{
+    public ButtonManagerFactory ButtonManagerFactory { get; } = new TestButtonManagerFactory();
+
+    public override IPresentationController CreatePresentationController(
+        IDisplayDescriptor displayDescriptor,
+        IPresentationListener presentationListener,
+        SoundsSettings soundsSettings,
+        bool sendCommonMessages)
+        => new TestWebPresentationController();
+
+    public string AskSelectColor()
+    {
+        throw new NotImplementedException();
+    }
+
+    public override Task<string?> AskSelectFileAsync(string header)
+    {
+        throw new NotImplementedException();
+    }
+
+    public override string AskSelectLogsFolder()
+    {
+        throw new NotImplementedException();
+    }
+
+    public override Task<IPackageSource?> AskSelectPackageAsync(string arg)
+    {
+        throw new NotImplementedException();
+    }
+
+    public override Task<bool> AskStopGameAsync()
+    {
+        throw new NotImplementedException();
+    }
+
+    public void ClearMedia()
+    {
+        throw new NotImplementedException();
+    }
+
+    public override Task CloseMainViewAsync()
+    {
+        throw new NotImplementedException();
+    }
+
+    public override void ClosePlayersView()
+    {
+        
+    }
+
+    public override IAnimatableTimer CreateAnimatableTimer() => new TestAnimatableTimer();
+
+    public override IGameLogger CreateGameLogger(string? folder) => new TestLogger();
+
+    public override Task CreateMainViewAsync(object dataContext, IDisplayDescriptor screen) => Task.CompletedTask;
+
+    public override void CreatePlayersView(object dataContext)
+    {
+        throw new NotImplementedException();
+    }
+
+    public string[] GetComPorts()
+    {
+        throw new NotImplementedException();
+    }
+
+    public string[] GetFonts() => Array.Empty<string>();
+
+    public override int GetKeyNumber(GameKey key)
+    {
+        throw new NotImplementedException();
+    }
+
+    public override string[] GetLocalComputers()
+    {
+        throw new NotImplementedException();
+    }
+
+    public override IDisplayDescriptor[] GetScreens() => new IDisplayDescriptor[] { new TestScreen() };
+
+    public void InitSettings(AppSettings defaultSettings)
+    {
+        throw new NotImplementedException();
+    }
+
+    public override bool IsEscapeKey(GameKey key)
+    {
+        throw new NotImplementedException();
+    }
+
+    public void NavigateToSite()
+    {
+        throw new NotImplementedException();
+    }
+
+    public void PlaySound(string name, Action? onFinish)
+    {
+        
+    }
+
+    public void ShowMessage(string text, bool error = true) => Assert.Fail(text);
+}

@@ -1,0 +1,273 @@
+﻿using SICore.Models;
+using SIEngine.Core;
+using SIPackages;
+
+namespace SICore.Clients.Game;
+
+/// <summary>
+/// Contains question play state.
+/// </summary>
+internal sealed class QuestionPlayState
+{
+    /// <summary>
+    /// Indicies of players that are obligated to answer.
+    /// </summary>
+    internal HashSet<int> AnswererIndicies { get; } = new();
+
+    /// <summary>
+    /// Are multiple persons answering this question.
+    /// </summary>
+    internal bool AreMultipleAnswerers { get; private set; } // => AnswererIndicies.Count > 1; - in the future
+
+    /// <summary>
+    /// Answer options.
+    /// </summary>
+    internal AnswerOption[]? AnswerOptions { get; set; }
+
+    /// <summary>
+    /// Used answer options indicies.
+    /// </summary>
+    internal HashSet<string> UsedAnswerOptions { get; } = new();
+
+    /// <summary>
+    /// Has layout been set.
+    /// </summary>
+    internal bool LayoutShown { get; set; }
+
+    /// <summary>
+    /// Are answer options shown.
+    /// </summary>
+    internal bool AnswerOptionsShown { get; set; }
+
+    /// <summary>
+    /// Screen content sequence.
+    /// </summary>
+    internal IReadOnlyList<ContentItem[]>? ScreenContentSequence { get; set; }
+
+    /// <summary>
+    /// Does the question have hidden stakes.
+    /// </summary>
+    internal bool HiddenStakes { get; set; }
+
+    /// <summary>
+    /// Content completions waiting table.
+    /// </summary>
+    internal Dictionary<(string ContentType, string ContentValue), Completion> MediaContentCompletions { get; } = new();
+
+    /// <summary>
+    /// Answer validations in the order they have been requested from the showman.
+    /// </summary>
+    /// <remarks>
+    /// When <see cref="SI.Contracts.RulesSettings.ValidateEqualAnswersSeparately" /> is enabled, validations are kept per player:
+    /// equal answers could deserve different verdicts (for example, depending on the time they have been provided).
+    /// Otherwise there is a single validation for each distinct answer.
+    /// </remarks>
+    internal List<AnswerValidation> Validations { get; } = new();
+
+    /// <summary>
+    /// Number of active validations.
+    /// </summary>
+    internal int ActiveValidationCount => Validations.Count(validation => validation.Verdict == null);
+
+    /// <summary>
+    /// Should the player answers be validated after right answer.
+    /// </summary>
+    internal bool ValidateAfterRightAnswer => AnswerType != AnswerType.Text;
+
+    /// <summary>
+    /// Is the question in answer display mode.
+    /// </summary>
+    internal bool IsAnswer { get; set; }
+
+    /// <summary>
+    /// Question right answer.
+    /// </summary>
+    public ICollection<string> RightAnswers { get; internal set; } = Array.Empty<string>();
+
+    /// <summary>
+    /// Has the answer stage been announced.
+    /// </summary>
+    internal bool IsAnswerAnnounced { get; set; }
+
+    /// <summary>
+    /// Marks simple (text-only) answer.
+    /// </summary>
+    internal bool IsAnswerSimple { get; set; }
+
+    /// <summary>
+    /// Should the question be answered by pressing button.
+    /// </summary>
+    internal bool UseButtons { get; set; }
+
+    /// <summary>
+    /// Could appellation messages be collected.
+    /// </summary>
+    public AppellationState AppellationState { get; set; }
+
+    /// <summary>
+    /// Pending appellations.
+    /// </summary>
+    internal List<(string, bool)> Appellations { get; } = new();
+
+    /// <summary>
+    /// Pending appellations index.
+    /// </summary>
+    internal int AppellationIndex { get; set; }
+
+    /// <summary>
+    /// Answer type.
+    /// </summary>
+    public AnswerType AnswerType { get; internal set; }
+
+    /// <summary>
+    /// Defines acceptable deviation for numeric answers.
+    /// </summary>
+    public double AnswerDeviation { get; internal set; }
+
+    /// <summary>
+    /// Defines answer duration in seconds.
+    /// </summary>
+    public int? AnswerDuration { get; internal set; }
+
+    /// <summary>
+    /// Marks whether the question has flexible pricing.
+    /// </summary>
+    public bool FlexiblePrice { get; internal set; }
+
+    /// <summary>
+    /// Gets the unique identifier for the question.
+    /// </summary>
+    public string QuestionKey { get; internal set; } = "";
+
+    /// <summary>
+    /// Should media completions be collected from players.
+    /// </summary>
+    public bool CollectMediaCompletions { get; internal set; }
+
+    /// <summary>
+    /// Content items of the currently playing content step.
+    /// </summary>
+    internal IReadOnlyList<ContentItem>? ContentItems { get; private set; }
+
+    /// <summary>
+    /// Moves engine play to the content item with the specified index within the current content step.
+    /// </summary>
+    internal Action<int>? MoveToContent { get; private set; }
+
+    /// <summary>
+    /// Content index of the last played content unit.
+    /// </summary>
+    internal int? LastContentIndex { get; set; }
+
+    /// <summary>
+    /// Content index to replay.
+    /// </summary>
+    internal int? PendingReplayIndex { get; set; }
+
+    /// <summary>
+    /// Already used wrong versions of the question. Used to avoid repeating the same wrong version.
+    /// </summary>
+    internal List<string> UsedWrongVersions { get; } = [];
+
+    internal void StartContentStep(IReadOnlyList<ContentItem> contentItems, Action<int> moveToContent)
+    {
+        ContentItems = contentItems;
+        MoveToContent = moveToContent;
+        LastContentIndex = null;
+        PendingReplayIndex = null;
+    }
+
+    internal void ClearContentStep()
+    {
+        ContentItems = null;
+        MoveToContent = null;
+        LastContentIndex = null;
+        PendingReplayIndex = null;
+    }
+
+    internal void Clear()
+    {
+        ClearContentStep();
+        AnswererIndicies.Clear();
+        AreMultipleAnswerers = false;
+        AnswerOptions = null;
+        UsedAnswerOptions.Clear();
+        LayoutShown = false;
+        AnswerOptionsShown = false;
+        ScreenContentSequence = null;
+        HiddenStakes = false;
+        MediaContentCompletions.Clear();
+        Validations.Clear();
+        IsAnswer = false;
+        RightAnswers = Array.Empty<string>();
+        IsAnswerAnnounced = false;
+        IsAnswerSimple = false;
+        UseButtons = false;
+        AppellationState = AppellationState.None;
+        Appellations.Clear();
+        AppellationIndex = 0;
+        AnswerType = AnswerType.Text;
+        AnswerDeviation = 0;
+        AnswerDuration = null;
+        FlexiblePrice = false;
+        QuestionKey = "";
+        CollectMediaCompletions = false;
+        UsedWrongVersions.Clear();
+    }
+
+    internal void RemovePlayer(int playerIndex)
+    {
+        Validations.RemoveAll(validation => validation.PlayerIndex == playerIndex);
+
+        foreach (var validation in Validations)
+        {
+            if (validation.PlayerIndex > playerIndex)
+            {
+                validation.PlayerIndex--;
+            }
+        }
+
+        if (!AnswererIndicies.Any(index => index >= playerIndex))
+        {
+            return;
+        }
+
+        var answererIndices = AnswererIndicies.ToArray();
+        AnswererIndicies.Clear();
+
+        for (int i = 0; i < answererIndices.Length; i++)
+        {
+            if (answererIndices[i] == playerIndex)
+            {
+                continue;
+            }
+            else if (answererIndices[i] > playerIndex)
+            {
+                AnswererIndicies.Add(answererIndices[i] - 1);
+            }
+            else
+            {
+                AnswererIndicies.Add(answererIndices[i]);
+            }
+        }
+    }
+
+    internal void SetSingleAnswerer(int index)
+    {
+        AnswererIndicies.Clear();
+        AnswererIndicies.Add(index);
+        AreMultipleAnswerers = false;
+    }
+
+    internal void SetMultipleAnswerers(IEnumerable<int> answerers)
+    {
+        AnswererIndicies.Clear();
+
+        foreach (var item in answerers)
+        {
+            AnswererIndicies.Add(item);
+        }
+
+        AreMultipleAnswerers = true;
+    }
+}

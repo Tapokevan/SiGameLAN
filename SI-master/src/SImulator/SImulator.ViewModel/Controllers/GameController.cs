@@ -1,0 +1,442 @@
+﻿using SICore;
+using SICore.Models;
+using SIData;
+using SIEngine.Rules;
+using SImulator.ViewModel.Model;
+using SImulator.ViewModel.Properties;
+using SIPackages;
+using SIPackages.Core;
+using SIUI.Model;
+using System.Diagnostics;
+
+namespace SImulator.ViewModel.Controllers;
+
+/// <summary>
+/// Provides new version of game controller.
+/// </summary>
+internal sealed class GameController : IPersonController
+{
+    private static readonly bool _fastMoving = true;
+
+    public GameViewModel GameViewModel { get; set; } = null!;
+
+    private readonly PersonActions _actions;
+
+    public GameController(PersonActions actions) => _actions = actions;
+
+    public bool CanSwitchType => false;
+
+    public void OnInfo(PersonAccount showman, ICollection<PlayerAccount> players, ICollection<ViewerAccount> viewers)
+    {
+        GameViewModel.ClearPlayers.Execute(null);
+
+        foreach (var player in players)
+        {
+            GameViewModel.AddPlayerCore(new PlayerInfo
+            {
+                Name = player.Name
+            });
+        }
+    }
+
+    public void AddPlayer(PlayerAccount account)
+    {
+        GameViewModel.AddPlayerCore(new PlayerInfo
+        {
+            Name = account.Name
+        });
+    }
+
+    public void RemovePlayerAt(int index) => GameViewModel.RemovePlayerCore(GameViewModel.Players[index]);
+
+    public void AddLog(string message)
+    {
+        Trace.TraceInformation(message);
+    }
+
+    public void OnRoundNames(string[] roundNames) => GameViewModel.OnRoundNames(roundNames);
+
+    public void OnRoundComments(string comments) { }
+
+    public void OnThemeComments(string comments) => GameViewModel.PresentationController.OnThemeComments(comments);
+
+    public void OnQuestionSelected(int themeIndex, int questionIndex) => GameViewModel.OnQuestionSelected(themeIndex, questionIndex);
+
+    public void OnContent(string placement, List<ContentInfo> content)
+    {
+        GameViewModel.OnContentStart();
+        GameViewModel.PresentationController.OnContentStart();
+
+        switch (placement)
+        {
+            case ContentPlacements.Screen:
+                var contentItems = content.Select(ci => new ContentItem
+                {
+                    Type = ci.Type,
+                    Value = ci.Type == ContentTypes.Text ? ci.Uri : "",
+                    IsRef = true,
+                    Placement = ContentPlacements.Screen
+                }).ToList();
+
+                GameViewModel.ContentItems = contentItems;
+                GameViewModel.ActiveMediaCommand = null;
+                GameViewModel.DecisionMode = DecisionMode.None;
+
+                GameViewModel.PresentationController.OnQuestionContent(contentItems, TryGetMediaUri, "");
+                break;
+        }
+    }
+
+    private string? TryGetMediaUri(ContentItem contentItem) => contentItem.Value;
+
+    public void ClearSelections(bool full = false)
+    {
+        
+    }
+
+    public void DeleteTheme() => GameViewModel.PresentationController.DeletionCallback = _actions.DeleteTheme;
+
+    public void EndThink()
+    {
+        throw new NotImplementedException();
+    }
+
+    public void EndTry(string text)
+    {
+        GameViewModel.PresentationController.StopTimer();
+
+        if (text == "A")
+        {
+            GameViewModel.PresentationController.NoAnswer();
+        }
+    }
+
+    public void FinalThink()
+    {
+        GameViewModel.IsCommonPrice = false;
+        GameViewModel.QuestionForAll = true;
+        GameViewModel.AskAnswerDirect();
+        GameViewModel.State = QuestionState.Thinking;
+    }
+
+    public void OnGameThemes(IEnumerable<string> themes) => GameViewModel.OnGameThemes(themes);
+
+    public void IsRight(string name, bool voteForRight, string answer)
+    {
+        
+    }
+
+    public void MakeStake()
+    {
+        
+    }
+
+    public void OnPauseChanged(bool isPaused)
+    {
+
+    }
+
+    public void OnPersonApellated(int playerIndex)
+    {
+        throw new NotImplementedException();
+    }
+
+    public void OnPersonFinalAnswer(int playerIndex)
+    {
+        throw new NotImplementedException();
+    }
+
+    public void OnPersonFinalStake(int playerIndex) { }
+
+    public void OnPersonPass(int playerIndex)
+    {
+        throw new NotImplementedException();
+    }
+
+    public void OnPlayerOutcome(int playerIndex, bool isRight)
+    {
+        throw new NotImplementedException();
+    }
+
+    public void OnPlayerAnswer(int playerIndex, string answer)
+    {
+        GameViewModel.ShowmanReplic = $"{GameViewModel.Players[playerIndex].Name}: {answer}";
+    }
+
+    public void OnReplic(string personCode, string text)
+    {
+        if (personCode == "s")
+        {
+            GameViewModel.ShowmanReplic = text;
+        }
+    }
+
+    public void OnShowmanReplic(int messageIndex, MessageCode messageCode, params string[] args)
+    {
+        switch (messageCode)
+        {
+            case MessageCode.SelectQuestion:
+                GameViewModel.ShowmanReplic = $"{(args.Length > 0 ? args[0] + ": " : "")}{Resources.ChooseQuest}";
+                break;
+
+            case MessageCode.SelectPlayer:
+                GameViewModel.ShowmanReplic = $"{(args.Length > 0 ? args[0] + ": " : "")}{Resources.SelectPlayer}";
+                break;
+
+            case MessageCode.Theme:
+                GameViewModel.ShowmanReplic = $"{Resources.Theme}: {(args.Length > 0 ? args[0] : "")}";
+                break;
+
+            case MessageCode.ThemeDeletes:
+                MoveWhenFast();
+                break;
+
+            default:
+                GameViewModel.ShowmanReplic = messageCode.ToString();
+                break;
+        }
+    }
+
+    public void OnPackageAuthors(IEnumerable<string> authors)
+    {
+        GameViewModel.ShowmanReplic = $"{Resources.PackageAuthors}: {string.Join(", ", authors)}";
+    }
+
+    public void OnPackage(string packageName, string? logoUri)
+    {
+        MediaInfo? packageLogo = logoUri != null ? new MediaInfo(logoUri) : null;
+        GameViewModel.OnPackage(packageName, packageLogo);
+    }
+
+    public void OnPackageComments(string comments)
+    {
+        GameViewModel.ShowmanReplic = $"{Resources.PackageComments}: {comments}";
+    }
+
+    public void OnPackageRestrictions(string restrictions)
+    {
+        MoveWhenFast();
+    }
+
+    public void OnQuestionStart(string typeName, bool isDefaultType)
+    {
+        GameViewModel.StartButtons(); // Buttons are activated in advance for false starts to work
+
+        if (isDefaultType)
+        {
+            return;
+        }
+
+        GameViewModel.OnQuestionType(typeName, isDefaultType);
+    }
+
+    public void OnQuestionEnd() 
+    {
+        GameViewModel.ContentItems = [];
+    }
+
+    public void OnRightAnswer(string answer)
+    {
+        GameViewModel.State = QuestionState.Normal;
+        GameViewModel.OnRightAnswer();
+        GameViewModel.PresentationController.OnSimpleRightAnswer(answer);
+    }
+
+    public void OnRightAnswerStart(string answer)
+    {
+        GameViewModel.State = QuestionState.Normal;
+        GameViewModel.OnRightAnswer();
+        GameViewModel.PresentationController.OnComplexRightAnswer(answer);
+    }
+
+    public void RoundThemes(List<string> themes, ThemesPlayMode playMode) 
+    {
+        if (playMode == ThemesPlayMode.OneByOne)
+        {
+            GameViewModel.OnRoundThemes(themes);
+        }
+        else if (playMode == ThemesPlayMode.AllTogether)
+        {
+            GameViewModel.OnFinalThemes(themes);
+        }
+    }
+
+    public void OnSelectPlayer(SelectPlayerReason reason)
+    {
+        GameViewModel.PresentationController.PlayerSelectionCallback = _actions.SelectPlayer;
+
+        switch (reason)
+        {
+            case SelectPlayerReason.Chooser:
+                GameViewModel.OnSelectChooser();
+                break;
+            
+            case SelectPlayerReason.Staker:
+                break;
+            
+            case SelectPlayerReason.Deleter:
+                GameViewModel.DecisionMode = DecisionMode.SelectDeleter;
+                break;
+            
+            case SelectPlayerReason.Answerer:
+                break;
+            
+            default:
+                break;
+        }
+    }
+
+    public void OnTheme(string themeName, string themeComments, int questionCount, bool animate)
+    {
+        GameViewModel.ShowmanReplic = Resources.RoundThemes;
+        GameViewModel.LocalInfo.Text = themeName;
+        GameViewModel.LocalInfo.TStage = SIUI.ViewModel.TableStage.Theme;
+        GameViewModel.PresentationController.SetTheme(themeName, animate);
+    }
+
+    public void OnTimeChanged()
+    {
+        throw new NotImplementedException();
+    }
+
+    public void OnTimerChanged(int timerIndex, string timerCommand, string arg, string? person = null)
+    {
+        if (timerIndex == 1 && timerCommand == "MAXTIME" && int.TryParse(arg, out var maxTime))
+        {
+            GameViewModel.QuestionTimeMax = maxTime / 10;
+            return;
+        }
+
+        switch (timerIndex)
+        {
+            case 0:
+                if (timerCommand == "GO")
+                {
+                    GameViewModel.RunRoundTimer.Execute(0);
+                }
+
+                break;
+
+            case 1:
+                if (timerCommand == "GO" && int.TryParse(arg, out var pressTime))
+                {
+                    GameViewModel.RunQuestionTimerNew(pressTime / 10);
+                }
+                else if (timerCommand == "STOP")
+                {
+                    GameViewModel.StopQuestionTimerNew();
+                }
+
+                break;
+
+            case 2:
+                if (timerCommand == "GO" && int.TryParse(arg, out var thinkTime))
+                {
+                    GameViewModel.RunThinkingTimer(thinkTime / 10); return;
+                }
+                else if (timerCommand == "STOP")
+                {
+                    GameViewModel.StopThinkingTimer();
+                }
+
+                break;
+        }
+    }
+
+    public void Out(int themeIndex) => GameViewModel.OnThemeDeleted(themeIndex);
+
+    public void PrintGreeting()
+    {
+        throw new NotImplementedException();
+    }
+
+    public void ReceiveText(Message m)
+    {
+        throw new NotImplementedException();
+    }
+
+    public void Resume()
+    {
+        throw new NotImplementedException();
+    }
+
+    public void SelectQuestion() => GameViewModel.PresentationController.AskToSelectQuestion();
+
+    public void ShowTablo()
+    {
+        GameViewModel.PresentationController.SelectionCallback = (themeIndex, questionIndex) =>
+        {
+            _actions.SelectQuestion(themeIndex, questionIndex);
+        };
+
+        GameViewModel.PresentationController.SetRoundTable();
+        GameViewModel.LocalInfo.TStage = SIUI.ViewModel.TableStage.RoundTable;
+        GameViewModel.ShowmanReplic = "";
+    }
+
+    public void OnStage(bool informOnly, GameStage stage, string stageName, int stageIndex, QuestionSelectionStrategyType? questionSelectionStrategyType)
+    {
+        GameViewModel.ShowmanReplic = "";
+
+        if (stage != GameStage.Round || questionSelectionStrategyType == null)
+        {
+            return;
+        }
+
+        GameViewModel.OnRound(stageName, questionSelectionStrategyType.Value);
+    }
+
+    private void MoveWhenFast()
+    {
+        if (_fastMoving)
+        {
+            _actions.Move();
+        }
+    }
+
+    public void StopRound()
+    {
+
+    }
+
+    public void TableLoaded(List<ThemeInfo> table) => GameViewModel.LoadTable(table, true);
+
+    public void TimeOut()
+    {
+
+    }
+
+    public void UpdatePicture(Account account, string path)
+    {
+        throw new NotImplementedException();
+    }
+
+    public void ValidateAnswer(int playerIndex, string answer)
+    {
+        throw new NotImplementedException();
+    }
+
+    public void Try(bool questionNotFinished)
+    {
+        GameViewModel.AskAnswerButton();
+        GameViewModel.StartQuestionTimer();
+    }
+
+    public void OnQuestionAnswers(string[] right, string[] wrong)
+    {
+        GameViewModel.QuestionAnswers = right;
+    }
+
+    public void OnChooserSelected(int index, bool setActive, bool manually, bool announce, bool initial)
+    {
+        if (initial)
+        {
+            MoveWhenFast();
+        }
+    }
+
+    public void OnToggle(int themeIndex, int questionIndex, int price)
+    {
+        GameViewModel.LocalInfo.RoundInfo[themeIndex].Questions[questionIndex].Price = price;
+    }
+}

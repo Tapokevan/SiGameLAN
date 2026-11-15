@@ -1,0 +1,22 @@
+html, body, #reactHost {
+	height: 100%;
+}
+
+body {
+	margin: 0;
+	font-family: Arial, Helvetica, sans-serif;
+}
+
+.replicAndTable {
+	height: 100%;
+	display: flex;
+	flex-direction: row;
+}
+
+.showmanReplic {
+	opacity: 1 !important;
+}
+
+#table {
+	flex: 4 !important;
+}

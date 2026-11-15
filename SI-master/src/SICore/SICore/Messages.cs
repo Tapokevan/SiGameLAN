@@ -1,0 +1,793 @@
+﻿using SICore.Attributes;
+
+namespace SICore;
+
+/// <summary>
+/// Defines well-known game messages.
+/// </summary>
+public static class Messages
+{
+    /// <summary>
+    /// Согласие на подключение
+    /// </summary>
+    public const string Accepted = "ACCEPTED";
+
+    /// <summary>
+    /// Реклама
+    /// </summary>
+    public const string Ads = "ADS";
+
+    /// <summary>
+    /// Ответ
+    /// </summary>
+    public const string Answer = "ANSWER";
+
+    /// <summary>
+    /// Defines acceptable deviation for number answers.
+    /// </summary>
+    public const string AnswerDeviation = "ANSWER_DEVIATION";
+
+    /// <summary>
+    /// Contains all players answers.
+    /// </summary>
+    public const string Answers = "ANSWERS";
+
+    /// <summary>
+    /// Answer version. Denotes a preliminary answer printed by player.
+    /// </summary>
+    public const string AnswerVersion = "ANSWER_VERSION";
+
+    /// <summary>
+    /// Требование апелляции
+    /// </summary>
+    public const string Apellate = "APELLATE";
+
+    /// <summary>
+    /// Marks apellation option flag.
+    /// </summary>
+    [IdempotencyRequired]
+    [Obsolete("Use Options")]
+    public const string ApellationEnabled = "APELLATION_ENABLES";
+
+    /// <summary>
+    /// Defines appellation current status.
+    /// </summary>
+    public const string Appellation = "APPELLATION";
+
+    /// <summary>
+    /// Defines arena mode.
+    /// </summary>
+    public const string ArenaMode = "ARENA_MODE";
+
+    /// <summary>
+    /// Asks for game review.
+    /// </summary>
+    public const string AskReview = "ASK_REVIEW";
+
+    /// <summary>
+    /// Asks to select a player.
+    /// </summary>
+    public const string AskSelectPlayer = "ASK_SELECT_PLAYER";
+
+    /// <summary>
+    /// Asks to select a theme.
+    /// </summary>
+    public const string AskSelectTheme = "ASK_SELECT_THEME";
+
+    /// <summary>
+    /// Asks to make a stake.
+    /// </summary>
+    public const string AskStake = "ASK_STAKE";
+
+    /// <summary>
+    /// Asks to validate player's answer.
+    /// </summary>
+    public const string AskValidate = "ASK_VALIDATE";
+
+    /// <summary>
+    /// Notifies the game that the client has completed viewing the media content.
+    /// </summary>
+    [Obsolete("Use MediaCompleted")]
+    public const string Atom = "ATOM";
+
+    /// <summary>
+    /// Small hint fragment. Displayed separately from the main content.
+    /// </summary>
+    public const string Atom_Hint = "ATOM_HINT";
+
+    /// <summary>
+    /// Person's avatar.
+    /// </summary>
+    [IdempotencyRequired]
+    public const string Avatar = "AVATAR";
+
+    /// <summary>
+    /// Забанить участника
+    /// </summary>
+    public const string Ban = "BAN";
+
+    /// <summary>
+    /// Person has been banned.
+    /// </summary>
+    public const string Banned = "BANNED";
+
+    /// <summary>
+    /// List of banned persons.
+    /// </summary>
+    [IdempotencyRequired]
+    public const string BannedList = "BANNEDLIST";
+
+    /// <summary>
+    /// Время блокировки Игровой кнопки
+    /// </summary>
+    [IdempotencyRequired]
+    [Obsolete("Use Options")]
+    public const string ButtonBlockingTime = "BUTTON_BLOCKING_TIME";
+
+    /// <summary>
+    /// Отмена ожидания решения
+    /// </summary>
+    public const string Cancel = "CANCEL";
+
+    /// <summary>
+    /// Изменение суммы участника
+    /// </summary>
+    public const string Change = "CHANGE";
+
+    /// <summary>
+    /// Выбор вопроса
+    /// </summary>
+    public const string Choice = "CHOICE";
+
+    /// <summary>
+    /// Сделанный выбор вопроса
+    /// </summary>
+    public const string Choose = "CHOOSE";
+
+    /// <summary>
+    /// Default computer players.
+    /// </summary>
+    [IdempotencyRequired]
+    public const string ComputerAccounts = "COMPUTERACCOUNTS";
+
+    /// <summary>
+    /// Изменение конфигурации игры
+    /// </summary>
+    public const string Config = "CONFIG";
+
+    /// <summary>
+    /// Подключение к серверу
+    /// </summary>
+    [Obsolete("Remove after switching to SIGame 8")]
+    public const string Connect = "CONNECT";
+
+    /// <summary>
+    /// К игре подключился новый участник
+    /// </summary>
+    public const string Connected = "CONNECTED";
+
+    /// <summary>
+    /// Table content.
+    /// </summary>
+    public const string Content = "CONTENT";
+
+    /// <summary>
+    /// Table content.
+    /// </summary>
+    public const string Content2 = "CONTENT2";
+
+    /// <summary>
+    /// Appends content to existing table content.
+    /// </summary>
+    public const string ContentAppend = "CONTENT_APPEND";
+
+    /// <summary>
+    /// Defines content shape without
+    /// </summary>
+    public const string ContentShape = "CONTENT_SHAPE";
+
+    /// <summary>
+    /// Updates content state.
+    /// </summary>
+    public const string ContentState = "CONTENT_STATE";
+
+    /// <summary>
+    /// Удаление темы
+    /// </summary>
+    public const string Delete = "DELETE";
+
+    /// <summary>
+    /// Участник отключился от игры
+    /// </summary>
+    public const string Disconnected = "DISCONNECTED";
+
+    /// <summary>
+    /// Нельзя нажимать на кнопку
+    /// </summary>
+    public const string EndTry = "ENDTRY";
+
+    /// <summary>
+    /// Фальстарты
+    /// </summary>
+    [IdempotencyRequired]
+    [Obsolete]
+    public const string FalseStart = "FALSESTART";
+
+    /// <summary>
+    /// Начало размышления над финальным вопросом
+    /// </summary>
+    public const string FinalThink = "FINALTHINK";
+
+    /// <summary>
+    /// Информация о том, кто будет первым удалять тему в финале
+    /// </summary>
+    [Obsolete("Use AskSelectPlayer")]
+    public const string FirstDelete = "FIRSTDELETE";
+
+    /// <summary>
+    /// Информация о том, кто будет первым делать ставку
+    /// </summary>
+    [Obsolete("Use AskSelectPlayer")]
+    public const string FirstStake = "FIRSTSTAKE";
+
+    /// <summary>
+    /// Передача идентификатора игры для подключения
+    /// </summary>
+    public const string Game = "GAME";
+
+    /// <summary>
+    /// Defines a game-level error.
+    /// </summary>
+    public const string GameError = "GAME_ERROR";
+
+    /// <summary>
+    /// Информация об игре для внешнего наблюдателя
+    /// </summary>
+    [Obsolete("Remove after switching to SIGame 8")]
+    public const string GameInfo = "GAMEINFO";
+
+    /// <summary>
+    /// Game metadata: game name, package name, contact uri.
+    /// </summary>
+    [IdempotencyRequired]
+    public const string GameMetadata = "GAMEMETADATA";
+
+    /// <summary>
+    /// Game statistics.
+    /// </summary>
+    public const string GameStatistics = "GAME_STATISTICS";
+
+    /// <summary>
+    /// Темы всей игры
+    /// </summary>
+    public const string GameThemes = "GAMETHEMES";
+
+    /// <summary>
+    /// Подсказка ведущему
+    /// </summary>
+    [Obsolete]
+    public const string Hint = "HINT";
+
+    /// <summary>
+    /// Имя хоста
+    /// </summary>
+    [IdempotencyRequired]
+    public const string Hostname = "HOSTNAME";
+
+    /// <summary>
+    /// Нажатие на кнопку
+    /// </summary>
+    public const string I = "I";
+
+    /// <summary>
+    /// Информация об игре и её участниках
+    /// </summary>
+    public const string Info = "INFO";
+
+    /// <summary>
+    /// Информация об игре и её участниках (расширенная)
+    /// </summary>
+    [IdempotencyRequired]
+    public const string Info2 = "INFO2";
+
+    /// <summary>
+    /// Верен ли ответ участника
+    /// </summary>
+    public const string IsRight = "ISRIGHT";
+
+    /// <summary>
+    /// Выгнать участника
+    /// </summary>
+    [Obsolete("Use Ban instead")]
+    public const string Kick = "KICK";
+
+    /// <summary>
+    /// Table layout.
+    /// </summary>
+    public const string Layout = "LAYOUT";
+
+    /// <summary>
+    /// Game leaderboard.
+    /// </summary>
+    public const string Leaderboard = "LEADERBOARD";
+
+    /// <summary>
+    /// Пометить вопрос
+    /// </summary>
+    public const string Mark = "MARK";
+
+    /// <summary>
+    /// Notifies the game that the client has completed viewing the media content.
+    /// </summary>
+    public const string MediaCompleted = "MEDIA_COMPLETED";
+
+    /// <summary>
+    /// Notifies that the client has loaded the media.
+    /// </summary>
+    public const string MediaLoaded = "MEDIALOADED";
+
+    /// <summary>
+    /// Notifies about media preload progress.
+    /// </summary>
+    public const string MediaPreloadProgress = "MEDIA_PRELOAD_PROGRESS";
+
+    /// <summary>
+    /// Сменить состояние игры
+    /// </summary>
+    public const string Move = "MOVE";
+
+    /// <summary>
+    /// Game options.
+    /// </summary>
+    [IdempotencyRequired]
+    public const string Options2 = "OPTIONS2";
+
+    /// <summary>
+    /// Informs the player that they must provide an oral answer.
+    /// </summary>
+    public const string OralAnswer = "ORAL_ANSWER";
+
+    /// <summary>
+    /// Удалена финальная тема
+    /// </summary>
+    public const string Out = "OUT";
+
+    /// <summary>
+    /// Package info.
+    /// </summary>
+    public const string Package = "PACKAGE";
+
+    /// <summary>
+    /// Authors of the package (if any).
+    /// </summary>
+    public const string PackageAuthors = "PACKAGE_AUTHORS";
+
+    /// <summary>
+    /// Comments of the package (if any).
+    /// </summary>
+    public const string PackageComments = "PACKAGE_COMMENTS";
+
+    /// <summary>
+    /// Package creation date.
+    /// </summary>
+    public const string PackageDate = "PACKAGE_DATE";
+
+    /// <summary>
+    /// Идентификатор пакета
+    /// </summary>
+    public const string PackageId = "PACKAGEID";
+
+    /// <summary>
+    /// Package restrictions.
+    /// </summary>
+    public const string PackageRestrictions = "PACKAGE_RESTRICTIONS";
+
+    /// <summary>
+    /// Sources of the package (if any).
+    /// </summary>
+    public const string PackageSources = "PACKAGE_SOURCES";
+
+    /// <summary>
+    /// Player passed.
+    /// </summary>
+    public const string Pass = "PASS";
+
+    /// <summary>
+    /// Пауза в игре
+    /// </summary>
+    public const string Pause = "PAUSE";
+
+    /// <summary>
+    /// Информация об ответе игрока
+    /// </summary>
+    public const string Person = "PERSON";
+
+    /// <summary>
+    /// Игрок принял решение по апелляции
+    /// </summary>
+    [Obsolete("Use PlayerState instead")]
+    public const string PersonApellated = "PERSONAPELLATED";
+
+    /// <summary>
+    /// Игрок ответил в финале
+    /// </summary>
+    [Obsolete("Use PlayerState instead")]
+    public const string PersonFinalAnswer = "PERSONFINALANSWER";
+
+    /// <summary>
+    /// Игрок сделал ставку в финале
+    /// </summary>
+    public const string PersonFinalStake = "PERSONFINALSTAKE";
+
+    /// <summary>
+    /// Ставка игрока
+    /// </summary>
+    public const string PersonStake = "PERSONSTAKE";
+
+    /// <summary>
+    /// Asks or receives game PIN.
+    /// </summary>
+    public const string Pin = "PIN";
+
+    /// <summary>
+    /// Displays player's answer to the question.
+    /// </summary>
+    public const string PlayerAnswer = "PLAYER_ANSWER";
+
+    /// <summary>
+    /// Player started appellating.
+    /// </summary>
+    public const string PlayerAppellating = "PLAYER_APPELLATING";
+
+    /// <summary>
+    /// Notifies about player count.
+    /// </summary>
+    public const string PlayerCount = "PLAYER_COUNT";
+
+    /// <summary>
+    /// Notifies about player score change.
+    /// </summary>
+    public const string PlayerScoreChanged = "PLAYER_SCORE_CHANGED";
+
+    /// <summary>
+    /// Sets player state.
+    /// </summary>
+    public const string PlayerState = "PLAYER_STATE";
+
+    /// <summary>
+    /// Тип вопроса
+    /// </summary>
+    public const string QType = "QTYPE";
+
+    /// <summary>
+    /// Вопрос
+    /// </summary>
+    public const string Question = "QUESTION";
+
+    /// <summary>
+    /// Question right and wrong answers.
+    /// </summary>
+    public const string QuestionAnswers = "QUESTION_ANSWERS";
+
+    /// <summary>
+    /// Authors of the question (if any).
+    /// </summary>
+    public const string QuestionAuthors = "QUESTION_AUTHORS";
+
+    /// <summary>
+    /// Заголовок вопроса
+    /// </summary>
+    public const string QuestionCaption = "QUESTIONCAPTION";
+
+    /// <summary>
+    /// Comments for the question (if any).
+    /// </summary>
+    public const string QuestionComments = "QUESTION_COMMENTS";
+
+    /// <summary>
+    /// Represents a question sequential index in round.
+    /// </summary>
+    public const string QuestionCounter = "QUESTION_COUNTER";
+
+    /// <summary>
+    /// Question has ended.
+    /// </summary>
+    public const string QuestionEnd = "QUESTION_END";
+
+    /// <summary>
+    /// Question possible price range.
+    /// </summary>
+    public const string QuestionPriceRange = "QUESTION_PRICE_RANGE";
+
+    /// <summary>
+    /// Sources of the question (if any).
+    /// </summary>
+    public const string QuestionSources = "QUESTION_SOURCES";
+
+    /// <summary>
+    /// Готовность к игре
+    /// </summary>
+    public const string Ready = "READY";
+
+    /// <summary>
+    /// Реплика игры/участника
+    /// </summary>
+    public const string Replic = "REPLIC";
+
+    /// <summary>
+    /// Продолжить отыгрыш атома сценария
+    /// </summary>
+    public const string Resume = "RESUME";
+
+    /// <summary>
+    /// Правильный ответ (простой)
+    /// </summary>
+    public const string RightAnswer = "RIGHTANSWER";
+
+    /// <summary>
+    /// Notifies about complex answer start.
+    /// </summary>
+    public const string RightAnswerStart = "RIGHT_ANSWER_START";
+
+    /// <summary>
+    /// Authors of the round (if any).
+    /// </summary>
+    public const string RoundAuthors = "ROUND_AUTHORS";
+
+    /// <summary>
+    /// Comments of the round (if any).
+    /// </summary>
+    public const string RoundComments = "ROUND_COMMENTS";
+
+    /// <summary>
+    /// Round media content links.
+    /// </summary>
+    public const string RoundContent = "ROUNDCONTENT";
+
+    /// <summary>
+    /// Notifies about round end.
+    /// </summary>
+    public const string RoundEnd = "ROUND_END";
+
+    /// <summary>
+    /// Package rounds names. Only rounds with at least one question are taken into account.
+    /// </summary>
+    [IdempotencyRequired]
+    public const string RoundsNames = "ROUNDSNAMES";
+
+    /// <summary>
+    /// Sources of the round (if any).
+    /// </summary>
+    public const string RoundSources = "ROUND_SOURCES";
+
+    /// <summary>
+    /// Round themes names.
+    /// </summary>
+    [IdempotencyRequired]
+    [Obsolete]
+    public const string RoundThemes = "ROUNDTHEMES";
+
+    /// <summary>
+    /// Round themes names.
+    /// </summary>
+    [IdempotencyRequired]
+    [Obsolete]
+    public const string RoundThemes2 = "ROUND_THEMES2";
+
+    /// <summary>
+    /// Round themes comments.
+    /// </summary>
+    [IdempotencyRequired]
+    public const string RoundThemesComments = "ROUND_THEMES_COMMENTS";
+
+    /// <summary>
+    /// Viewer takes showman or player seat.
+    /// </summary>
+    public const string Seat = "SEAT";
+
+    /// <summary>
+    /// Select theme by index.
+    /// </summary>
+    public const string SelectTheme = "SELECT_THEME";
+
+    /// <summary>
+    /// Select player.
+    /// </summary>
+    public const string SelectPlayer = "SELECT_PLAYER";
+
+    /// <summary>
+    /// Gives move to player.
+    /// </summary>
+    public const string SetChooser = "SETCHOOSER";
+
+    /// <summary>
+    /// Set person as host.
+    /// </summary>
+    public const string SetHost = "SETHOST";
+
+    /// <summary>
+    /// Set game join mode.
+    /// </summary>
+    public const string SetJoinMode = "SETJOINMODE";
+
+    /// <summary>
+    /// Set game options.
+    /// </summary>
+    public const string SetOptions = "SET_OPTIONS";
+
+    /// <summary>
+    /// Sets stake.
+    /// </summary>
+    public const string SetStake = "SET_STAKE";
+
+    /// <summary>
+    /// Defines comments for showman (hidden comments).
+    /// </summary>
+    public const string ShowmanComments = "SHOWMAN_COMMENTS";
+
+    /// <summary>
+    /// Defines localizable showman replic.
+    /// </summary>
+    public const string ShowmanReplic = "SHOWMAN_REPLIC";
+
+    /// <summary>
+    /// Показать табло
+    /// </summary>
+    public const string ShowTable = "SHOWTABLO";
+
+    /// <summary>
+    /// Изменилась стадия игры
+    /// </summary>
+    public const string Stage = "STAGE";
+
+    /// <summary>
+    /// Lightweight version of stage info (does not require to be announced).
+    /// </summary>
+    public const string StageInfo = "STAGE_INFO";
+
+    /// <summary>
+    /// Начать игру
+    /// </summary>
+    public const string Start = "START";
+
+    /// <summary>
+    /// Остановить раунд
+    /// </summary>
+    public const string Stop = "STOP";
+
+    /// <summary>
+    /// Stops question play.
+    /// </summary>
+    public const string StopPlay = "STOP_PLAY";
+
+    /// <summary>
+    /// Фоновая картинка студии
+    /// </summary>
+    public const string Studia = "STUDIA";
+
+    /// <summary>
+    /// Информация о суммах участников
+    /// </summary>
+    public const string Sums = "SUMS";
+
+    /// <summary>
+    /// Contains information about round table cells.
+    /// </summary>
+    [IdempotencyRequired]
+    public const string Table = "TABLO2";
+
+    /// <summary>
+    /// Форма текста
+    /// </summary>
+    [Obsolete("Use ContentShape")]
+    public const string TextShape = "TEXTSHAPE";
+
+    /// <summary>
+    /// Current theme.
+    /// </summary>
+    public const string Theme = "THEME";
+
+    /// <summary>
+    /// Current theme (temporary copy of <see cref="Theme" />).
+    /// </summary>
+    public const string Theme2 = "THEME2";
+
+    /// <summary>
+    /// Theme comments.
+    /// </summary>
+    [Obsolete("Use RoundThemesComments")]
+    public const string ThemeComments = "THEME_COMMENTS";
+
+    /// <summary>
+    /// Theme info.
+    /// </summary>
+    public const string ThemeInfo = "THEME_INFO";
+
+    /// <summary>
+    /// Изменения таймера
+    /// </summary>
+    [IdempotencyRequired]
+    public const string Timer = "TIMER";
+
+    /// <summary>
+    /// Game start timer.
+    /// </summary>
+    public const string TimerGameStart = "TIMER_GAME_START";
+
+    /// <summary>
+    /// Время вышло
+    /// </summary>
+    [Obsolete("Use RoundEnd instead")]
+    public const string Timeout = "TIMEOUT";
+
+    /// <summary>
+    /// Toggles (removes or restores a question).
+    /// </summary>
+    public const string Toggle = "TOGGLE";
+
+    /// <summary>
+    /// Можно нажимать на кнопку
+    /// </summary>
+    public const string Try = "TRY";
+
+    /// <summary>
+    /// Unban a person.
+    /// </summary>
+    public const string Unban = "UNBAN";
+
+    /// <summary>
+    /// Person has been unbanned.
+    /// </summary>
+    public const string Unbanned = "UNBANNED";
+
+    /// <summary>
+    /// Defines a user-level error.
+    /// </summary>
+    public const string UserError = "USER_ERROR";
+
+    /// <summary>
+    /// Known external identity of a person: name, auth provider, external user id.
+    /// </summary>
+    public const string UserIdentity = "USER_IDENTITY";
+
+    /// <summary>
+    /// Answer validation decision.
+    /// </summary>
+    public const string Validate = "VALIDATE";
+
+    /// <summary>
+    /// Необходимо провалидировать ответ игрока
+    /// </summary>
+    public const string Validation = "VALIDATION";
+
+    /// <summary>
+    /// Answer validation.
+    /// </summary>
+    public const string Validation2 = "VALIDATION2";
+
+    /// <summary>
+    /// Победитель
+    /// </summary>
+    public const string Winner = "WINNER";
+
+    /// <summary>
+    /// Список неправильных ответов на вопрос
+    /// </summary>
+    public const string Wrong = "WRONG";
+
+    /// <summary>
+    /// Проиграл кнопку
+    /// </summary>
+    [Obsolete("Use PlayerState instead")]
+    public const string WrongTry = "WRONGTRY";
+
+    /// <summary>
+    /// Informs that the person has been kicked from the game.
+    /// </summary>
+    public const string YouAreKicked = "YOU_ARE_KICKED";
+
+    /// <summary>
+    /// Можно жать на кнопку
+    /// </summary>
+    public const string YouTry = "YOUTRY";
+}

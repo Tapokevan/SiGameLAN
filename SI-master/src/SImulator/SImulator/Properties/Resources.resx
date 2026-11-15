@@ -1,0 +1,741 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="About" xml:space="preserve">
+    <value>About</value>
+  </data>
+  <data name="AddPlayer" xml:space="preserve">
+    <value>Add player</value>
+  </data>
+  <data name="AddressToConnect" xml:space="preserve">
+    <value>Address to connect</value>
+  </data>
+  <data name="AddSum" xml:space="preserve">
+    <value>Add sum</value>
+  </data>
+  <data name="AddSumForActivePlayer" xml:space="preserve">
+    <value>Add to active player</value>
+  </data>
+  <data name="Alias" xml:space="preserve">
+    <value>Alias</value>
+  </data>
+  <data name="All" xml:space="preserve">
+    <value>(all)</value>
+  </data>
+  <data name="Answer" xml:space="preserve">
+    <value>Answer</value>
+  </data>
+  <data name="AnswererBackgroundColor" xml:space="preserve">
+    <value>Background color for the answering player</value>
+  </data>
+  <data name="AnswerOptions" xml:space="preserve">
+    <value>Answer options</value>
+  </data>
+  <data name="AppLanguage" xml:space="preserve">
+    <value>Application language (requires restart)</value>
+  </data>
+  <data name="AppName" xml:space="preserve">
+    <value>SImulator</value>
+  </data>
+  <data name="Audio" xml:space="preserve">
+    <value>Audio</value>
+  </data>
+  <data name="Author" xml:space="preserve">
+    <value>Author</value>
+  </data>
+  <data name="AuthorName" xml:space="preserve">
+    <value>Vladimir Khil</value>
+  </data>
+  <data name="AutomaticGame" xml:space="preserve">
+    <value>Automatic game management (without a host)</value>
+  </data>
+  <data name="Back" xml:space="preserve">
+    <value>Back</value>
+  </data>
+  <data name="BackgroundColor" xml:space="preserve">
+    <value>Background color</value>
+  </data>
+  <data name="BackgroundImage" xml:space="preserve">
+    <value>Background image</value>
+  </data>
+  <data name="BackgroundVideo" xml:space="preserve">
+    <value>Background video file</value>
+  </data>
+  <data name="ButtonBlockingTime" xml:space="preserve">
+    <value>Button lock time (s)</value>
+  </data>
+  <data name="ButtonOrderHint" xml:space="preserve">
+    <value>Matches positions of players in the list</value>
+  </data>
+  <data name="Buttons" xml:space="preserve">
+    <value>Buttons</value>
+  </data>
+  <data name="ButtonTypesCom" xml:space="preserve">
+    <value>COM port</value>
+  </data>
+  <data name="ButtonTypesExternal" xml:space="preserve">
+    <value>External</value>
+  </data>
+  <data name="ButtonTypesJoystick" xml:space="preserve">
+    <value>Joystick</value>
+  </data>
+  <data name="ButtonTypesKeyboard" xml:space="preserve">
+    <value>Keyboard</value>
+  </data>
+  <data name="ButtonTypesNone" xml:space="preserve">
+    <value>Do not use</value>
+  </data>
+  <data name="ButtonTypesWeb" xml:space="preserve">
+    <value>Web access</value>
+  </data>
+  <data name="ByDefault" xml:space="preserve">
+    <value>Default</value>
+  </data>
+  <data name="CharactersPerSecond" xml:space="preserve">
+    <value>characters per second</value>
+  </data>
+  <data name="ChoosePlayerToAnswer" xml:space="preserve">
+    <value>Select a player to answer</value>
+  </data>
+  <data name="ChoosePlayerToStart" xml:space="preserve">
+    <value>Select a player to start the game</value>
+  </data>
+  <data name="ClearList" xml:space="preserve">
+    <value>Clear list</value>
+  </data>
+  <data name="Comment" xml:space="preserve">
+    <value>Comment</value>
+  </data>
+  <data name="CommonAppError" xml:space="preserve">
+    <value>An error occurred in the application: {0}\r\n\r\nThe application will be closed. Please contact the developer.</value>
+  </data>
+  <data name="ComponentsLicenses" xml:space="preserve">
+    <value>Licenses of used components</value>
+  </data>
+  <data name="ComPortNumber" xml:space="preserve">
+    <value>COM port number</value>
+  </data>
+  <data name="Default" xml:space="preserve">
+    <value>(by default)</value>
+  </data>
+  <data name="Delete" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="Design" xml:space="preserve">
+    <value>Design</value>
+  </data>
+  <data name="DiskFullError" xml:space="preserve">
+    <value>Disk space is running out</value>
+  </data>
+  <data name="DropStatsOnBack" xml:space="preserve">
+    <value>Rollback statistics when stepping back</value>
+  </data>
+  <data name="DropStatsOnBackHint" xml:space="preserve">
+    <value>Clear players sums and counters of their correct and incorrect answers</value>
+  </data>
+  <data name="EndQuestionOnRightAnswer" xml:space="preserve">
+    <value>End the question on correct answer</value>
+  </data>
+  <data name="ErrorCannotReproduce" xml:space="preserve">
+    <value>This error is not reproducible. If you can reliably reproduce it, please contact the author.</value>
+  </data>
+  <data name="ErrorConnectionError" xml:space="preserve">
+    <value>Failed to connect to the server when sending the error report. The report will be sent later.</value>
+  </data>
+  <data name="ErrorFixed" xml:space="preserve">
+    <value>This error has been fixed in the new version of the program. Please update.</value>
+  </data>
+  <data name="ErrorSendConfirm" xml:space="preserve">
+    <value>An error occurred in the application: {0}
+The application will be closed. Send information to the developer?</value>
+  </data>
+  <data name="ExternalButtonsHint" xml:space="preserve">
+    <value>In this mode, buttons not connected to the program (independent devices, claps, etc.) are used. The program displays a frame when it is possible to press (during the game with false starts).</value>
+  </data>
+  <data name="FalseStartGame" xml:space="preserve">
+    <value>Game with false starts</value>
+  </data>
+  <data name="FalseStartGameHint" xml:space="preserve">
+    <value>When playing with false starts:
+question text is displayed on the screen;
+when using buttons to start the question timer, an additional press of the Next button is required, and a colored frame lights up on the screen"</value>
+  </data>
+  <data name="FalseStartMultimedia" xml:space="preserve">
+    <value>Multimedia with false starts</value>
+  </data>
+  <data name="FalseStartMultimediaHint" xml:space="preserve">
+    <value>Prevents pressing the button during multimedia file playback</value>
+  </data>
+  <data name="FileDeletionError" xml:space="preserve">
+    <value>Error deleting file: {0}</value>
+  </data>
+  <data name="FinalThinkingTime" xml:space="preserve">
+    <value>Final round thinking time (s)</value>
+  </data>
+  <data name="FinishGameQuestion" xml:space="preserve">
+    <value>Finish game?</value>
+  </data>
+  <data name="FontFamily" xml:space="preserve">
+    <value>Font</value>
+  </data>
+  <data name="Game" xml:space="preserve">
+    <value>Game</value>
+  </data>
+  <data name="GameButtons" xml:space="preserve">
+    <value>Game buttons</value>
+  </data>
+  <data name="GameModes_Sport" xml:space="preserve">
+    <value>Simplified</value>
+  </data>
+  <data name="GameModes_Quiz" xml:space="preserve">
+    <value>Quiz</value>
+  </data>
+  <data name="GameModes_TurnTaking" xml:space="preserve">
+    <value>Turn taking</value>
+  </data>
+  <data name="GameModes_Tv" xml:space="preserve">
+    <value>Classic</value>
+  </data>
+  <data name="GamePackage" xml:space="preserve">
+    <value>Game package</value>
+  </data>
+  <data name="GameRules" xml:space="preserve">
+    <value>Game rules</value>
+  </data>
+  <data name="GameType" xml:space="preserve">
+    <value>Game type</value>
+  </data>
+  <data name="GiveTurn" xml:space="preserve">
+    <value>Pass the turn</value>
+  </data>
+  <data name="GridColor" xml:space="preserve">
+    <value>Grid color</value>
+  </data>
+  <data name="Hide" xml:space="preserve">
+    <value>Hide</value>
+  </data>
+  <data name="HintBeforeStart" xml:space="preserve">
+    <value>Press the "Next" button to control the game progress</value>
+  </data>
+  <data name="HintGameThemes" xml:space="preserve">
+    <value>(Game themes)</value>
+  </data>
+  <data name="HintIntro" xml:space="preserve">
+    <value>(Splash screen)</value>
+  </data>
+  <data name="Html" xml:space="preserve">
+    <value>HTML</value>
+  </data>
+  <data name="Image" xml:space="preserve">
+    <value>Image</value>
+  </data>
+  <data name="IntroVideo" xml:space="preserve">
+    <value>Splash video file</value>
+  </data>
+  <data name="KeyboardDetachError" xml:space="preserve">
+    <value>Error completing keyboard listening</value>
+  </data>
+  <data name="KeyboardListeningError" xml:space="preserve">
+    <value>Error listening to the keyboard</value>
+  </data>
+  <data name="License" xml:space="preserve">
+    <value>License</value>
+  </data>
+  <data name="LicenseText" xml:space="preserve">
+    <value>All exclusive copyrights to the Software Product and its documentation in print and/or electronic form belong to the Author.
+
+The program is distributed free of charge.
+
+The User has the right to freely use and distribute this Program, place it on websites, and carry out other activities not prohibited by the legislation of their country of operation with it for any period of time, provided that the copyrights are preserved.
+
+The program is provided "as is". The Author does not provide any guarantees that the operation of the Program will meet the User's expectations. The Author is not obligated to fix the Program if such non-compliance occurs. The Author is not responsible for any damage caused by the use of this Program.
+
+By installing and using the Program, you automatically accept this Agreement. You may transfer the rights to use the Program to a third party subject to their agreement to this Agreement. If you do not agree with any term of this Agreement, you do not have the right to use this Program.</value>
+  </data>
+  <data name="LogsFolderNotFound" xml:space="preserve">
+    <value>The folder for logging "{0}" was not found.</value>
+  </data>
+  <data name="MainScreen" xml:space="preserve">
+    <value>Main</value>
+  </data>
+  <data name="MakeStake" xml:space="preserve">
+    <value>Make stake</value>
+  </data>
+  <data name="Name" xml:space="preserve">
+    <value>Name</value>
+  </data>
+  <data name="NavigateToSiteError" xml:space="preserve">
+    <value>An error occurred while navigating to the program website ({0}). Make sure you have your default browser configured: {1}</value>
+  </data>
+  <data name="Next" xml:space="preserve">
+    <value>Next</value>
+  </data>
+  <data name="NotSelected" xml:space="preserve">
+    <value>Not selected</value>
+  </data>
+  <data name="NotSet" xml:space="preserve">
+    <value>(not set)</value>
+  </data>
+  <data name="OldVersion" xml:space="preserve">
+    <value>old version</value>
+  </data>
+  <data name="Oral" xml:space="preserve">
+    <value>Oral</value>
+  </data>
+  <data name="OutOfMemoryError" xml:space="preserve">
+    <value>Not enough memory to run the program</value>
+  </data>
+  <data name="Pass" xml:space="preserve">
+    <value>Pass</value>
+  </data>
+  <data name="Pause" xml:space="preserve">
+    <value>Pause</value>
+  </data>
+  <data name="PlacementBackground" xml:space="preserve">
+    <value>Background</value>
+  </data>
+  <data name="PlacementOral" xml:space="preserve">
+    <value>Replica</value>
+  </data>
+  <data name="PlayContent" xml:space="preserve">
+    <value>Play content</value>
+  </data>
+  <data name="Players" xml:space="preserve">
+    <value>Players</value>
+  </data>
+  <data name="PlayersTable" xml:space="preserve">
+    <value>Player table</value>
+  </data>
+  <data name="PlaySounds" xml:space="preserve">
+    <value>Play sounds</value>
+  </data>
+  <data name="PlaySpecials" xml:space="preserve">
+    <value>Play special questions</value>
+  </data>
+  <data name="PresentationExitHint" xml:space="preserve">
+    <value>To exit, press Escape, right mouse button, or tap slightly with your finger</value>
+  </data>
+  <data name="PresentationTitle" xml:space="preserve">
+    <value>Game table</value>
+  </data>
+  <data name="PressButton" xml:space="preserve">
+    <value>Press the button</value>
+  </data>
+  <data name="PreviewImage" xml:space="preserve">
+    <value>Background image</value>
+  </data>
+  <data name="PreviousRound" xml:space="preserve">
+    <value>Previous round</value>
+  </data>
+  <data name="Price" xml:space="preserve">
+    <value>Price</value>
+  </data>
+  <data name="PriceFromToStep" xml:space="preserve">
+    <value>From {0} to {1} with step {2}</value>
+  </data>
+  <data name="PriceMinMaxRound" xml:space="preserve">
+    <value>Minimum or maximum in the round</value>
+  </data>
+  <data name="PriceOr" xml:space="preserve">
+    <value>{0} or {1}</value>
+  </data>
+  <data name="Question" xml:space="preserve">
+    <value>Question</value>
+  </data>
+  <data name="QuestionLibrary" xml:space="preserve">
+    <value>Question library</value>
+  </data>
+  <data name="QuestionLineSpacing" xml:space="preserve">
+    <value>Line spacing in question</value>
+  </data>
+  <data name="QuestionReadingSpeed" xml:space="preserve">
+    <value>Question reading speed</value>
+  </data>
+  <data name="QuestionTime" xml:space="preserve">
+    <value>Button press time (s)</value>
+  </data>
+  <data name="QuestionTypeSecretNoQuestion" xml:space="preserve">
+    <value>Secret question (money without question)</value>
+  </data>
+  <data name="QuestionTypeSecretPublicPrice" xml:space="preserve">
+    <value>Secret question (theme and price known before passing the question)</value>
+  </data>
+  <data name="QuestionTypeSimple" xml:space="preserve">
+    <value>Simple</value>
+  </data>
+  <data name="RecentFiles" xml:space="preserve">
+    <value>Recent files</value>
+  </data>
+  <data name="RemovePlayer" xml:space="preserve">
+    <value>Delete player</value>
+  </data>
+  <data name="ResetSums" xml:space="preserve">
+    <value>Delete sums and statistics</value>
+  </data>
+  <data name="Restriction" xml:space="preserve">
+    <value>Restriction</value>
+  </data>
+  <data name="RightAnswers" xml:space="preserve">
+    <value>Correct</value>
+  </data>
+  <data name="Round" xml:space="preserve">
+    <value>Round</value>
+  </data>
+  <data name="RoundTime" xml:space="preserve">
+    <value>Round time (s)</value>
+  </data>
+  <data name="RoundTimeout" xml:space="preserve">
+    <value>Round timeout</value>
+  </data>
+  <data name="RuntimeBrokenError" xml:space="preserve">
+    <value>Failed to create the main window of the program. It seems that the runtime environment of the program on your computer is corrupted: {0}</value>
+  </data>
+  <data name="SaveLogsToFolder" xml:space="preserve">
+    <value>Save logs to folder</value>
+  </data>
+  <data name="SavingSettingsError" xml:space="preserve">
+    <value>Error saving program settings</value>
+  </data>
+  <data name="Screen" xml:space="preserve">
+    <value>Screen</value>
+  </data>
+  <data name="SecondaryScreen" xml:space="preserve">
+    <value>Additional</value>
+  </data>
+  <data name="Select" xml:space="preserve">
+    <value>Select</value>
+  </data>
+  <data name="SelectAny" xml:space="preserve">
+    <value>Anyone</value>
+  </data>
+  <data name="SelectAnyExceptCurrent" xml:space="preserve">
+    <value>Anyone except yourself</value>
+  </data>
+  <data name="SelectFile" xml:space="preserve">
+    <value>File…</value>
+  </data>
+  <data name="SelectHeader" xml:space="preserve">
+    <value>Select…</value>
+  </data>
+  <data name="SelectionMode" xml:space="preserve">
+    <value>Can be given to</value>
+  </data>
+  <data name="SelectLibrary" xml:space="preserve">
+    <value>Question library…</value>
+  </data>
+  <data name="SelectLogsFolder" xml:space="preserve">
+    <value>Select a folder to save logs</value>
+  </data>
+  <data name="SelectPackage" xml:space="preserve">
+    <value>Select Package</value>
+  </data>
+  <data name="SelectQuestionPackage" xml:space="preserve">
+    <value>Select question package</value>
+  </data>
+  <data name="SeparateWindow" xml:space="preserve">
+    <value>In separate window</value>
+  </data>
+  <data name="SetButton" xml:space="preserve">
+    <value>Assign a button</value>
+  </data>
+  <data name="Show" xml:space="preserve">
+    <value>Show</value>
+  </data>
+  <data name="ShowLostButtonPlayers" xml:space="preserve">
+    <value>Show players who lost the button</value>
+  </data>
+  <data name="ShowPlayersList" xml:space="preserve">
+    <value>Show player list</value>
+  </data>
+  <data name="ShowQRCode" xml:space="preserve">
+    <value>Show QR code</value>
+  </data>
+  <data name="ShowQuestionBorder" xml:space="preserve">
+    <value>Show frame when the button can be pressed</value>
+  </data>
+  <data name="ShowRightAnswers" xml:space="preserve">
+    <value>Show correct answers</value>
+  </data>
+  <data name="ShowTableCaption" xml:space="preserve">
+    <value>Show title on the game scoreboard</value>
+  </data>
+  <data name="ShowTextNoFalseStartsHint" xml:space="preserve">
+    <value>Show text of questions during game without false starts</value>
+  </data>
+  <data name="SignalsAfterTimerHint" xml:space="preserve">
+    <value>Accept player signals after thinking time expires</value>
+  </data>
+  <data name="SIQuestions" xml:space="preserve">
+    <value>SI questions</value>
+  </data>
+  <data name="SIStorageError" xml:space="preserve">
+    <value>Error working with question library: {0}</value>
+  </data>
+  <data name="Sounds" xml:space="preserve">
+    <value>Sounds</value>
+  </data>
+  <data name="Source" xml:space="preserve">
+    <value>Source</value>
+  </data>
+  <data name="SpecialQuestionsAliases" xml:space="preserve">
+    <value>Special questions aliases</value>
+  </data>
+  <data name="SpecialThinkingTime" xml:space="preserve">
+    <value>Thinking time for special question (s)</value>
+  </data>
+  <data name="Stake" xml:space="preserve">
+    <value>Stake</value>
+  </data>
+  <data name="Start" xml:space="preserve">
+    <value>Start</value>
+  </data>
+  <data name="StartGame" xml:space="preserve">
+    <value>Start</value>
+  </data>
+  <data name="Stop" xml:space="preserve">
+    <value>End</value>
+  </data>
+  <data name="StopGame" xml:space="preserve">
+    <value>End game</value>
+  </data>
+  <data name="SubstractOnWrong" xml:space="preserve">
+    <value>Deduct points for wrong answer</value>
+  </data>
+  <data name="SubtractSum" xml:space="preserve">
+    <value>Subtract amount</value>
+  </data>
+  <data name="SubtractSumForActivePlayer" xml:space="preserve">
+    <value>Remove from active player</value>
+  </data>
+  <data name="Sum" xml:space="preserve">
+    <value>Sum</value>
+  </data>
+  <data name="TableHotKeysHint" xml:space="preserve">
+    <value>Game table hotkeys:
+Space (left mouse button) - proceed
+Backspace - go back
+Escape (right mouse button) - end game</value>
+  </data>
+  <data name="TestPackage" xml:space="preserve">
+    <value>Test package</value>
+  </data>
+  <data name="TextColor" xml:space="preserve">
+    <value>Text color</value>
+  </data>
+  <data name="Theme" xml:space="preserve">
+    <value>Theme</value>
+  </data>
+  <data name="ThemeComments" xml:space="preserve">
+    <value>Theme comments</value>
+  </data>
+  <data name="Thinking" xml:space="preserve">
+    <value>Thinking</value>
+  </data>
+  <data name="ThinkingTime" xml:space="preserve">
+    <value>Thinking time after button press (s)</value>
+  </data>
+  <data name="UnknownType" xml:space="preserve">
+    <value>Unknown type</value>
+  </data>
+  <data name="UseKeysToSelectQuestions" xml:space="preserve">
+    <value>Use keyboard selection on scoreboard</value>
+  </data>
+  <data name="UseKeysToSelectQuestionsHint" xml:space="preserve">
+    <value>Allows selecting questions on the scoreboard using two consecutive presses of the number buttons (theme number, question number/Escape to cancel) and removing themes in the final round with one press</value>
+  </data>
+  <data name="Version" xml:space="preserve">
+    <value>Version</value>
+  </data>
+  <data name="Video" xml:space="preserve">
+    <value>Video</value>
+  </data>
+  <data name="WebButtonsConnectionString" xml:space="preserve">
+    <value>Connection address for game: http://</value>
+  </data>
+  <data name="WebButtonsHint" xml:space="preserve">
+    <value>In this mode, mobile devices of participants (phones, tablets, etc.) are used as buttons. Before the game starts, these devices are registered and associated with players.
+To play, you need to organize a local network.</value>
+  </data>
+  <data name="WebButtonsPort" xml:space="preserve">
+    <value>Web access port</value>
+  </data>
+  <data name="Website" xml:space="preserve">
+    <value>Website</value>
+  </data>
+  <data name="WebView" xml:space="preserve">
+    <value>Window</value>
+  </data>
+  <data name="Window" xml:space="preserve">
+    <value>Window (old version)</value>
+  </data>
+  <data name="WrongAnswers" xml:space="preserve">
+    <value>Incorrect</value>
+  </data>
+  <data name="KickPlayer" xml:space="preserve">
+    <value>Kick player</value>
+  </data>
+  <data name="Add" xml:space="preserve">
+    <value>Add</value>
+  </data>
+  <data name="Subtract" xml:space="preserve">
+    <value>Subtract</value>
+  </data>
+  <data name="JoystickNotFound" xml:space="preserve">
+    <value>Joystick not found</value>
+  </data>
+  <data name="OralText" xml:space="preserve">
+    <value>Oral text</value>
+  </data>
+  <data name="OralTextHint" xml:space="preserve">
+    <value>Text is read by host and is not displayed on the screen</value>
+  </data>
+  <data name="Clear" xml:space="preserve">
+    <value>Clear</value>
+  </data>
+  <data name="AttachContentToTable" xml:space="preserve">
+    <value>Add theme comments and right answers to game table</value>
+  </data>
+  <data name="QuestionPrice" xml:space="preserve">
+    <value>Question price</value>
+  </data>
+  <data name="UseSIGameEngine" xml:space="preserve">
+    <value>Use SIGame engine (experimental feature)</value>
+  </data>
+  <data name="NextRound" xml:space="preserve">
+    <value>Next round</value>
+  </data>
+  <data name="ChoosePlayerToDelete" xml:space="preserve">
+    <value>Select a player to delete theme</value>
+  </data>
+  <data name="PartialText" xml:space="preserve">
+    <value>Partial question text</value>
+  </data>
+  <data name="BrowserScreen" xml:space="preserve">
+    <value>Browser</value>
+  </data>
+  <data name="BrowserBoardOpen" xml:space="preserve">
+    <value>Open board</value>
+  </data>
+  <data name="BrowserBoardAlreadyOpened" xml:space="preserve">
+    <value>The game board is already opened in another browser window.</value>
+  </data>
+  <data name="BrowserBoardDisconnected" xml:space="preserve">
+    <value>Connection to SImulator is lost. Open the board again from SImulator.</value>
+  </data>
+</root>

@@ -1,0 +1,6 @@
+/outputs/
+/publish/
+/MicrosoftEdgeWebView2RuntimeInstallerX64.exe
+**/bin/
+**/obj/
+**/.vs/

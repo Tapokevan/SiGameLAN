@@ -1,0 +1,359 @@
+<UserControl
+    x:Class="SIGame.GameChat"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+    mc:Ignorable="d"
+    d:DesignHeight="243"
+    d:DesignWidth="389"
+    Background="#88000000"
+    xmlns:lb="clr-namespace:SIGame.Behaviors"
+    xmlns:lp="clr-namespace:SIGame.Properties"
+    xmlns:lc="clr-namespace:SIGame.Converters"
+    xmlns:lvm="clr-namespace:SIGame.ViewModel;assembly=SIGame.ViewModel"
+    xmlns:sys="clr-namespace:System;assembly=mscorlib"
+    xmlns:scm="clr-namespace:SICore.Models;assembly=SICore"
+    d:DataContext="{d:DesignInstance Type=lvm:GameViewModel}"
+    DataContextChanged="UserControl_DataContextChanged">
+    <UserControl.Resources>
+        <SolidColorBrush x:Key="SemiTransparentLightBlueVioletBrushKey">#202020</SolidColorBrush>
+        <CollectionViewSource x:Key="Persons" Source="{Binding Data.AllPersons}" />
+        <CollectionViewSource x:Key="Banned" Source="{Binding Banned}" />
+        <lc:HostNameConverter x:Key="HostNameConverter" />
+
+        <ObjectDataProvider x:Key="JoinModes" MethodName="GetValues" ObjectType="{x:Type sys:Enum}">
+            <ObjectDataProvider.MethodParameters>
+                <x:Type TypeName="scm:JoinMode" />
+            </ObjectDataProvider.MethodParameters>
+        </ObjectDataProvider>
+
+        <lc:EnumConverter x:Key="JoinModeConverter" EnumType="{x:Type scm:JoinMode}" />
+    </UserControl.Resources>
+    
+    <TabControl Padding="0" BorderThickness="0" FontSize="16" Background="#202020" SelectedIndex="{Binding SeletedTabIndex}">
+        <TabItem Header="💬" ToolTip="{x:Static lp:Resources.Messages}" Style="{StaticResource StudiaTab}">
+            <DockPanel>
+                <Button
+                    DockPanel.Dock="Bottom"
+                    Style="{StaticResource SIButtonSimple}"
+                    Background="{StaticResource WindowBackground}"
+                    Margin="-1,-1,0,-1"
+                    Padding="20,4"
+                    Command="{Binding OpenLink}"
+                    CommandParameter="{Binding Data.VoiceChatUri}"
+                    ToolTip="{Binding Data.VoiceChatUri}"
+                    Visibility="{Binding Data.VoiceChatUri, Converter={StaticResource NotNullToVisibilityConverter1}}"
+                    FontSize="18"
+                    TextBlock.LineHeight="18"
+                    Content="{x:Static lp:Resources.VoiceChat}" />
+                
+                <TextBox
+                    DockPanel.Dock="Bottom"
+                    BorderThickness="0,1,0,0"
+                    Name="input" Foreground="#F1ECE7" CaretBrush="#FF9B47"
+                    Padding="0,2"
+                    Text="{Binding PrintedText, UpdateSourceTrigger=PropertyChanged}"
+                    Background="{StaticResource SemiTransparentLightBlueVioletBrushKey}">
+                    <TextBox.InputBindings>
+                        <KeyBinding Key="Enter" Command="{Binding SendMessage}" />
+                    </TextBox.InputBindings>
+                </TextBox>
+                
+                <RichTextBox
+                    BorderThickness="0"
+                    Name="text"
+                    Padding="1,10"
+                    VerticalScrollBarVisibility="Visible"
+                    IsReadOnly="True"
+                    Background="{StaticResource SemiTransparentLightBlueVioletBrushKey}"
+                    FontSize="15" />
+            </DockPanel>
+        </TabItem>
+
+        <TabItem Header="👤" ToolTip="{x:Static lp:Resources.Persons}" Style="{StaticResource StudiaTab}">
+            <DockPanel Background="{StaticResource SemiTransparentLightBlueVioletBrushKey}">
+                <DockPanel
+                    DockPanel.Dock="Bottom"
+                    Visibility="{Binding Data.IsNetworkGame, Converter={StaticResource BooleanToVisibilityConverter1}}">
+                    <UniformGrid
+                        DockPanel.Dock="Bottom"
+                        Columns="2"
+                        Visibility="{Binding IsHost, Converter={StaticResource BooleanToVisibilityConverter1}}">
+                        <Button
+                            Style="{StaticResource SIButtonSimple}"
+                            Background="{StaticResource WindowBackground}"
+                            Margin="-1,-1,-1,-1"
+                            Padding="20,4"
+                            Command="{Binding Ban}"
+                            CommandParameter="{Binding Source={StaticResource Persons},Path=Value}"
+                            FontSize="18"
+                            TextBlock.LineHeight="18"
+                            Content="{x:Static lp:Resources.Ban}" />
+                    </UniformGrid>
+
+                    <Button
+                        DockPanel.Dock="Bottom"
+                        Style="{StaticResource SIButtonSimple}"
+                        Background="{StaticResource WindowBackground}"
+                        Margin="-1,-1,-1,-1"
+                        Padding="20,4"
+                        Command="{Binding SetHost}"
+                        CommandParameter="{Binding Source={StaticResource Persons},Path=Value}"
+                        FontSize="18"
+                        TextBlock.LineHeight="18"
+                        Content="{x:Static lp:Resources.SetHost}"
+                        Visibility="{Binding IsHost, Converter={StaticResource BooleanToVisibilityConverter1}}" />
+
+                    <DockPanel
+                        DockPanel.Dock="Bottom"
+                        TextBlock.FontSize="14"
+                        Height="32"
+                        Margin="0,0,0,2">
+                        <TextBlock
+                            Text="{x:Static lp:Resources.JoinMode}"
+                            DockPanel.Dock="Left"
+                            Padding="8,2"
+                            Foreground="#F1ECE7"
+                            VerticalAlignment="Center" />
+
+                        <ComboBox
+                            ItemsSource="{Binding Source={StaticResource JoinModes}, Mode=OneTime}"
+                            SelectedItem="{Binding JoinMode}"
+                            VerticalAlignment="Stretch"
+                            VerticalContentAlignment="Center"
+                            IsEnabled="{Binding IsHost}">
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Converter={StaticResource JoinModeConverter}, Mode=OneTime}" />
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
+                    </DockPanel>
+                </DockPanel>
+
+                <ListBox
+                    IsSynchronizedWithCurrentItem="True"
+                    ItemsSource="{Binding Source={StaticResource Persons}}"
+                    Background="{StaticResource SemiTransparentLightBlueVioletBrushKey}"
+                    FontSize="16">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Margin="0,5">
+                                <Run Text="{Binding Key, Mode=OneWay}" />
+                                
+                                <Run>
+                                    <Run.Text>
+                                        <MultiBinding Converter="{StaticResource HostNameConverter}">
+                                            <Binding Path="Key" Mode="OneWay" />
+                                            
+                                            <Binding
+                                                RelativeSource="{RelativeSource AncestorType=TabControl}"
+                                                Path="DataContext.HostName"
+                                                Mode="OneWay" />
+                                        </MultiBinding>
+                                    </Run.Text>
+                                </Run>
+                            </TextBlock>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </DockPanel>
+        </TabItem>
+
+        <TabItem Header="🎓" ToolTip="{x:Static lp:Resources.Tables}" Style="{StaticResource StudiaTab}">
+            <DockPanel Background="{StaticResource SemiTransparentLightBlueVioletBrushKey}">
+                <DockPanel DockPanel.Dock="Bottom">
+                    <UniformGrid
+                        DockPanel.Dock="Bottom"
+                        Columns="2"
+                        Visibility="{Binding IsHost, Converter={StaticResource BooleanToVisibilityConverter1}}">
+                        <Button
+                            Style="{StaticResource SIButtonSimple}"
+                            Background="{StaticResource WindowBackground}"
+                            Margin="-1,-1,0,-1"
+                            Padding="20,4"
+                            Command="{Binding FreeTable}"
+                            CommandParameter="{Binding CurrentPerson}"
+                            FontSize="14"
+                            TextBlock.LineHeight="18"
+                            Content="{x:Static lp:Resources.Free}" />
+
+                        <Button
+                            Style="{StaticResource SIButtonSimple}"
+                            Background="{StaticResource WindowBackground}"
+                            Margin="-1,-1,-1,-1"
+                            Padding="20,4"
+                            Command="{Binding DeleteTable}"
+                            CommandParameter="{Binding CurrentPerson}"
+                            FontSize="14"
+                            TextBlock.LineHeight="18"
+                            Content="{x:Static lp:Resources.DeleteTable}" />
+                    </UniformGrid>
+                </DockPanel>
+                
+                <DockPanel DockPanel.Dock="Bottom">
+                    <UniformGrid
+                        DockPanel.Dock="Bottom"
+                        Columns="2"
+                        Visibility="{Binding IsHost, Converter={StaticResource BooleanToVisibilityConverter1}}">
+                        <Button
+                            Style="{StaticResource SIButtonSimple}"
+                            Background="{StaticResource WindowBackground}"
+                            Margin="-1,-1,0,-1"
+                            Padding="2"
+                            Command="{Binding ChangeType}"
+                            CommandParameter="{Binding CurrentPerson}"
+                            FontSize="10"
+                            Height="30"
+                            Content="{Binding CurrentPerson.IsHuman, Converter={StaticResource ChangeTypeConverter}}" />
+
+                        <Button
+                            Background="{StaticResource WindowBackground}"
+                            Margin="-1,-1,-1,-1"
+                            Padding="20,4"
+                            FontSize="14"
+                            TextBlock.LineHeight="18"
+                            Content="{x:Static lp:Resources.ReplaceTo}">
+                            <lb:DropDownBehavior.DropDown>
+                                <ContextMenu Style="{StaticResource SIContextMenuStyle}" ItemsSource="{Binding CurrentPerson.Others}">
+                                    <ContextMenu.ItemContainerStyle>
+                                        <Style TargetType="MenuItem">
+                                            <Setter
+                                                Property="Command"
+                                                Value="{Binding DataContext.Replace, RelativeSource={RelativeSource AncestorType=ContextMenu}}" />
+
+                                            <Setter Property="CommandParameter" Value="{Binding}" />
+                                            <Setter Property="Cursor" Value="Hand" />
+                                            <Setter Property="Height" Value="40" />
+                                            <Setter Property="Foreground" Value="{StaticResource MainColor}" />
+                                        </Style>
+                                    </ContextMenu.ItemContainerStyle>
+                                </ContextMenu>
+                            </lb:DropDownBehavior.DropDown>
+
+                            <Button.Style>
+                                <Style TargetType="Button" BasedOn="{StaticResource SIButtonSimple}">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding CurrentPerson.Others.Length}" Value="0">
+                                            <Setter Property="IsEnabled" Value="False" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                        </Button>
+                    </UniformGrid>
+                </DockPanel>
+
+                <TextBlock DockPanel.Dock="Top" Text="{x:Static lp:Resources.Showman}" Padding="10,4,0,4" Background="{StaticResource WindowBackground}" />
+
+                <Label
+                    DockPanel.Dock="Top"
+                    Margin="1,2"
+                    Content="{Binding Data.ShowMan.Name}"
+                    Foreground="#F1ECE7"
+                    FontSize="16"
+                    MouseDown="Label_MouseDown">
+                    <Label.Style>
+                        <Style TargetType="Label">
+                            <Setter Property="Background" Value="#22000000" />
+                            
+                            <Style.Triggers>
+                                <DataTrigger Value="True">
+                                    <DataTrigger.Binding>
+                                        <MultiBinding Converter="{StaticResource Equals}">
+                                            <Binding Path="Showman" />
+                                            <Binding Path="CurrentPerson" />
+                                        </MultiBinding>
+                                    </DataTrigger.Binding>
+
+                                    <Setter Property="Background" Value="#3D26A0DA" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Label.Style>
+                </Label>
+
+                <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Background="{StaticResource WindowBackground}">
+                    <TextBlock Text="{x:Static lp:Resources.Players}" Margin="10,4,0,4" />
+                    
+                    <Button
+                        Command="{Binding AddTable}"
+                        ToolTip="{x:Static lp:Resources.AddTable}"
+                        Style="{StaticResource SIButtonSimple}"
+                        BorderThickness="0"
+                        Margin="2,0,0,0"
+                        Padding="2"
+                        Width="30"
+                        FontWeight="Bold">+</Button>
+                </StackPanel>
+                
+                <ListBox
+                    IsSynchronizedWithCurrentItem="True"
+                    ItemsSource="{Binding Players}"
+                    SelectedItem="{Binding CurrentPerson}"
+                    Background="{StaticResource SemiTransparentLightBlueVioletBrushKey}"
+                    FontSize="16"
+                    Name="playerTables">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Margin="0,5">
+                                <Run Text="{Binding Model.Name, Mode=OneWay}" />
+                            </TextBlock>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+
+                    <ListBox.ItemContainerStyle>
+                        <Style TargetType="ListBoxItem">
+                            <Setter Property="Background" Value="#22000000" />
+                            <Setter Property="BorderThickness" Value="0" />
+                        </Style>
+                    </ListBox.ItemContainerStyle>
+                </ListBox>
+            </DockPanel>
+        </TabItem>
+
+        <TabItem Header="🚫" ToolTip="{x:Static lp:Resources.BannedList}" Style="{StaticResource StudiaTab}">
+            <DockPanel Background="{StaticResource SemiTransparentLightBlueVioletBrushKey}">
+                <Button
+                    DockPanel.Dock="Bottom"
+                    Style="{StaticResource SIButtonSimple}"
+                    Background="{StaticResource WindowBackground}"
+                    Margin="-1,-1,-1,-1"
+                    Padding="20,4"
+                    Command="{Binding Unban}"
+                    CommandParameter="{Binding Source={StaticResource Banned},Path=CurrentItem}"
+                    FontSize="18"
+                    TextBlock.LineHeight="18"
+                    Content="{x:Static lp:Resources.Unban}" />
+
+                <ListBox
+                    IsSynchronizedWithCurrentItem="True"
+                    ItemsSource="{Binding Source={StaticResource Banned}}"
+                    Background="{StaticResource SemiTransparentLightBlueVioletBrushKey}"
+                    FontSize="16">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock>
+                                <Run Text="{Binding Ip, Mode=OneWay}" />
+                                <Run Text=" (" />
+                                <Run Text="{Binding UserName, Mode=OneWay}" />
+                                <Run Text=")" />
+                            </TextBlock>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </DockPanel>
+        </TabItem>
+
+        <TabItem Header="ℹ" ToolTip="{x:Static lp:Resources.GameInfo}" Style="{StaticResource StudiaTab}">
+            <TextBox
+                Text="{Binding GameMetadata}"
+                Padding="10"
+                IsReadOnly="True"
+                Foreground="#F1ECE7"
+                TextWrapping="WrapWithOverflow"
+                Background="{StaticResource SemiTransparentLightBlueVioletBrushKey}" />
+        </TabItem>
+    </TabControl>
+</UserControl>

@@ -1,0 +1,294 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Add" xml:space="preserve">
+    <value>Добавить</value>
+  </data>
+  <data name="ButtonPressed" xml:space="preserve">
+    <value>Нажатие на кнопку</value>
+  </data>
+  <data name="ChooseQuest" xml:space="preserve">
+    <value>Выбирайте вопрос</value>
+  </data>
+  <data name="ConnectionError" xml:space="preserve">
+    <value>Ошибка связи: {0}</value>
+  </data>
+  <data name="Error" xml:space="preserve">
+    <value>Ошибка</value>
+  </data>
+  <data name="FinalThemeRemoval" xml:space="preserve">
+    <value>Удаление темы в финале</value>
+  </data>
+  <data name="FinalThink" xml:space="preserve">
+    <value>Размышление в финале</value>
+  </data>
+  <data name="GameEndingError" xml:space="preserve">
+    <value>Ошибка завершения игры: {0}</value>
+  </data>
+  <data name="GameEndsBecauseOfConnectionLoss" xml:space="preserve">
+    <value>Соединение с демонстрационным компьютером было разорвано. Игра прекращена.</value>
+  </data>
+  <data name="GamePackageLoadError" xml:space="preserve">
+    <value>Ошибка при загрузке игрового пакета</value>
+  </data>
+  <data name="GameStart" xml:space="preserve">
+    <value>Начало игры</value>
+  </data>
+  <data name="GameStartError" xml:space="preserve">
+    <value>Ошибка старта игры: {0}</value>
+  </data>
+  <data name="GameThemes" xml:space="preserve">
+    <value>Темы игры</value>
+  </data>
+  <data name="IpAddressHint" xml:space="preserve">
+    <value>[Ваш IP-адрес]</value>
+  </data>
+  <data name="LoggerCreationWarning" xml:space="preserve">
+    <value>Ошибка создания файла лога: {0}. Лог записываться не будет</value>
+  </data>
+  <data name="LoggerInitError" xml:space="preserve">
+    <value>Ошибка старта записи лога</value>
+  </data>
+  <data name="LogsFolderNotSetWarning" xml:space="preserve">
+    <value>Папка для записи логов не задана! Логи вестись не будут</value>
+  </data>
+  <data name="Next" xml:space="preserve">
+    <value>Дальше</value>
+  </data>
+  <data name="NoAnswer" xml:space="preserve">
+    <value>Нет ответа</value>
+  </data>
+  <data name="NoLicensesFolder" xml:space="preserve">
+    <value>Папка лицензий не найдена!</value>
+  </data>
+  <data name="NoRiskQuestion" xml:space="preserve">
+    <value>Вопрос для себя</value>
+  </data>
+  <data name="OpenLicensesError" xml:space="preserve">
+    <value>Ошибка при открытии папки лицензий: {0}</value>
+  </data>
+  <data name="PackageAuthors" xml:space="preserve">
+    <value>Авторы пакета</value>
+  </data>
+  <data name="PackageComments" xml:space="preserve">
+    <value>Комментарии пакета</value>
+  </data>
+  <data name="PackagePreparationError" xml:space="preserve">
+    <value>Ошибка подготовки пакета</value>
+  </data>
+  <data name="Pause" xml:space="preserve">
+    <value>Приостановить</value>
+  </data>
+  <data name="PressTheButton" xml:space="preserve">
+    <value>Нажмите на кнопку</value>
+  </data>
+  <data name="Price" xml:space="preserve">
+    <value>Стоимость</value>
+  </data>
+  <data name="PriceFromToStep" xml:space="preserve">
+    <value>От {0} до {1} с шагом {2}</value>
+  </data>
+  <data name="PriceMinMaxRound" xml:space="preserve">
+    <value>Минимум или максимум в раунде</value>
+  </data>
+  <data name="PriceOr" xml:space="preserve">
+    <value>{0} или {1}</value>
+  </data>
+  <data name="QuestionSelection" xml:space="preserve">
+    <value>Выбор вопроса</value>
+  </data>
+  <data name="QuestionTypeForAll" xml:space="preserve">
+    <value>Вопрос для всех</value>
+  </data>
+  <data name="QuestionTypeSecret" xml:space="preserve">
+    <value>Вопрос с секретом</value>
+  </data>
+  <data name="QuestionTypeSimple" xml:space="preserve">
+    <value>Вопрос с кнопкой</value>
+  </data>
+  <data name="QuestionTypeStake" xml:space="preserve">
+    <value>Вопрос со ставкой</value>
+  </data>
+  <data name="QuestionTypeStakeForAll" xml:space="preserve">
+    <value>Вопрос для всех со ставкой</value>
+  </data>
+  <data name="RightAnswer" xml:space="preserve">
+    <value>Правильный ответ</value>
+  </data>
+  <data name="Round" xml:space="preserve">
+    <value>Раунд</value>
+  </data>
+  <data name="RoundStart" xml:space="preserve">
+    <value>Начало раунда</value>
+  </data>
+  <data name="RoundThemes" xml:space="preserve">
+    <value>Темы раунда</value>
+  </data>
+  <data name="RoundTimeout" xml:space="preserve">
+    <value>Время раунда вышло.</value>
+  </data>
+  <data name="Run" xml:space="preserve">
+    <value>Запустить</value>
+  </data>
+  <data name="Score" xml:space="preserve">
+    <value>Счёт</value>
+  </data>
+  <data name="SecretQuestion" xml:space="preserve">
+    <value>Вопрос с секретом</value>
+  </data>
+  <data name="SelectAny" xml:space="preserve">
+    <value>Кому угодно</value>
+  </data>
+  <data name="SelectAnyExceptCurrent" xml:space="preserve">
+    <value>Кому угодно, кроме себя</value>
+  </data>
+  <data name="SelectAudioFile" xml:space="preserve">
+    <value>Выберите аудиофайл</value>
+  </data>
+  <data name="SelectBackgroundImage" xml:space="preserve">
+    <value>Выберите изображение-фон</value>
+  </data>
+  <data name="SelectBackgroundVideo" xml:space="preserve">
+    <value>Выберите видеофайл-фон</value>
+  </data>
+  <data name="SelectIntroVideo" xml:space="preserve">
+    <value>Выберите заставочный видеофайл</value>
+  </data>
+  <data name="SelectionMode" xml:space="preserve">
+    <value>Можно отдать</value>
+  </data>
+  <data name="SelectLogoImage" xml:space="preserve">
+    <value>Выберите изображение-заставку</value>
+  </data>
+  <data name="SelectPlayer" xml:space="preserve">
+    <value>Выберите игрока</value>
+  </data>
+  <data name="StakeQuestion" xml:space="preserve">
+    <value>Вопрос со ставкой</value>
+  </data>
+  <data name="StartGame" xml:space="preserve">
+    <value>Начать игру</value>
+  </data>
+  <data name="Theme" xml:space="preserve">
+    <value>Тема</value>
+  </data>
+  <data name="WrongAnswer" xml:space="preserve">
+    <value>Неверный ответ</value>
+  </data>
+</root>

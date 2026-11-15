@@ -1,0 +1,280 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows7.0</TargetFramework>
+    <ApplicationIcon>Resources\logo.ico</ApplicationIcon>
+    <StartupObject>SIQuester.App</StartupObject>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <AssemblyTitle>SIQuester</AssemblyTitle>
+    <Product>SIQuester</Product>
+    <Description>Questions editor for SIGame</Description>
+    <Version>$(SIQuesterVersion)</Version>
+    <UseWPF>true</UseWPF>
+	<Nullable>enable</Nullable>
+	<ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugType>portable</DebugType>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DebugType>none</DebugType>
+    <DebugSymbols>false</DebugSymbols>
+    <DefineConstants>$(DefineConstants);UPDATE</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup>
+    <SatelliteResourceLanguages>en-US</SatelliteResourceLanguages>
+  </PropertyGroup>
+  <ItemGroup>
+    <None Remove="appsettings.json" />
+    <None Remove="Resources\logo.jpg" />
+    <None Remove="Resources\steam_logo.png" />
+    <None Remove="steam_appid.txt" />
+    <None Remove="View\steam_logo.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Page Remove="Resources\Icons.xaml" />
+    <Page Remove="Resources\IconsNonShared.xaml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="Lingware.Spard, Version=1.4.0.0, Culture=neutral, PublicKeyToken=4be120a55c5e67bd, processorArchitecture=MSIL">
+      <HintPath>..\QTxtConverter\dlls\Lingware.Spard.dll</HintPath>
+      <SpecificVersion>False</SpecificVersion>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Ben.Demystifier" Version="0.4.1" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.3" />
+    <PackageReference Include="NLog.Extensions.Logging" Version="6.1.1" />
+    <PackageReference Include="NLog.Web.AspNetCore" Version="6.1.1" />
+    <PackageReference Include="VKhil.AppRegistry.Client" Version="1.0.4" />
+    <PackageReference Include="WindowsAPICodePackShell" Version="8.0.14" />
+	<PackageReference Include="MahApps.Metro" Version="2.4.11" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\..\test\SIGame\SIGame.Tests\SIGameTestEn.siq" Link="templates\SIGameTestEn.siq">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\..\..\test\SIGame\SIGame.Tests\SIGameTestNew.siq" Link="templates\SIGameTestNew.siq">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="licenses\MahApps.Metro.LICENSE">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="licenses\MahApps.Metro.LICENSE+">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Resources\Icons.xaml" />
+    <None Include="Resources\IconsNonShared.xaml" />
+    <Resource Include="Resources\Entypo.ttf" />
+    <Content Include="appsettings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="steam_api.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="steam_api64.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Help.ru-RU.pdf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Help.en-US.pdf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="steam_appid.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Update="Properties\Resources.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\cog.png" />
+    <None Include="Resources\bullet_error.png" />
+    <None Include="Resources\script_go.png" />
+    <Resource Include="Resources\cut.png" />
+    <Resource Include="Resources\logo.jpg" />
+    <Resource Include="Resources\page_copy.png" />
+    <Resource Include="Resources\paste_plain.png" />
+    <None Include="Resources\marker.png" />
+    <None Include="app.manifest" />
+    <None Include="Resources\AppIcon.ico" />
+    <None Include="Resources\bullet_wrench.png" />
+    <Resource Include="Resources\page_edit.png" />
+    <None Include="Resources\pencil.png" />
+    <None Include="Resources\logo.ico" />
+    <None Include="Resources\map_add.png" />
+    <None Include="Resources\map_delete.png" />
+    <None Include="Resources\map_go.png" />
+    <None Include="Resources\WindowsIcons-license.txt" />
+    <None Include="Resources\Entypo-license.txt" />
+    <None Include="licenses\Modern UI Icons.license.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\arrow_in.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\arrow_out.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Clone.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Export.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\favicon-wiki.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Icon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Import.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Minus.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\mircIcon.png" />
+    <Resource Include="Resources\steam_logo.png" />
+    <Resource Include="View\steam_logo.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Plus.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\SaveAs.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Settings.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\SI.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Statistics.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\txt.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\xml.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\New.png" />
+    <None Include="Resources\Open.png" />
+    <None Include="Resources\Save.png" />
+    <None Include="Resources\save24.png" />
+    <None Include="Resources\SaveAll24.png" />
+    <None Include="Resources\Export24.png" />
+    <None Include="Resources\SiquesterIcon.png" />
+    <None Include="Resources\SiquesterIcon2.png" />
+    <None Include="Resources\StatIcon.png" />
+    <None Include="Resources\chart.png" />
+    <None Include="Resources\clock.png" />
+    <None Include="Resources\film.png" />
+    <None Include="Resources\find.png" />
+    <None Include="Resources\image.png" />
+    <None Include="Resources\music.png" />
+    <None Include="Resources\sound.png" />
+    <None Include="Resources\book_open.png" />
+    <None Include="Resources\user_gray.png" />
+    <None Include="Resources\Import24.png" />
+    <None Include="Resources\arrow_redo.png" />
+    <None Include="Resources\arrow_undo.png" />
+    <None Include="Resources\Left.png" />
+    <None Include="Resources\Right.png" />
+    <None Include="Resources\cancel.png" />
+    <None Include="Resources\color_wheel.png" />
+    <None Include="Resources\arrow_down.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Common\Utils.Wpf\Utils.Wpf.csproj" />
+    <ProjectReference Include="..\SIQuester.ViewModel\SIQuester.ViewModel.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Update="licenses\Ben.Demystifier.LICENSE.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="licenses\OpenAI.LICENSE.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="licenses\Polly.LICENSE.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="licenses\Steamworks.NET.LICENSE.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="licenses\WindowsAPICodePack.LICENSE.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="licenses\YamlDotNet.LICENSE.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="wwwroot\2a5071f65c1b80d54617.ttf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="wwwroot\2aba74f212047926d07a.woff">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="wwwroot\2f129bbaf640c05d1cb2.woff">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="wwwroot\b70332fadc4dc242785f.ttf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="wwwroot\c367c21f39a95abeddff.ttf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="wwwroot\c884553b974be0f58c33.ttf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="wwwroot\ca33bfb0214ee2e6936a.ttf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="wwwroot\Clefs.ttf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="wwwroot\d26e8e629f57716e90a0.ttf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="wwwroot\d660f85b3fc88581c86b.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="wwwroot\f3b6c856600603273a89.ttf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="wwwroot\index.html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="wwwroot\main.js">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="wwwroot\script.js">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="wwwroot\style.css">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="wwwroot\vendor.js">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="wwwroot\" />
+    <Folder Include="templates\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Update="Properties\Resources.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+</Project>

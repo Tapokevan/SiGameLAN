@@ -1,0 +1,104 @@
+﻿using SIData;
+
+namespace SICore;
+
+/// <summary>
+/// Defines a game player account.
+/// </summary>
+public sealed class GamePlayerAccount : GamePersonAccount
+{
+    private int _sum = 0;
+    private bool _canPress = false;
+    private bool _inGame = true;
+
+    /// <summary>
+    /// Player score.
+    /// </summary>
+    public int Sum
+    {
+        get => _sum;
+        set { _sum = value; OnPropertyChanged(); }
+    }
+
+    // TODO: Will be replaced with QuestionPlayState.PossibleAnswerers indicies collection
+    /// <summary>
+    /// Has the player right to press the button.
+    /// </summary>
+    internal bool CanPress
+    {
+        get => _canPress;
+        set { _canPress = value; OnPropertyChanged(); }
+    }
+
+    // TODO: Will be replaced with QuestionPlayState.PossibleAnswerers indicies collection and theme deletion strategy
+    /// <summary>
+    /// Is the player currently being able to play (by game rules, not by connection).
+    /// </summary>
+    public bool InGame
+    {
+        get => _inGame;
+        set { _inGame = value; OnPropertyChanged(); }
+    }
+
+    // TODO: Will be moved to QuestionPlayState
+    /// <summary>
+    /// Ответ игрока
+    /// </summary>
+    internal string? Answer { get; set; } // TODO: try to make non-nullable but check problems with accepting answers in questions for all
+    
+    // TODO: Will be moved to QuestionPlayState
+    /// <summary>
+    /// Ответ верен
+    /// </summary>
+    internal bool AnswerIsRight { get; set; }
+
+    // TODO: Will be moved to QuestionPlayState
+    /// <summary>
+    /// Answer validation factor.
+    /// </summary>
+    internal double AnswerValidationFactor { get; set; } = 1.0;
+
+    // TODO: Will be moved to QuestionPlayState
+    /// <summary>
+    /// Ответ заведомо неверен
+    /// </summary>
+    internal bool AnswerIsWrong { get; set; }
+
+    // TODO: Will be moved to QuestionPlayState
+    /// <summary>
+    /// Personal player stake.
+    /// </summary>
+    internal int PersonalStake { get; set; }
+
+    /// <summary>
+    /// Marks that player is selectable for the current decision.
+    /// </summary>
+    internal bool Flag { get; set; }
+
+    /// <summary>
+    /// Marks that player is participating in appellation.
+    /// </summary>
+    internal bool AppellationFlag { get; set; }
+
+    // TODO: Will be moved to Stake strategy implementation
+    /// <summary>
+    /// Участвует ли конкретный игрок в торгах на аукционе
+    /// </summary>
+    internal bool StakeMaking { get; set; }
+
+    /// <summary>
+    /// Time of the last button misfire for the player.
+    /// </summary>
+    internal DateTime LastBadTryTime { get; set; }
+
+    public GamePlayerAccount(Account account)
+        : base(account)
+    {
+        
+    }
+
+    public GamePlayerAccount()
+    {
+
+    }
+}

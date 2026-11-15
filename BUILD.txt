@@ -1,0 +1,17 @@
+SI-LAN: modified SIGame, MIT. Windows x64.
+Requires .NET SDK 10 and internet for NuGet restore during development.
+Players do not need .NET or internet: runtime is included in the published build.
+
+Build from SI-master:
+dotnet publish src/SIGame/SIGame/SIGame.csproj -c Release -r win-x64 --self-contained true -p:DebugType=None -p:DebugSymbols=false -o ../publish -m:1
+
+Tests:
+dotnet test test/SICore/SICore.Tests/SICore.Tests.csproj -c Release
+dotnet test test/SIGame/SIGame.ViewModel.Tests/SIGame.ViewModel.Tests.csproj -c Release --filter FullyQualifiedName~LanTests
+Set SI_LAN_TEST_PACKAGE to the supplied .siq path to enable the package test.
+
+To build the installer, copy LICENSE to publish/LICENSE-SI.txt and
+КАК-ИГРАТЬ.txt to publish/. Keep the dependency notices in publish/licenses.
+Place Microsoft's offline MicrosoftEdgeWebView2RuntimeInstallerX64.exe beside
+setup.iss. From the repository root run ISCC.exe setup.iss (Inno Setup 7).
+The installer is written to outputs/.

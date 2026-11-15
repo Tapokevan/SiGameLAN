@@ -1,0 +1,2740 @@
+﻿using SIEngine.Rules;
+using SImulator.ViewModel.ButtonManagers;
+using SImulator.ViewModel.Contracts;
+using SImulator.ViewModel.Core;
+using SImulator.ViewModel.Helpers;
+using SImulator.ViewModel.Model;
+using SImulator.ViewModel.PlatformSpecific;
+using SImulator.ViewModel.Properties;
+using SImulator.ViewModel.Services;
+using SIPackages;
+using SIPackages.Core;
+using SIUI.Model;
+using SIUI.ViewModel;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
+using System.Text;
+using System.Windows.Input;
+using Utils;
+using Utils.Commands;
+
+namespace SImulator.ViewModel;
+
+/// <summary>
+/// Controls a single game run.
+/// </summary>
+public sealed class GameViewModel : INotifyPropertyChanged, IButtonManagerListener, IAsyncDisposable
+{
+    #region Fields
+    private bool _isDisposed = false;
+
+    internal event Action<string>? Error;
+    internal event Action? RequestStop;
+
+    private readonly Stack<Tuple<PlayerInfo, int, bool>?> _answeringHistory = new();
+    private readonly IGameActions _gameActions;
+
+    /// <summary>
+    /// Game buttons manager.
+    /// </summary>
+    private IButtonManager? _buttonManager;
+
+    /// <summary>
+    /// Game log writer.
+    /// </summary>
+    private readonly IGameLogger _gameLogger;
+
+    private readonly Timer _roundTimer;
+    private readonly Timer _questionTimer;
+    private readonly Timer _thinkingTimer;
+
+    private bool _timerStopped;
+    private bool _mediaStopped;
+
+    private QuestionState _state = QuestionState.Normal;
+    private QuestionState _previousState;
+
+    internal QuestionState State
+    {
+        get => _state;
+        set
+        {
+            if (_state != value)
+            {
+                _state = value;
+                OnStateChanged();
+            }
+        }
+    }
+
+    private PlayerInfo? _chooser = null;
+    private PlayerInfo? _selectedPlayer = null;
+
+    private int _chooserIndex = -1;
+
+    /// <summary>
+    /// Index of player having turn.
+    /// </summary>
+    public int ChooserIndex
+    {
+        get => _chooserIndex;
+        set
+        {
+            if (_chooserIndex != value)
+            {
+                _chooserIndex = value;
+                _chooser = _chooserIndex >= 0 && _chooserIndex < Players.Count ? Players[_chooserIndex] : null;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(Chooser));
+            }
+        }
+    }
+
+    /// <summary>
+    /// Player that has turn.
+    /// </summary>
+    public PlayerInfo? Chooser
+    {
+        get => _chooser;
+        set
+        {
+            if (_chooser != value)
+            {
+                _chooser = value;
+                _chooserIndex = value != null ? Players.IndexOf(value) : -1;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(ChooserIndex));
+            }
+        }
+    }
+
+    private readonly List<PlayerInfo> _selectedPlayers = new();
+
+    private string _language = Thread.CurrentThread.CurrentUICulture.Name;
+
+    #endregion
+
+    #region Commands
+
+    private readonly SimpleCommand _stop;
+    private readonly SimpleUICommand _next;
+    private readonly SimpleCommand _back;
+
+    private readonly SimpleCommand _nextRound;
+    private readonly SimpleCommand _previousRound;
+
+    public ICommand Stop => _stop;
+    public ICommand Next => _next;
+    public ICommand Back => _back;
+
+    public SimpleCommand RunRoundTimer { get; private set; }
+    public SimpleCommand StopRoundTimer { get; private set; }
+
+    public SimpleCommand RunQuestionTimer { get; private set; }
+    public SimpleCommand StopQuestionTimer { get; private set; }
+
+    public ICommand? RunMediaTimer { get; private set; }
+    public ICommand? StopMediaTimer { get; private set; }
+
+    public SimpleCommand AddPlayer { get; private set; }
+    public SimpleCommand RemovePlayer { get; private set; }
+    public SimpleCommand ClearPlayers { get; private set; }
+
+    public SimpleCommand KickPlayer { get; private set; }
+
+    public SimpleCommand ResetSums { get; private set; }
+
+    public ICommand GiveTurn { get; private set; }
+
+    public SimpleCommand Pass { get; private set; }
+
+    public ICommand MakeStake { get; private set; }
+
+    public ICommand AddStake { get; }
+
+    public ICommand SubtractStake { get; }
+
+    public ICommand NextRound => _nextRound;
+
+    public ICommand PreviousRound => _previousRound;
+
+    private ICommand? _activeRoundCommand;
+
+    public ICommand? ActiveRoundCommand
+    {
+        get => _activeRoundCommand;
+        set { _activeRoundCommand = value; OnPropertyChanged(); }
+    }
+
+    private ICommand? _activeQuestionCommand;
+
+    public ICommand? ActiveQuestionCommand
+    {
+        get => _activeQuestionCommand;
+        set { _activeQuestionCommand = value; OnPropertyChanged(); }
+    }
+
+    private ICommand? _activeMediaCommand;
+
+    public ICommand? ActiveMediaCommand
+    {
+        get => _activeMediaCommand;
+        set { if (_activeMediaCommand != value) { _activeMediaCommand = value; OnPropertyChanged(); } }
+    }
+
+    #endregion
+
+    #region Properties
+
+    public AppSettingsViewModel Settings { get; }
+
+    /// <summary>
+    /// Presentation link.
+    /// </summary>
+    public IPresentationController PresentationController { get; }
+
+    /// <summary>
+    /// Table info view model.
+    /// </summary>
+    public TableInfoViewModel LocalInfo { get; set; }
+
+    /// <summary>
+    /// Game players.
+    /// </summary>
+    public IList<PlayerInfo> Players { get; }
+
+    public IEnumerable<PlayerInfo> GamePlayers => Players;
+
+    private Func<bool>? _continuation = null;
+
+    public Func<bool>? Continuation
+    {
+        set
+        {
+            if (_continuation != value)
+            {
+                _continuation = value;
+            }
+        }
+    }
+
+    private int _price;
+
+    public int Price
+    {
+        get => _price;
+        set 
+        {
+            if (_price != value)
+            {
+                _price = value;
+                OnPropertyChanged();
+                UpdateCaption();
+            }
+        }
+    }
+
+    private bool _isCommonPrice = true;
+
+    public bool IsCommonPrice
+    {
+        get => _isCommonPrice;
+        set
+        {
+            if (_isCommonPrice != value)
+            {
+                _isCommonPrice = value;
+                OnPropertyChanged();
+            }
+        }
+    }
+
+    /// <summary>
+    /// Amount to subtract on player wrong answer.
+    /// </summary>
+    public int? NegativePrice { get; private set; } = null;
+
+    private int _rountTime = 0;
+
+    public int RoundTime
+    {
+        get => _rountTime;
+        set { _rountTime = value; OnPropertyChanged(); }
+    }
+
+    private int _roundTimeMax = int.MaxValue;
+
+    public int RoundTimeMax
+    {
+        get => _roundTimeMax;
+        set { _roundTimeMax = value; OnPropertyChanged(); }
+    }
+
+    private int _questionTime = 0;
+
+    /// <summary>
+    /// Current question time value.
+    /// </summary>
+    public int QuestionTime
+    {
+        get => _questionTime;
+        set { _questionTime = value; OnPropertyChanged(); }
+    }
+
+    private int _questionTimeMax = int.MaxValue;
+
+    /// <summary>
+    /// Maximum question time value.
+    /// </summary>
+    public int QuestionTimeMax
+    {
+        get => _questionTimeMax;
+        set { _questionTimeMax = value; OnPropertyChanged(); }
+    }
+
+    private bool _isThinking = false;
+
+    private int _thinkingTime = 0;
+
+    /// <summary>
+    /// Current thinking time value.
+    /// </summary>
+    public int ThinkingTime
+    {
+        get => _thinkingTime;
+        set { _thinkingTime = value; OnPropertyChanged(); }
+    }
+
+    private int _thinkingTimeMax = int.MaxValue;
+
+    /// <summary>
+    /// Maximum thinking time value.
+    /// </summary>
+    public int ThinkingTimeMax
+    {
+        get => _thinkingTimeMax;
+        set { _thinkingTimeMax = value; OnPropertyChanged(); }
+    }
+
+    private string _activeRoundName = "";
+
+    public string ActiveRoundName
+    {
+        get => _activeRoundName;
+        set { _activeRoundName = value; OnPropertyChanged(); }
+    }
+
+    private string _activeQuestionTypeName = "";
+
+    public string ActiveQuestionTypeName
+    {
+        get => _activeQuestionTypeName;
+        set { _activeQuestionTypeName = value; OnPropertyChanged(); }
+    }
+
+    public ObservableCollection<KeyValuePair<string, string>> ActiveQuestionParameters { get; } = new();
+
+    private bool _isQuestion = false;
+
+    private string[] _questionAnswers = Array.Empty<string>();
+
+    public string[] QuestionAnswers
+    {
+        get => _questionAnswers;
+        set { _questionAnswers = value; OnPropertyChanged(); }
+    }
+
+    private IReadOnlyList<ContentItem>? _contentItems = null;
+
+    /// <summary>
+    /// Currently played content items.
+    /// </summary>
+    public IReadOnlyList<ContentItem>? ContentItems
+    {
+        get => _contentItems;
+        set { _contentItems = value; OnPropertyChanged(); }
+    }
+
+    /// <summary>
+    /// Moves question play to specific content item.
+    /// </summary>
+    public ContextCommand MoveToContent { get; private set; }
+
+    public Action<int>? MoveToContentCallback { get; set; }
+
+    private IReadOnlyCollection<ContentItem> _activeContent = Array.Empty<ContentItem>();
+
+    /// <summary>
+    /// Currently active content items.
+    /// </summary>
+    public IReadOnlyCollection<ContentItem> ActiveContent
+    {
+        get => _activeContent;
+        set { if (_activeContent != value) { _activeContent = value; OnPropertyChanged(); } }
+    }
+
+    private int _mediaProgress;
+
+    private bool _mediaProgressBlock = false;
+
+    public int MediaProgress
+    {
+        get => _mediaProgress;
+        set
+        {
+            if (_mediaProgress != value)
+            {
+                _mediaProgress = value;
+                OnPropertyChanged();
+
+                if (!_mediaProgressBlock)
+                {
+                    PresentationController.SeekMedia(_mediaProgress);
+
+                    if (_presentationListener.IsMediaEnded)
+                    {
+                        ActiveMediaCommand = StopMediaTimer;
+                        _presentationListener.IsMediaEnded = false;
+                    }
+                }
+            }
+        }
+    }
+
+    private bool _isMediaControlled;
+
+    public bool IsMediaControlled
+    {
+        get => _isMediaControlled;
+        set
+        {
+            if (_isMediaControlled != value)
+            {
+                _isMediaControlled = value;
+                OnPropertyChanged();
+            }
+        }
+    }
+
+    public int ButtonBlockTime => (int)(Settings.Model.BlockingTime * 1000);
+
+    private readonly IExtendedListener _presentationListener;
+
+    private int _selectedAnswerIndex = -1;
+
+    private DecisionMode _decisionMode = DecisionMode.None;
+
+    /// <summary>
+    /// Player decision mode.
+    /// </summary>
+    public DecisionMode DecisionMode
+    {
+        get => _decisionMode;
+        set
+        {
+            if (_decisionMode != value)
+            {
+                _decisionMode = value;
+                OnPropertyChanged();
+            }
+        }
+    }
+
+    private bool _canSelectChooser;
+
+    /// <summary>
+    /// Can current chooser be selected.
+    /// </summary>
+    public bool CanSelectChooser
+    {
+        get => _canSelectChooser;
+        set
+        {
+            if (_canSelectChooser != value)
+            {
+                _canSelectChooser = value;
+                OnPropertyChanged();
+            }
+        }
+    }
+
+    private NumberSet? _stakeInfo;
+
+    /// <summary>
+    /// Player possible stakes info.
+    /// </summary>
+    public NumberSet? StakeInfo
+    {
+        get => _stakeInfo;
+        set 
+        {
+            if (_stakeInfo != value)
+            {
+                _stakeInfo = value;
+                OnPropertyChanged();
+            }
+        }
+    }
+
+    private readonly List<int> _stakers = new();
+    private int _stakersIterator = -1;
+    private int _stakerIndex = -1;
+
+    public int StakerIndex
+    {
+        get => _stakerIndex;
+        set
+        {
+            _stakerIndex = value;
+            OnPropertyChanged();
+            OnPropertyChanged(nameof(Staker));
+        }
+    }
+
+    public PlayerInfo? Staker => _stakerIndex > -1 && _stakerIndex < Players.Count ? Players[_stakerIndex] : null;
+
+    private int _stake;
+
+    public int Stake
+    {
+        get => _stake;
+        set
+        {
+            if (_stake != value)
+            {
+                _stake = value;
+                OnPropertyChanged();
+            }
+        }
+    }
+
+    private bool _isAllIn = false;
+
+    private bool _managedMode;
+
+    public bool ManagedMode
+    {
+        get => _managedMode;
+        set
+        {
+            if (_managedMode != value)
+            {
+                _managedMode = value;
+                OnPropertyChanged();
+            }
+        }
+    }
+
+    private string[]? _ipAddresses = null;
+
+    public string[]? IpAddresses
+    {
+        get
+        {
+            if (_ipAddresses == null)
+            {
+                LoadIpAddresses();
+            }           
+
+            return _ipAddresses;
+        }
+    }
+
+    private readonly object _ipAddressesLock = new();
+    private bool _isLoadingAddresses = false;
+
+    private async void LoadIpAddresses()
+    {
+        lock (_ipAddressesLock)
+        {
+            if (_isLoadingAddresses)
+            {
+                return;
+            }
+
+            _isLoadingAddresses = true;
+        }
+
+        _ipAddresses = await NetworkHelper.GetIpAddressesAsync();
+        OnPropertyChanged(nameof(IpAddresses));
+
+        CurrentIpAddress = NetworkHelper.FindLocalNetworkAddress(_ipAddresses);
+    }
+
+    private string _currentIpAddress = "";
+
+    public string CurrentIpAddress
+    {
+        get => _currentIpAddress;
+        set
+        {
+            if (_currentIpAddress != value)
+            {
+                _currentIpAddress = value;
+                OnPropertyChanged();
+                UpdateQRCode();
+            }
+        }
+    }
+
+    private bool _qRCodeShown = false;
+
+    public bool QRCodeShown
+    {
+        get => _qRCodeShown;
+        set
+        {
+            if (_qRCodeShown != value)
+            {
+                _qRCodeShown = value;
+                OnPropertyChanged();
+                UpdateQRCode();
+            }
+        }
+    }
+
+    private void UpdateQRCode() => PresentationController.ShowQRCode(
+        _qRCodeShown ? $"http://{_currentIpAddress}:{Settings.Model.WebPort}" : null);
+
+    private bool _isPaused = false;
+
+    public bool IsPaused
+    {
+        get => _isPaused;
+        set
+        {
+            if (_isPaused != value)
+            {
+                if (_managed)
+                {
+                    _gameActions.SetPause(value);
+                }
+
+                _isPaused = value;
+                OnPropertyChanged();
+                OnIsPausedChanged();
+            }
+        }
+    }
+
+    private bool _timerPaused;
+
+    private void OnIsPausedChanged()
+    {
+        PresentationController.SetPause(IsPaused, QuestionTime * 10);
+
+        if (IsPaused && ActiveQuestionCommand == StopQuestionTimer)
+        {
+            _questionTimer.Change(Timeout.Infinite, Timeout.Infinite);
+            ActiveQuestionCommand = RunQuestionTimer;
+            _timerPaused = true;
+        }
+        else if (!IsPaused && _timerPaused)
+        {
+            _questionTimer.Change(1000, 1000);
+            ActiveQuestionCommand = StopQuestionTimer;
+            _timerPaused = false;
+        }
+    }
+
+    private string _showmanReplic = "";
+
+    public string ShowmanReplic
+    {
+        get => _showmanReplic;
+        set
+        {
+            if (_showmanReplic != value)
+            {
+                _showmanReplic = value;
+                OnPropertyChanged();
+            }
+        }
+    }
+
+    #endregion
+
+    private readonly bool _managed;
+
+    private readonly PresentationHandler? _presentationHandler;
+    private readonly IPlatformService _platformService;
+
+    public GameViewModel(
+        AppSettingsViewModel settings,
+        IGameActions gameActions,
+        IExtendedListener presentationListener,
+        IPresentationController presentationController,
+        IGameLogger gameLogger,
+        PresentationHandler? presentationHandler,
+        IPlatformService platformService,
+        bool managed)
+    {
+        Settings = settings;
+        _gameActions = gameActions;
+        _presentationListener = presentationListener;
+        _gameLogger = gameLogger;
+        PresentationController = presentationController;
+        _presentationHandler = presentationHandler;
+        _platformService = platformService;
+        _managed = managed;
+
+        LocalInfo = new TableInfoViewModel();
+        Players = new ObservableCollection<PlayerInfo>();
+
+        LocalInfo.QuestionSelected += QuestionInfo_Selected;
+        LocalInfo.ThemeSelected += ThemeInfo_Selected;
+        LocalInfo.AnswerSelected += LocalInfo_AnswerSelected;
+
+        _presentationListener.Next = _next = new SimpleUICommand(Next_Executed) { Name = Resources.Next };
+        _presentationListener.Back = _back = new SimpleCommand(Back_Executed);
+        _presentationListener.Stop = _stop = new SimpleCommand(Stop_Executed);
+
+        AddPlayer = new SimpleCommand(AddPlayer_Executed);
+        RemovePlayer = new SimpleCommand(RemovePlayer_Executed);
+        ClearPlayers = new SimpleCommand(ClearPlayers_Executed);
+        KickPlayer = new SimpleCommand(KickPlayer_Executed);
+        ResetSums = new SimpleCommand(ResetSums_Executed);
+        GiveTurn = new SimpleCommand(GiveTurn_Executed);
+        Pass = new SimpleCommand(Pass_Executed);
+        MakeStake = new SimpleCommand(MakeStake_Executed);
+        AddStake = new SimpleCommand(AddStake_Executed);
+        SubtractStake = new SimpleCommand(SubtractStake_Executed);
+        MoveToContent = new ContextCommand(MoveToContent_Executed);
+
+        RunRoundTimer = new SimpleUICommand(RunRoundTimer_Executed) { Name = Resources.Run };
+        StopRoundTimer = new SimpleUICommand(StopRoundTimer_Executed) { Name = Resources.Pause };
+
+        RunQuestionTimer = new SimpleUICommand(RunQuestionTimer_Executed) { Name = Resources.Run };
+        StopQuestionTimer = new SimpleUICommand(StopQuestionTimer_Executed) { Name = Resources.Pause };
+
+        if (presentationController.CanControlMedia)
+        {
+            RunMediaTimer = new SimpleUICommand(RunMediaTimer_Executed) { Name = Resources.Run };
+            StopMediaTimer = new SimpleUICommand(StopMediaTimer_Executed) { Name = Resources.Pause };
+        }
+
+        _presentationListener.NextRound = _nextRound = new SimpleCommand(NextRound_Executed) { CanBeExecuted = false };
+        _presentationListener.PreviousRound = _previousRound = new SimpleCommand(PreviousRound_Executed) { CanBeExecuted = false };
+
+        _roundTimer = new Timer(RoundTimer_Elapsed, null, Timeout.Infinite, Timeout.Infinite);
+        _questionTimer = new Timer(QuestionTimer_Elapsed, null, Timeout.Infinite, Timeout.Infinite);
+        _thinkingTimer = new Timer(ThinkingTimer_Elapsed, null, Timeout.Infinite, Timeout.Infinite);
+
+        settings.Model.SIUISettings.PropertyChanged += Default_PropertyChanged;
+        settings.SIUISettings.PropertyChanged += Default_PropertyChanged;
+        settings.Model.PropertyChanged += Settings_PropertyChanged;
+
+        _presentationListener.MediaStart += GameHost_MediaStart;
+        _presentationListener.MediaProgress += GameHost_MediaProgress;
+        _presentationListener.MediaEnd += GameHost_MediaEnd;
+        _presentationListener.RoundThemesFinished += GameHost_RoundThemesFinished;
+        _presentationListener.AnswerSelected += PresentationListener_AnswerSelected;
+
+        if (managed)
+        {
+            ClearPlayers.CanBeExecuted = false;
+            ResetSums.CanBeExecuted = false;
+            RunRoundTimer.CanBeExecuted = false;
+            StopRoundTimer.CanBeExecuted = false;
+            RunQuestionTimer.CanBeExecuted = false;
+            StopQuestionTimer.CanBeExecuted = false;
+        }
+    }
+
+    private void AddStake_Executed(object? arg)
+    {
+        if (arg is not PlayerInfo player)
+        {
+            return;
+        }
+
+        try
+        {
+            if (_managed)
+            {
+                _gameActions.IsRightAnswer();
+                return;
+            }
+
+            var increment = IsCommonPrice ? Price : player.Stake;
+
+            player.Sum += increment;
+            player.Right++;
+
+            _gameLogger.Write("{0} +{1}", player.Name, increment);
+
+            if (!_isQuestion)
+            {
+                return;
+            }
+
+            _answeringHistory.Push(Tuple.Create(player, increment, true));
+            PresentationController.PlayerIsRight(Players.IndexOf(player));
+
+            if (IsCommonPrice)
+            {
+                StopThinkingTimer_Executed(0);
+                Chooser = player;
+
+                if (Settings.Model.EndQuestionOnRightAnswer)
+                {
+                    _gameActions.OnRightAnswer(!IsQuestionFinished);
+                }
+                else
+                {
+                    ReturnToQuestion();
+                }
+            }
+        }
+        catch (Exception exc)
+        {
+            _platformService.ShowMessage($"{Resources.Error}: {exc.Message}");
+        }
+    }
+
+    private void SubtractStake_Executed(object? arg)
+    {
+        if (arg is not PlayerInfo player)
+        {
+            return;
+        }
+
+        try
+        {
+            if (_managed)
+            {
+                _gameActions.IsWrongAnswer();
+                return;
+            }
+
+            var decrement = IsCommonPrice ? (NegativePrice ?? Price) : player.Stake;
+            var substract = Settings.Model.SubstractOnWrong ? decrement : 0;
+
+            player.Sum -= substract;
+            player.Wrong++;
+
+            if (!_isQuestion)
+            {
+                return;
+            }
+
+            _gameLogger.Write("{0} -{1}", player.Name, substract);
+            PresentationController.PlayerIsWrong(Players.IndexOf(player));
+
+            if (IsCommonPrice)
+            {
+                StopThinkingTimer_Executed(0);
+
+                if (LocalInfo.LayoutMode == LayoutMode.AnswerOptions && _selectedAnswerIndex > -1)
+                {
+                    if (_selectedAnswerIndex < LocalInfo.AnswerOptions.Options.Length)
+                    {
+                        LocalInfo.AnswerOptions.Options[_selectedAnswerIndex].State = ItemState.Wrong;
+                    }
+
+                    PresentationController.SetAnswerState(_selectedAnswerIndex, ItemState.Wrong);
+                }
+
+                _answeringHistory.Push(Tuple.Create(player, Price, false));
+
+                ReturnToQuestion();
+            }
+        }
+        catch (Exception exc)
+        {
+            _platformService.ShowMessage($"{Resources.Error}: {exc.Message}");
+        }
+    }
+
+    private void MoveToContent_Executed(object? arg)
+    {
+        if (ContentItems == null || arg is not ContentItem contentItem)
+        {
+            return;
+        }
+
+        for (var i = 0; i < ContentItems.Count; i++)
+        {
+            if (ContentItems[i] == contentItem)
+            {
+                MoveToContentCallback?.Invoke(i);
+                break;
+            }
+        }
+    }
+
+    private void LocalInfo_AnswerSelected(ItemViewModel answer)
+    {
+        if (answer.State != ItemState.Normal)
+        {
+            if (answer.State == ItemState.Active)
+            {
+                answer.State = ItemState.Normal;
+                PresentationController.SetAnswerState(_selectedAnswerIndex, ItemState.Normal);
+                _selectedAnswerIndex = -1;
+            }
+
+            return;
+        }
+
+        answer.State = ItemState.Active;
+
+        var answerOptions = LocalInfo.AnswerOptions.Options;
+        _selectedAnswerIndex = -1;
+
+        for (var answerIndex = 0; answerIndex < answerOptions.Length; answerIndex++)
+        {
+            if (answerOptions[answerIndex] == answer)
+            {
+                _selectedAnswerIndex = answerIndex;
+            }
+            else if (answerOptions[answerIndex].State == ItemState.Active)
+            {
+                answerOptions[answerIndex].State = ItemState.Normal;
+            }
+        }
+
+        if (_selectedAnswerIndex == -1)
+        {
+            return;
+        }
+
+        PresentationController.SetAnswerState(_selectedAnswerIndex, ItemState.Active);
+    }
+
+    private void PresentationListener_AnswerSelected(int answerIndex)
+    {
+        var answerOptions = LocalInfo.AnswerOptions.Options;
+
+        if (answerIndex < 0 || answerIndex >= answerOptions.Length)
+        {
+            return;
+        }
+
+        if (answerOptions[answerIndex].State != ItemState.Normal)
+        {
+            if (answerOptions[answerIndex].State == ItemState.Active)
+            {
+                answerOptions[answerIndex].State = ItemState.Normal;
+                PresentationController.SetAnswerState(answerIndex, ItemState.Normal);
+                _selectedAnswerIndex = -1;
+            }
+
+            return;
+        }
+
+        _selectedAnswerIndex = answerIndex;
+
+        for (var i = 0; i < answerOptions.Length; i++)
+        {
+            if (i != answerIndex && answerOptions[i].State == ItemState.Active)
+            {
+                answerOptions[i].State = ItemState.Normal;
+            }
+        }
+
+        answerOptions[answerIndex].State = ItemState.Active;
+        PresentationController.SetAnswerState(answerIndex, ItemState.Active);
+    }
+
+    private void Settings_PropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (sender == null)
+        {
+            return;
+        }
+
+        var settings = (AppSettings)sender;
+
+        switch (e.PropertyName)
+        {
+            case nameof(AppSettings.ShowPlayers):
+                PresentationController.UpdateShowPlayers(settings.ShowPlayers);
+                break;
+            
+            case nameof(AppSettings.PlaySounds):
+                PresentationController.SetAppSound(settings.PlaySounds);
+                break;
+            
+            case nameof(AppSettings.QuestionReadingSpeed):
+                PresentationController.SetReadingSpeed(settings.QuestionReadingSpeed);
+                break;
+            
+            case nameof(AppSettings.AttachContentToTable):
+                PresentationController.SetAttachContentToTable(settings.AttachContentToTable);
+                break;
+        }
+    }
+
+    internal bool OnQuestionEnd(string comments)
+    {
+        if (comments.Length > 0)
+        {
+            PresentationController.SetQuestionComments(comments);
+            Continuation = EndQuestion;
+        }
+        else
+        {
+            EndQuestion();
+        }
+
+        return RoundTimeMax > 0 && RoundTime >= RoundTimeMax;
+    }
+
+    private bool EndQuestion()
+    {
+        ClearState();
+        PresentationController.OnQuestionEnd();
+        _gameActions.MoveNext();
+        return true;
+    }
+
+    private void GameHost_RoundThemesFinished()
+    {
+        if (_continuation == null)
+        {
+            return;
+        }
+
+        _continuation();
+        _continuation = null;
+    }
+
+    private void GameHost_MediaEnd()
+    {
+        if (ActiveMediaCommand == StopMediaTimer)
+        {
+            ActiveMediaCommand = RunMediaTimer;
+        }
+    }
+
+    private void GameHost_MediaProgress(double progress)
+    {
+        _mediaProgressBlock = true;
+
+        try
+        {
+            MediaProgress = (int)(progress * 100);
+        }
+        finally
+        {
+            _mediaProgressBlock = false;
+        }
+    }
+
+    private void GameHost_MediaStart() => IsMediaControlled = true;
+
+    #region Event handlers
+
+    private void Default_PropertyChanged(object? sender, PropertyChangedEventArgs e) =>
+        PresentationController.UpdateSettings(Settings.SIUISettings.Model);
+
+    private void PlayerInfo_PropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(PlayerInfo.IsSelected))
+        {
+            return;
+        }
+
+        if (sender == null)
+        {
+            return;
+        }
+
+        var player = (PlayerInfo)sender;
+
+        if (e.PropertyName == nameof(PlayerInfo.Name) && !ManagedMode)
+        {
+            var uniqueName = GetUniqueName(string.IsNullOrWhiteSpace(player.Name) ? (Players.IndexOf(player) + 1).ToString() : player.Name, player);
+
+            if (uniqueName != player.Name)
+            {
+                player.Name = uniqueName;
+                return;
+            }
+        }
+
+        PresentationController.UpdatePlayerInfo(Players.IndexOf(player), player, e.PropertyName);
+    }
+
+    private string GetUniqueName(string name, PlayerInfo player)
+    {
+        bool IsTaken(string value) => Players.Any(p => p != player && p.Name == value);
+
+        if (!IsTaken(name))
+        {
+            return name;
+        }
+
+        var index = 2;
+
+        while (IsTaken(name + index))
+        {
+            index++;
+        }
+
+        return name + index;
+    }
+
+    private void QuestionTimer_Elapsed(object? state) =>
+        UI.Execute(
+            () =>
+            {
+                QuestionTime++;
+
+                if (QuestionTime < QuestionTimeMax)
+                {
+                    return;
+                }
+
+                if (!_managed)
+                {
+                    PresentationController.NoAnswer();
+                    StopQuestionTimer_Executed(1);
+                    ActiveQuestionCommand = null;
+
+                    if (!Settings.Model.SignalsAfterTimer)
+                    {
+                        StopButtons();
+                    }
+                }
+            },
+            exc => OnError(exc.ToString()));
+
+    private void SetSound(string soundName)
+    {
+        if (!Settings.Model.PlaySounds)
+        {
+            return;
+        }
+
+        UI.Execute(() => _platformService.PlaySound(soundName), exc => OnError(exc.ToString()));
+    }
+
+    private void RoundTimer_Elapsed(object? state) => UI.Execute(
+        () =>
+        {
+            RoundTime++;
+
+            if (RoundTime >= RoundTimeMax)
+            {
+                StopRoundTimer.Execute(null);
+            }
+        },
+        exc => OnError(exc.ToString()));
+
+    private void ThinkingTimer_Elapsed(object? state) => UI.Execute(
+        () =>
+        {
+            ThinkingTime++;
+
+            if (ThinkingTime < ThinkingTimeMax)
+            {
+                return;
+            }
+
+            StopThinkingTimer_Executed(null);
+        },
+        exc => OnError(exc.ToString()));
+
+    private void ThemeInfo_Selected(ThemeInfoViewModel theme)
+    {
+        int themeIndex;
+
+        for (themeIndex = 0; themeIndex < LocalInfo.RoundInfo.Count; themeIndex++)
+        {
+            if (LocalInfo.RoundInfo[themeIndex] == theme)
+            {
+                break;
+            }
+        }
+
+        PresentationController.DeletionCallback?.Invoke(themeIndex);
+    }
+
+    private void QuestionInfo_Selected(QuestionInfoViewModel question)
+    {
+        if (_continuation != null)
+        {
+            return;
+        }
+
+        int questionIndex = -1;
+        int themeIndex;
+
+        for (themeIndex = 0; themeIndex < LocalInfo.RoundInfo.Count; themeIndex++)
+        {
+            var found = false;
+
+            for (questionIndex = 0; questionIndex < LocalInfo.RoundInfo[themeIndex].Questions.Count; questionIndex++)
+            {
+                if (LocalInfo.RoundInfo[themeIndex].Questions[questionIndex] == question)
+                {
+                    found = true;
+                    break;
+                }
+            }
+
+            if (found)
+            {
+                break;
+            }
+        }
+
+        if (PresentationController.SelectionCallback == null)
+        {
+            OnError("Cannot select the question");
+            return;
+        }
+
+        PresentationController.SelectionCallback.Invoke(themeIndex, questionIndex);
+    }
+
+    #endregion
+
+    #region Command handlers
+
+    private void NextRound_Executed(object? arg) => _gameActions.MoveNextRound();
+
+    private void PreviousRound_Executed(object? arg) => _gameActions.MoveBackRound();
+
+    private void RunRoundTimer_Executed(object? arg)
+    {
+        if (arg != null)
+        {
+            RoundTime = 0;
+        }
+
+        _roundTimer.Change(1000, 1000);
+
+        ActiveRoundCommand = StopRoundTimer;
+    }
+
+    private void StopRoundTimer_Executed(object? arg)
+    {
+        if (arg != null)
+        {
+            RoundTime = 0;
+        }
+
+        _roundTimer.Change(Timeout.Infinite, Timeout.Infinite);
+        
+        ActiveRoundCommand = RunRoundTimer;
+    }
+
+    private void RunQuestionTimer_Executed(object? arg)
+    {
+        if (arg != null)
+        {
+            QuestionTime = 0;
+        }
+
+        PresentationController.RunTimer();
+
+        if (_managed)
+        {
+            return;
+        }
+
+        _questionTimer.Change(1000, 1000);
+
+        ActiveQuestionCommand = StopQuestionTimer;
+    }
+
+    private void StopQuestionTimer_Executed(object? arg)
+    {
+        if ((int?)arg == 0)
+        {
+            QuestionTime = 0;
+            PresentationController.StopTimer();
+        }
+        else if (arg == null)
+        {
+            PresentationController.PauseTimer(QuestionTime * 10);
+        }
+
+        _questionTimer.Change(Timeout.Infinite, Timeout.Infinite);
+        ActiveQuestionCommand = RunQuestionTimer;
+    }
+
+    private void RunThinkingTimer_Executed(object? arg)
+    {
+        if (_isThinking)
+        {
+            return;
+        }
+
+        _isThinking = true;
+
+        if (arg != null)
+        {
+            ThinkingTime = 0;
+        }
+
+        _thinkingTimer.Change(1000, 1000);
+
+        if (_selectedPlayer != null)
+        {
+            var playerIndex = Players.IndexOf(_selectedPlayer);
+
+            if (playerIndex >= 0)
+            {
+                PresentationController.RunPlayerTimer(playerIndex, ThinkingTimeMax * 10);
+            }
+        }
+    }
+
+    public void StopThinkingTimer_Executed(object? arg)
+    {
+        if (!_isThinking)
+        {
+            return;
+        }
+
+        _isThinking = false;
+
+        if (arg != null)
+        {
+            ThinkingTime = 0;
+        }
+
+        _buttonManager?.TryGetCommandExecutor()?.Cancel();
+
+        if (QuestionForAll)
+        {
+            foreach (var player in Players)
+            {
+                player.IsPreliminaryAnswer = false;
+            }
+        }
+
+        PresentationController.StopThinkingTimer();
+        _thinkingTimer.Change(Timeout.Infinite, Timeout.Infinite);
+    }
+
+    private void RunMediaTimer_Executed(object? arg)
+    {
+        ActiveMediaCommand = StopMediaTimer;
+    }
+
+    private void StopMediaTimer_Executed(object? arg)
+    {
+        PresentationController.StopMedia();
+        ActiveMediaCommand = RunMediaTimer;
+    }
+
+    internal void AddPlayerCore(PlayerInfo player)
+    {
+        if (!ManagedMode)
+        {
+            player.Name = string.IsNullOrWhiteSpace(player.Name)
+                ? GetUniqueName((Players.Count + 1).ToString(), player)
+                : GetUniqueName(player.Name, player);
+        }
+
+        player.PropertyChanged += PlayerInfo_PropertyChanged;
+        Players.Add(player);
+        PresentationController.AddPlayer(player.Name);
+        _buttonManager?.OnPlayersChanged();
+    }
+
+    private void AddPlayer_Executed(object? arg) => _gameActions.AddPlayer();
+
+    private void RemovePlayer_Executed(object? arg)
+    {
+        if (arg is not PlayerInfo player)
+        {
+            return;
+        }
+
+        _gameActions.RemovePlayerAt(Players.IndexOf(player));
+    }
+
+    private void ClearPlayers_Executed(object? arg)
+    {
+        var players = Players.ToArray();
+
+        foreach (var player in players)
+        {
+            RemovePlayerCore(player);
+        }
+    }
+
+    private void KickPlayer_Executed(object? arg)
+    {
+        if (arg is not PlayerInfo player)
+        {
+            return;
+        }
+
+        if (player.Id != null && player.IsConnected)
+        {
+            _buttonManager?.DisconnectPlayerById(player.Id, player.Name);
+            player.IsConnected = false;
+            _buttonManager?.OnPlayersChanged();
+        }
+    }
+
+    private void ResetSums_Executed(object? arg)
+    {
+        foreach (var player in Players)
+        {
+            player.Sum = 0;
+            player.Right = 0;
+            player.Wrong = 0;
+        }
+    }
+
+    private void GiveTurn_Executed(object? arg)
+    {
+        if (arg is not PlayerInfo player)
+        {
+            return;
+        }
+
+        Chooser = player;
+
+        if (DecisionMode == DecisionMode.StarterChoosing)
+        {
+            DecisionMode = DecisionMode.None;
+
+            if (_managed)
+            {
+                _gameActions.SelectPlayer(Players.IndexOf(Chooser));
+            }
+        }
+        else if (DecisionMode == DecisionMode.AnswererChoosing)
+        {
+            DecisionMode = DecisionMode.None;
+            Chooser.IsSelected = true;
+            _selectedPlayer = Chooser;
+        }
+    }
+
+    internal async Task StartAsync()
+    {
+        _buttonManager = await _platformService.ButtonManagerFactory.CreateAsync(Settings.Model, this, _platformService);
+
+        if (_buttonManager != null && _buttonManager.ArePlayersManaged())
+        {
+            ManagedMode = true;
+        }
+
+        if (!_managed)
+        {
+            for (var i = 0; i < Settings.Model.PlayerCount; i++)
+            {
+                AddPlayer.Execute(null);
+            }
+        }
+
+        _language = Thread.CurrentThread.CurrentUICulture.Name;
+
+        await PresentationController.StartAsync(InitPresentation);
+
+        _gameActions.Init();
+
+        _gameLogger.Write("Game started {0}", DateTime.Now);
+
+        _selectedPlayers.Clear();
+
+        if (Settings.Model.AutomaticGame)
+        {
+            Next_Executed();
+        }
+    }
+
+    private void InitPresentation()
+    {
+        PresentationController.ClearPlayers();
+
+        for (int i = 0; i < Players.Count; i++)
+        {
+            PresentationController.AddPlayer(Players[i].Name);
+        }
+
+        PresentationController.SetLanguage(_language);
+        PresentationController.SetReadingSpeed(Settings.Model.QuestionReadingSpeed);
+        PresentationController.SetAttachContentToTable(Settings.Model.AttachContentToTable);
+        PresentationController.SetAppSound(Settings.Model.PlaySounds);
+        PresentationController.UpdateSettings(Settings.SIUISettings.Model);
+        PresentationController.UpdateShowPlayers(Settings.Model.ShowPlayers);
+        PresentationController.ClearPlayersState();
+        PresentationController.SetTimerMaxTime(QuestionTimeMax * 10);
+
+        if (LocalInfo.RoundInfo.Count > 0)
+        {
+            PresentationController.SetTable([.. LocalInfo.RoundInfo]);
+        }
+    }
+
+    internal void OnQuestion(int price)
+    {
+        PresentationController.SetQuestionPrice(price);
+
+        Price = price;
+
+        LocalInfo.Text = price.ToString();
+        LocalInfo.TStage = TableStage.QuestionPrice;
+    }
+
+    private void SetCaption(string caption) => PresentationController.SetCaption(Settings.Model.ShowTableCaption ? caption : "");
+
+    internal void OnTheme(string themeName, string themeComments)
+    {
+        PresentationController.SetTheme(themeName, false);
+
+        LocalInfo.Text = $"{Resources.Theme}: {themeName}";
+        LocalInfo.TStage = TableStage.Theme;
+
+        CurrentTheme = themeName;
+        ThemeComments = themeComments;
+    }
+
+    internal void OnEndGame()
+    {
+        PresentationController.ClearState();
+
+        _nextRound.CanBeExecuted = false;
+        _previousRound.CanBeExecuted = true;
+    }
+
+    private void Stop_Executed(object? arg = null) => RequestStop?.Invoke();
+
+    /// <summary>
+    /// Moves game to next stage.
+    /// </summary>
+    private void Next_Executed(object? arg = null)
+    {
+        try
+        {
+            if (IsPaused)
+            {
+                IsPaused = false;
+            }
+
+            if (_continuation != null)
+            {
+                _continuation();
+                _continuation = null;
+                return;
+            }
+
+            _gameActions.MoveNext();
+        }
+        catch (Exception exc)
+        {
+            _platformService.ShowMessage($"{Resources.Error}: {exc.Message}");
+        }
+    }
+
+    internal void OnQuestionType(string typeName, bool isDefault)
+    {
+        if (isDefault)
+        {
+            _gameActions.MoveNext();
+            return;
+        }
+
+        ActiveQuestionTypeName = typeName;
+
+        switch (typeName)
+        {
+            case QuestionTypes.Secret:
+            case QuestionTypes.SecretPublicPrice:
+            case QuestionTypes.SecretNoQuestion:
+                PrintQuestionType(typeName, Resources.SecretQuestion.ToUpper(), Settings.Model.SpecialsAliases.SecretQuestionAlias, -1);
+                break;
+
+            case QuestionTypes.Stake:
+                PrintQuestionType(
+                    typeName,
+                    Resources.StakeQuestion.ToUpper(),
+                    Settings.Model.SpecialsAliases.StakeQuestionAlias,
+                    -1);
+                
+                break;
+
+            case QuestionTypes.NoRisk:
+            case QuestionTypes.ForYourself:
+                PrintQuestionType(typeName, Resources.NoRiskQuestion.ToUpper(), Settings.Model.SpecialsAliases.NoRiskQuestionAlias, -1);
+                break;
+
+            case QuestionTypes.Simple:
+            case QuestionTypes.WithButton:
+                if (!isDefault)
+                {
+                    PrintQuestionType(typeName, Resources.QuestionTypeSimple.ToUpper(), "", -1);
+                }
+                break;
+
+            case QuestionTypes.StakeAll:
+                if (!isDefault)
+                {
+                    PrintQuestionType(typeName, Resources.QuestionTypeStakeForAll.ToUpper(), "", -1);
+                }
+                break;
+
+            case QuestionTypes.ForAll:
+                PrintQuestionType(typeName, Resources.QuestionTypeForAll.ToUpper(), "", -1);
+                break;
+
+            default:
+                PresentationController.SetText(typeName);
+                break;
+        }
+
+        LocalInfo.TStage = TableStage.Special;
+    }
+
+    internal void OnPackage(string packageName, MediaInfo? packageLogo)
+    {
+        _gameLogger.Write("Package: {0}", packageName);
+        
+        var videoUrl = Settings.Model.VideoUrl;
+        var imageUrl = Settings.SIUISettings.Model.LogoUri;
+
+        if (!string.IsNullOrWhiteSpace(videoUrl))
+        {
+            var content = new[] { new ContentItem { Type = ContentTypes.Video, Value = videoUrl } };
+            PresentationController.OnQuestionContent(content, contentItem => contentItem.Value, "");
+        }
+        else if (!string.IsNullOrWhiteSpace(imageUrl))
+        {
+            var content = new[] { new ContentItem { Type = ContentTypes.Image, Value = imageUrl } };
+            PresentationController.OnQuestionContent(content, contentItem => contentItem.Value, "");
+        }
+        else
+        {
+            PresentationController.OnPackage(packageName, packageLogo);
+        }
+
+        LocalInfo.TStage = TableStage.Sign;
+        _buttonManager?.TryGetCommandExecutor()?.OnStage("Begin");
+    }
+
+    internal void OnRoundNames(string[] roundNames) => _roundNames = roundNames;
+
+    internal void OnGameThemes(IEnumerable<string> themes)
+    {
+        PresentationController.SetGameThemes(themes);
+        LocalInfo.TStage = TableStage.GameThemes;
+    }
+
+    internal void OnRound(string roundName, QuestionSelectionStrategyType selectionStrategyType)
+    {
+        ActiveRoundName = roundName;
+
+        PresentationController.SetRound(roundName, selectionStrategyType);
+        LocalInfo.TStage = TableStage.Round;
+
+        var roundIndex = Array.IndexOf(_roundNames, roundName);
+        _previousRound.CanBeExecuted = roundIndex > 0;
+        _nextRound.CanBeExecuted = roundIndex < _roundNames.Length - 1;
+
+        _gameLogger.Write("\r\n{0} {1}", Resources.Round, roundName);
+    }
+
+    public void OnRoundThemes(List<string> roundThemes) => UI.Execute(() =>
+    {
+        _gameLogger.Write($"{Resources.RoundThemes}:");
+
+        foreach (var theme in roundThemes)
+        {
+            _gameLogger.Write(theme);
+        }
+
+        PresentationController.SetRoundThemes(roundThemes.ToArray(), false);
+    },
+    exc => OnError(exc.Message));
+
+    public void PlayThemes(List<string> roundThemes)
+    {
+        _gameActions.ShowThemes(roundThemes.ToArray());
+        Continuation = AfterRoundThemes;
+    }
+
+    public void LoadTable(List<ThemeInfo> table, bool showTable = false) => UI.Execute(() =>
+    {
+        LocalInfo.RoundInfo.Clear();
+
+        var maxQuestionCount = table.Max(theme => theme.Questions.Count);
+
+        foreach (var theme in table)
+        {
+            var themeInfo = new ThemeInfoViewModel { Name = theme.Name };
+            LocalInfo.RoundInfo.Add(themeInfo);
+
+            for (var i = 0; i < maxQuestionCount; i++)
+            {
+                var questionInfo = new QuestionInfoViewModel { Price = i < theme.Questions.Count ? theme.Questions[i].Price : -1 };
+                themeInfo.Questions.Add(questionInfo);
+            }
+        }
+
+        if (showTable)
+        {
+            PresentationController.SetTable(LocalInfo.RoundInfo.ToArray());
+        }
+
+        LocalInfo.TStage = TableStage.RoundTable;
+    },
+    exc => OnError(exc.Message));
+
+    private bool AfterRoundThemes()
+    {
+        Continuation = null;
+        _gameActions.InformSkippedThemes();
+        PresentationController.SetTable(LocalInfo.RoundInfo.ToArray());
+        PresentationController.SetRoundTable();
+        _gameActions.MoveNext();
+
+        ChooseStarter();
+
+        return true;
+    }
+
+    internal void OnSelectChooser()
+    {
+        ChooseStarter();
+
+        if (DecisionMode != DecisionMode.StarterChoosing)
+        {
+            _gameActions.MoveNext();
+        }
+    }
+
+    private void ChooseStarter()
+    {
+        if (!Players.Any())
+        {
+            return;
+        }
+
+        var minSum = Players.Min(p => p.Sum);
+        var playersWithMinSum = Players.Select((p, i) => (p, i)).Where(pair => pair.p.Sum == minSum).ToArray();
+        var playersWithMinSumCount = playersWithMinSum.Length;
+
+        if (playersWithMinSumCount == 1)
+        {
+            ChooserIndex = playersWithMinSum[0].i;
+            return;
+        }
+        else if (playersWithMinSumCount > 1)
+        {
+            DecisionMode = DecisionMode.StarterChoosing;
+        }
+    }
+
+    public void StartQuestionTimer()
+    {
+        if (Settings.Model.ThinkingTime <= 0)
+        {
+            return;
+        }
+
+        // Runs timer in game with false starts
+        QuestionTimeMax = Settings.Model.ThinkingTime;
+        PresentationController.SetTimerMaxTime(QuestionTimeMax * 10);
+        RunQuestionTimer_Executed(0);
+    }
+
+    public void AskAnswerDirect()
+    {
+        if (QuestionForAll)
+        {
+            PresentationController.OnFinalThink();
+            _buttonManager?.TryGetCommandExecutor()?.AskTextAnswer();
+
+            var time = Settings.Model.FinalQuestionThinkingTime;
+
+            if (time > 0)
+            {
+                ThinkingTimeMax = time;
+                RunThinkingTimer_Executed(0);
+            }
+        }
+        else
+        {
+            var time = Settings.Model.SpecialQuestionThinkingTime;
+
+            if (time > 0)
+            {
+                ThinkingTimeMax = time;
+                RunThinkingTimer_Executed(0);
+            }
+        }
+    }
+
+    public void OnRightAnswer()
+    {
+        StopThinkingTimer_Executed(0);
+
+        if (ActiveQuestionCommand == StopQuestionTimer)
+        {
+            StopQuestionTimer.Execute(0);
+            PresentationController.NoAnswer();
+        }
+
+        StopButtons();
+        ActiveMediaCommand = null;
+    }
+
+    internal void OnEndRoundTimeout()
+    {
+        SetSound(Settings.Model.Sounds.RoundTimeout);
+        _gameLogger.Write(Resources.RoundTimeout);
+    }
+
+    internal void OnEndRound()
+    {
+        ClearState();
+        StopRoundTimer.Execute(0);
+        ActiveRoundCommand = null;
+        PresentationController.ClearState();
+        LocalInfo.TStage = TableStage.Sign;
+        Continuation = null;
+    }
+
+    private void ClearState()
+    {
+        StopQuestionTimer_Executed(0);
+        StopThinkingTimer_Executed(0);
+
+        StopButtons();
+
+        UnselectPlayer();
+        _selectedPlayers.Clear();
+
+        foreach (var player in Players)
+        {
+            player.BlockedTime = null;
+        }
+
+        ActiveQuestionCommand = null;
+        ActiveMediaCommand = null;
+
+        PresentationController.FinishQuestion();
+
+        CurrentTheme = null;
+        Price = 0;
+        IsCommonPrice = true;
+        QuestionForAll = false;
+
+        _selectedAnswerIndex = -1;
+        LocalInfo.LayoutMode = LayoutMode.Simple;
+        LocalInfo.AnswerOptions.Options = Array.Empty<ItemViewModel>();
+
+        DecisionMode = DecisionMode.None;
+        NegativePrice = null;
+
+        State = QuestionState.Normal;
+        _previousState = QuestionState.Normal;
+
+        _isQuestion = false;
+        UI.Execute(ActiveQuestionParameters.Clear, exc => OnError(exc.Message));
+    }
+
+    internal void AddQuestionParameter(string key, string value) => UI.Execute(() =>
+    {
+        ActiveQuestionParameters.Add(new KeyValuePair<string, string>(key, value));
+    }, exc => OnError(exc.Message));
+
+    internal void OnFinalThemes(IReadOnlyList<string> finalThemes) => UI.Execute(() =>
+    {
+        LocalInfo.RoundInfo.Clear();
+
+        foreach (var theme in finalThemes)
+        {
+            var themeInfo = new ThemeInfoViewModel { Name = theme };
+            LocalInfo.RoundInfo.Add(themeInfo);
+        }
+
+        PresentationController.SetRoundThemes(finalThemes.ToArray(), true);
+        LocalInfo.TStage = TableStage.Final;
+        _gameActions.MoveNext();
+    },
+    exc => OnError(exc.Message));
+
+    /// <summary>
+    /// Moves back.
+    /// </summary>
+    private void Back_Executed(object? arg = null)
+    {
+        _gameActions.MoveBack();
+        ClearState();
+
+        if (Settings.Model.DropStatsOnBack)
+        {
+            while (_answeringHistory.Count > 0)
+            {
+                var item = _answeringHistory.Pop();
+
+                if (item == null)
+                {
+                    break;
+                }
+
+                if (item.Item3)
+                {
+                    item.Item1.Right--;
+                    item.Item1.Sum -= item.Item2;
+                }
+                else
+                {
+                    item.Item1.Wrong--;
+                    item.Item1.Sum += item.Item2;
+                }
+            }
+        }
+    }
+
+    #endregion
+
+    internal void OnThemeDeleted(int themeIndex)
+    {
+        PresentationController.PlaySelection(themeIndex);
+        LocalInfo.RoundInfo[themeIndex].Name = "";
+        _gameActions.MoveNext();
+    }
+
+    private void ReturnToQuestion()
+    {
+        State = _previousState;
+
+        if (_timerStopped)
+        {
+            RunQuestionTimer_Executed(null);
+        }
+
+        UnselectPlayer();
+
+        if (_mediaStopped)
+        {
+            RunMediaTimer_Executed(null);
+            PresentationController.ResumeMedia();
+        }
+    }
+
+    /// <summary>
+    /// Ends the game.
+    /// </summary>
+    public async ValueTask DisposeAsync()
+    {
+        if (_isDisposed)
+        {
+            return;
+        }
+
+        try
+        {
+            PresentationController.Dispose();
+
+            StopRoundTimer.Execute(null);
+            _roundTimer.Dispose();
+
+            StopQuestionTimer_Executed(0);
+            _questionTimer.Dispose();
+
+            StopThinkingTimer_Executed(0);
+            _thinkingTimer.Dispose();
+
+            Settings.Model.SIUISettings.PropertyChanged -= Default_PropertyChanged;
+            Settings.SIUISettings.PropertyChanged -= Default_PropertyChanged;
+
+            if (_buttonManager != null)
+            {
+                _buttonManager.Stop();
+                await _buttonManager.DisposeAsync();
+                _buttonManager = null;
+            }
+
+            LogFinalStats();
+
+            _gameActions.Dispose();
+            _gameLogger.Dispose();
+
+            _presentationHandler?.Dispose();
+
+            _platformService.ClearMedia();
+        }
+        catch (Exception exc)
+        {
+            _platformService.ShowMessage(string.Format(Resources.GameEndingError, exc.Message));
+        }
+
+        _isDisposed = true;
+    }
+
+    internal void OnThemeSelected(int themeIndex)
+    {
+        CurrentTheme = LocalInfo.RoundInfo[themeIndex].Name;
+        ThemeComments = _themesComments.Count > themeIndex ? _themesComments[themeIndex] : "";
+
+        Price = 0;
+
+        PresentationController.SetTheme(CurrentTheme, false);
+        SetCaption(CurrentTheme);
+        _gameActions.MoveNext(500);
+    }
+
+    /// <summary>
+    /// Writes players scores to log.
+    /// </summary>
+    internal void LogScore()
+    {
+        if (!Settings.Model.SaveLogs || Players.Count <= 0)
+        {
+            return;
+        }
+
+        var sb = new StringBuilder("\r\n").Append(Resources.Score).Append(": ");
+        var first = true;
+
+        foreach (var player in Players)
+        {
+            if (!first)
+            {
+                sb.Append(", ");
+            }
+
+            first = false;
+            sb.AppendFormat("{0}:{1}", player.Name, player.Sum);
+        }
+
+        _gameLogger.Write(sb.ToString());
+    }
+
+    private void LogFinalStats()
+    {
+        if (!Settings.Model.SaveLogs || Players.Count <= 0)
+        {
+            return;
+        }
+
+        LogScore();
+
+        var sb = new StringBuilder();
+
+        foreach (var player in Players)
+        {
+            sb.AppendFormat("\r\n{0}: {1} (+{2}/-{3})", player.Name, player.Sum, player.Right, player.Wrong);
+        }
+
+        _gameLogger.Write(sb.ToString());
+    }
+
+    internal void InitMedia()
+    {
+        ActiveMediaCommand = StopMediaTimer;
+        IsMediaControlled = false;
+        MediaProgress = 0;
+    }
+
+    private string[] _roundNames = Array.Empty<string>();
+
+    private string? _currentTheme;
+
+    public string? CurrentTheme
+    {
+        get => _currentTheme;
+        set
+        {
+            _currentTheme = value;
+            UpdateCaption();
+        }
+    }
+
+    private string _themeComments = "";
+
+    public string ThemeComments
+    {
+        get => _themeComments;
+        set
+        {
+            _themeComments = value;
+            OnPropertyChanged();
+        }
+    }
+
+    public bool QuestionForAll { get; internal set; }
+
+    public bool IsQuestionFinished { get; internal set; }
+
+    private void UpdateCaption()
+    {
+        if (_currentTheme == null)
+        {
+            return;
+        }
+
+        var caption = _price > 0 ? $"{_currentTheme}, {_price}" : _currentTheme;
+        SetCaption(caption);
+    }
+
+    private readonly List<string> _themesComments = new();
+
+    internal void AddThemeComments(string themeComments) => _themesComments.Add(themeComments);
+
+    internal void ClearThemesComments() => _themesComments.Clear();
+
+    internal void OnQuestionText(string text) => _gameLogger.Write(text);
+
+    internal void OnQuestionSelected(int themeIndex, int questionIndex)
+    {
+        try
+        {
+            _answeringHistory.Push(null);
+
+            CurrentTheme = LocalInfo.RoundInfo[themeIndex].Name;
+            ThemeComments = _themesComments.Count > themeIndex ? _themesComments[themeIndex] : "";
+            Price = LocalInfo.RoundInfo[themeIndex].Questions[questionIndex].Price;
+
+            LogScore();
+            _gameLogger.Write("\r\n{0}, {1}", CurrentTheme, Price);
+
+            SetSound(Settings.Model.Sounds.QuestionSelected);
+            PresentationController.PlaySimpleSelection(themeIndex, questionIndex);
+            _gameActions.MoveNext(1700);
+
+            _previousRound.CanBeExecuted = true;
+
+            if (themeIndex > -1 && themeIndex < LocalInfo.RoundInfo.Count)
+            {
+                var themeInfo = LocalInfo.RoundInfo[themeIndex];
+
+                if (questionIndex > -1 && questionIndex < themeInfo.Questions.Count)
+                {
+                    themeInfo.Questions[questionIndex].Price = -1;
+                }
+            }
+        }
+        catch (Exception exc)
+        {
+            _platformService.ShowMessage(string.Format(Resources.GameEndingError, exc.Message));
+        }
+    }
+
+    private void PrintQuestionType(string typeName, string originalTypeName, string? aliasName, int activeThemeIndex)
+    {
+        var actualName = string.IsNullOrWhiteSpace(aliasName) ? originalTypeName : aliasName;
+
+        PresentationController.SetQuestionType(typeName, actualName, activeThemeIndex);
+        _gameLogger.Write(actualName);
+    }
+
+    private void OnError(string error) => Error?.Invoke(error);
+
+    public bool OnKeyPressed(GameKey key)
+    {
+        var index = Settings.Model.PlayerKeys2.IndexOf(key);
+
+        if (index == -1 || index >= Players.Count)
+        {
+            return false;
+        }
+
+        var player = Players[index];
+        return ProcessPlayerPress(index, player);
+    }
+
+    public bool OnPlayerPressed(PlayerInfo player)
+    {
+        var index = Players.IndexOf(player);
+
+        if (index == -1)
+        {
+            return false;
+        }
+
+        return ProcessPlayerPress(index, player);
+    }
+
+    public void OnPlayerPressed(string playerName)
+    {
+        var player = Players.FirstOrDefault(p => p.Name == playerName);
+
+        if (player == null)
+        {
+            return;
+        }
+
+        var index = Players.IndexOf(player);
+        ProcessPlayerPress(index, player);
+    }
+
+    public void OnPlayerAnswered(string playerName, string answer, bool isPreliminary)
+    {
+        var player = Players.FirstOrDefault(p => p.Name == playerName);
+
+        if (player == null)
+        {
+            return;
+        }
+
+        player.Answer = answer;
+        player.IsPreliminaryAnswer = isPreliminary;
+
+        if (string.IsNullOrEmpty(answer) && !isPreliminary && player.IsSelected && ReferenceEquals(player, _selectedPlayer))
+        {
+            SubtractStake_Executed(player);
+        }
+    }
+
+    public void OnPlayerPassed(string playerName)
+    {
+        for (var i = 0; i < Players.Count; i++)
+        {
+            if (Players[i].Name == playerName)
+            {
+                PresentationController.OnPlayerPassed(i);
+                break;
+            }
+        }
+    }
+
+    public void OnPlayerStake(string playerName, int stake)
+    {
+        for (var i = 0; i < Players.Count; i++)
+        {
+            if (Players[i].Name == playerName)
+            {
+                Players[i].Stake = stake;
+                break;
+            }
+        }
+    }
+
+    private bool ProcessPlayerPress(int index, PlayerInfo player)
+    {
+        if (_managed)
+        {
+            _gameActions.PressButton();
+            return true;
+        }
+
+        // The player has pressed already
+        if (_selectedPlayers.Contains(player) || IsPaused)
+        {
+            return false;
+        }
+
+        // It is not pressing time
+        if (_state != QuestionState.Pressing)
+        {
+            player.BlockedTime = DateTime.Now;
+
+            // Somebody is answering already
+            if (_selectedPlayer != null)
+            {
+                if (Settings.Model.ShowLostButtonPlayers && _selectedPlayer != player && !_selectedPlayers.Contains(player))
+                {
+                    PresentationController.AddLostButtonPlayerIndex(index);
+                }
+            }
+
+            return false;
+        }
+
+        // Player is blocked
+        if (player.BlockedTime.HasValue && DateTime.Now.Subtract(player.BlockedTime.Value).TotalSeconds < Settings.Model.BlockingTime)
+        {
+            return false;
+        }
+
+        // All checks passed, confirming press
+        player.IsSelected = true;
+        _selectedPlayer = player;
+        _selectedPlayers.Add(_selectedPlayer);
+
+        SetSound(Settings.Model.Sounds.PlayerPressed);
+        PresentationController.SetActivePlayerIndex(index);
+
+        if (player.Id != null)
+        {
+            _buttonManager?.TryGetCommandExecutor()?.AskOralAnswer(player.Id);
+        }
+
+        _previousState = State;
+        State = QuestionState.Pressed;
+
+        _timerStopped = ActiveQuestionCommand == StopQuestionTimer;
+
+        if (_timerStopped)
+        {
+            StopQuestionTimer.Execute(null);
+        }
+
+        _mediaStopped = ActiveMediaCommand == StopMediaTimer;
+
+        if (_mediaStopped)
+        {
+            StopMediaTimer_Executed(null);
+        }
+
+        ThinkingTimeMax = Settings.Model.ThinkingTime2;
+        RunThinkingTimer_Executed(0);
+
+        BlockNextButtonForAWhile();
+
+        _gameActions.PlayerPressed(player);
+
+        return true;
+    }
+
+    private async void BlockNextButtonForAWhile()
+    {
+        if (!_next.CanBeExecuted)
+        {
+            return;
+        }
+
+        _next.CanBeExecuted = false;
+        await Task.Delay(500);
+        _next.CanBeExecuted = true;
+    }
+
+    private void UnselectPlayer()
+    {
+        if (_selectedPlayer != null)
+        {
+            _selectedPlayer.IsSelected = false;
+            _selectedPlayer = null;
+        }
+
+        PresentationController.ClearPlayersState();
+    }
+
+    private void OnStateChanged()
+    {
+        switch (_state)
+        {
+            case QuestionState.Pressing:
+                if (Settings.Model.ShowQuestionBorder)
+                {
+                    PresentationController.BeginPressButton();
+                    _buttonManager?.TryGetCommandExecutor()?.AskPressButton();
+                }
+                break;
+
+            case QuestionState.Thinking:
+            case QuestionState.Normal:
+            case QuestionState.Pressed:
+                break;
+
+            default:
+                throw new InvalidOperationException($"_state has an invalid value of {_state}");
+        }
+    }
+
+    public bool TryConnectPlayer(string playerName, string connectionId)
+    {
+        foreach (var player in Players)
+        {
+            if (player.Name == playerName)
+            {
+                if (player.IsConnected)
+                {
+                    return false;
+                }
+
+                player.Id = connectionId;
+                player.IsConnected = true;
+
+                _gameActions.ConnectPlayer(player);
+                return true;
+            }
+        }
+
+        foreach (var player in Players)
+        {
+            if (!player.IsConnected)
+            {
+                player.Name = playerName;
+                player.Id = connectionId;
+                player.IsConnected = true;
+
+                _gameActions.ConnectPlayer(player);
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public bool TryDisconnectPlayer(string playerName)
+    {
+        var player = Players.FirstOrDefault(p => p.Name == playerName && p.IsConnected);
+
+        if (player != null)
+        {
+            player.IsConnected = false;
+            return true;
+        }
+
+        return false;
+    }
+
+    internal void RemovePlayerCore(PlayerInfo player)
+    {
+        if (player.Id != null && player.IsConnected)
+        {
+            _buttonManager?.DisconnectPlayerById(player.Id, player.Name);
+        }
+
+        player.PropertyChanged -= PlayerInfo_PropertyChanged;
+        var playerIndex = Players.IndexOf(player);
+        Players.Remove(player);
+        PresentationController.RemovePlayer(playerIndex);
+
+        _buttonManager?.OnPlayersChanged();
+    }
+
+    private void OnPropertyChanged([CallerMemberName] string? propertyName = null) =>
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+
+    public event PropertyChangedEventHandler? PropertyChanged;
+
+    internal Task CloseMainViewAsync() => PresentationController.StopAsync();
+
+    internal void StartButtons()
+    {
+        if (_buttonManager == null)
+        {
+            return;
+        }
+
+        UI.Execute(() => _buttonManager.Start(), exc => OnError(exc.Message));
+    }
+
+    private void StopButtons()
+    {
+        if (_buttonManager == null)
+        {
+            return;
+        }
+
+        UI.Execute(() => _buttonManager.Stop(), exc => OnError(exc.Message));
+    }
+
+    internal void AskAnswerButton() => State = QuestionState.Pressing;
+
+    internal void OnQuestionStart()
+    {
+        State = QuestionState.Normal;
+        _previousState = QuestionState.Normal;
+
+        _isQuestion = true;
+
+        foreach (var player in Players)
+        {
+            player.Answer = "";
+        }
+    }
+
+    internal void OnContentStart()
+    {
+        LocalInfo.TStage = TableStage.Question;
+    }
+
+    internal void SelectStake(NumberSet availableRange)
+    {
+        if (availableRange.Maximum == availableRange.Minimum && availableRange.Minimum == 0)
+        {
+            // Minimum or maximum in round
+            if (LocalInfo.RoundInfo.Max(t => t.Questions.Count) == 0)
+            {
+                return;
+            }
+
+            var minimum = LocalInfo.RoundInfo[0].Questions[0].Price;
+            var maximum = 0;
+
+            foreach (var theme in LocalInfo.RoundInfo)
+            {
+                foreach (var question in theme.Questions)
+                {
+                    if (question.Price == Question.InvalidPrice)
+                    {
+                        continue;
+                    }
+
+                    minimum = Math.Min(minimum, question.Price);
+                    maximum = Math.Max(maximum, question.Price);
+                }
+            }
+
+            availableRange = new NumberSet { Minimum = minimum, Maximum = maximum, Step = maximum - minimum };
+        }
+
+        DecisionMode = DecisionMode.SimpleStake;
+        StakeInfo = availableRange;
+        Price = availableRange.Minimum;
+    }
+
+    internal void OnSetMultiplyPrice(int factor = 2)
+    {
+        Price *= factor;
+        NegativePrice = 0;
+    }
+
+    internal bool OnSetAnswererDirectly(bool canSelectChooser)
+    {
+        var playerCount = Players.Count;
+
+        if (playerCount == 0)
+        {
+            return false;
+        }
+
+        if (playerCount == 1 && Players[0] == Chooser)
+        {
+            if (canSelectChooser)
+            {
+                Chooser.IsSelected = true;
+                _selectedPlayer = Chooser;
+            }
+
+            return false;
+        }
+
+        if (playerCount == 2 && !canSelectChooser && Chooser != null && Players.Contains(Chooser))
+        {
+            var activePlayer = Players[0] == Chooser ? Players[1] : Players[0];
+            activePlayer.IsSelected = true;
+            _selectedPlayer = activePlayer;
+
+            return false;
+        }
+
+        CanSelectChooser = canSelectChooser;
+        DecisionMode = DecisionMode.AnswererChoosing;
+
+        return true;
+    }
+
+    internal void Accept()
+    {
+        if (_selectedPlayer != null)
+        {
+            _selectedPlayer.Sum += Price;
+        }
+    }
+
+    internal bool OnSetAnswererByHighestStake()
+    {
+        if (Chooser == null)
+        {
+            return false;
+        }
+
+        var chooserIndex = Players.IndexOf(Chooser);
+
+        if (chooserIndex == -1)
+        {
+            return false;
+        }
+
+        InitStakers(chooserIndex);
+
+        if (_stakers.Count == 1)
+        {
+            SetStakerToAnswer();
+            return false;
+        }
+
+        _isAllIn = false;
+        AskNextStake(true);
+        Pass.CanBeExecuted = false;
+        DecisionMode = DecisionMode.Stake;
+
+        return true;
+    }
+
+    private void InitStakers(int chooserIndex)
+    {
+        Stake = Price;
+
+        _stakers.Clear();
+
+        _stakers.Add(chooserIndex);
+
+        var orderedPlayerIndicies = Players
+            .Select((p, i) => (p, i))
+            .Where(pair => pair.p.Sum > Stake && pair.i != chooserIndex)
+            .OrderBy(pair => pair.p.Sum)
+            .Select(pair => pair.i);
+
+        _stakers.AddRange(orderedPlayerIndicies);
+        _stakersIterator = 0;
+    }
+
+    private void Pass_Executed(object? arg)
+    {
+        _stakers.RemoveAt(_stakersIterator);
+
+        if (_stakersIterator == _stakers.Count)
+        {
+            _stakersIterator = 0;
+        }
+
+        if (_stakers.Count == 1)
+        {
+            SetStakerToAnswer();
+            return;
+        }
+
+        AskNextStake();
+    }
+
+    private void MakeStake_Executed(object? arg)
+    {
+        Price = Stake;
+
+        for (var i = 0; i < _stakers.Count; )
+        {
+            if (i == _stakersIterator || _stakers[i] < 0 || _stakers[i] >= Players.Count)
+            {
+                i++;
+                continue;
+            }
+
+            if (Players[_stakers[i]].Sum <= Stake)
+            {
+                _stakers.RemoveAt(i);
+
+                if (_stakersIterator > i)
+                {
+                    _stakersIterator--;
+                }
+
+                continue;
+            }
+
+            i++;
+        }
+
+        if (_stakers.Count == 1)
+        {
+            SetStakerToAnswer();
+            return;
+        }
+
+        var staker = Staker;
+        _isAllIn = staker != null && staker.Sum == Stake;
+
+        _stakersIterator++;
+
+        if (_stakersIterator == _stakers.Count)
+        {
+            _stakersIterator = 0;
+        }
+
+        AskNextStake();
+        Pass.CanBeExecuted = true;
+    }
+
+    private void AskNextStake(bool firstTime = false)
+    {
+        StakerIndex = _stakers[_stakersIterator];
+        var staker = Staker;
+
+        if (staker == null)
+        {
+            return;
+        }
+
+        if (_isAllIn)
+        {
+            Stake = staker.Sum;
+        }
+        else if (!firstTime)
+        {
+            Stake = Math.Min(staker.Sum, Stake + 100);
+        }
+
+        StakeInfo = new NumberSet { Minimum = Stake, Maximum = staker.Sum, Step = 100 };
+    }
+
+    private void SetStakerToAnswer()
+    {
+        StakerIndex = _stakers[0];
+        var staker = Staker;
+
+        if (staker == null)
+        {
+            return;
+        }
+
+        staker.IsSelected = true;
+        _selectedPlayer = staker;
+        Chooser = _selectedPlayer;
+        DecisionMode = DecisionMode.None;
+    }
+
+    internal bool OnSetAnswererAsCurrent()
+    {
+        if (Chooser != null)
+        {
+            Chooser.IsSelected = true;
+            _selectedPlayer = Chooser;
+        }
+
+        return false;
+    }
+
+    internal bool OnAskHiddenStakes()
+    {
+        foreach (var player in Players)
+        {
+            player.Stake = 0;
+
+            if (player.Id != null && player.IsConnected && player.Sum > 1)
+            {
+                _buttonManager?.TryGetCommandExecutor()?.AskStake(player.Id, player.Sum);
+            }
+        }
+
+        return true;
+    }
+
+    internal void RunThinkingTimer(int maxTime)
+    {
+        ThinkingTime = 0;
+        ThinkingTimeMax = maxTime;
+        _thinkingTimer.Change(1000, 1000);
+    }
+
+    internal void StopThinkingTimer()
+    {
+        ThinkingTime = 0;
+        _buttonManager?.TryGetCommandExecutor()?.Cancel();
+
+        if (QuestionForAll)
+        {
+            foreach (var player in Players)
+            {
+                player.IsPreliminaryAnswer = false;
+            }
+        }
+
+        _thinkingTimer.Change(Timeout.Infinite, Timeout.Infinite);
+    }
+
+    internal void RunQuestionTimerNew(int maxTime)
+    {
+        QuestionTime = 0;
+        QuestionTimeMax = maxTime;
+        PresentationController.RunTimer();
+        _questionTimer.Change(1000, 1000);
+    }
+
+    internal void StopQuestionTimerNew()
+    {
+        QuestionTime = 0;
+        PresentationController.StopTimer();
+
+        _questionTimer.Change(Timeout.Infinite, Timeout.Infinite);
+    }
+}

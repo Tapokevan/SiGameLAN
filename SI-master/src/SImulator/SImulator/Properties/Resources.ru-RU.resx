@@ -1,0 +1,742 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="About" xml:space="preserve">
+    <value>О программе</value>
+  </data>
+  <data name="AddPlayer" xml:space="preserve">
+    <value>Добавить игрока</value>
+  </data>
+  <data name="AddressToConnect" xml:space="preserve">
+    <value>Адрес для подключения</value>
+  </data>
+  <data name="AddSum" xml:space="preserve">
+    <value>Добавить сумму</value>
+  </data>
+  <data name="AddSumForActivePlayer" xml:space="preserve">
+    <value>Добавить активному игроку</value>
+  </data>
+  <data name="Alias" xml:space="preserve">
+    <value>Псевдоним</value>
+  </data>
+  <data name="All" xml:space="preserve">
+    <value>(все)</value>
+  </data>
+  <data name="Answer" xml:space="preserve">
+    <value>Ответ</value>
+  </data>
+  <data name="AnswererBackgroundColor" xml:space="preserve">
+    <value>Цвет фона отвечающего игрока</value>
+  </data>
+  <data name="AnswerOptions" xml:space="preserve">
+    <value>Варианты ответа</value>
+  </data>
+  <data name="AppLanguage" xml:space="preserve">
+    <value>Язык приложения (требуется перезапуск)</value>
+  </data>
+  <data name="AppName" xml:space="preserve">
+    <value>СИмулятор</value>
+  </data>
+  <data name="Audio" xml:space="preserve">
+    <value>Аудио</value>
+  </data>
+  <data name="Author" xml:space="preserve">
+    <value>Автор</value>
+  </data>
+  <data name="AuthorName" xml:space="preserve">
+    <value>Владимир Хиль</value>
+  </data>
+  <data name="AutomaticGame" xml:space="preserve">
+    <value>Автоматическое ведение игры (без ведущего)</value>
+  </data>
+  <data name="Back" xml:space="preserve">
+    <value>Назад</value>
+  </data>
+  <data name="BackgroundColor" xml:space="preserve">
+    <value>Цвет фона</value>
+  </data>
+  <data name="BackgroundImage" xml:space="preserve">
+    <value>Изображение-фон</value>
+  </data>
+  <data name="BackgroundVideo" xml:space="preserve">
+    <value>Видеофайл-фон</value>
+  </data>
+  <data name="ButtonBlockingTime" xml:space="preserve">
+    <value>Время блокировки кнопки (с)</value>
+  </data>
+  <data name="ButtonOrderHint" xml:space="preserve">
+    <value>Соответствуют позициям игроков в списке</value>
+  </data>
+  <data name="Buttons" xml:space="preserve">
+    <value>Кнопки</value>
+  </data>
+  <data name="ButtonTypesCom" xml:space="preserve">
+    <value>COM-порт</value>
+  </data>
+  <data name="ButtonTypesExternal" xml:space="preserve">
+    <value>Внешние</value>
+  </data>
+  <data name="ButtonTypesJoystick" xml:space="preserve">
+    <value>Джойстик</value>
+  </data>
+  <data name="ButtonTypesKeyboard" xml:space="preserve">
+    <value>Клавиатура</value>
+  </data>
+  <data name="ButtonTypesNone" xml:space="preserve">
+    <value>Не использовать</value>
+  </data>
+  <data name="ButtonTypesWeb" xml:space="preserve">
+    <value>Веб-доступ</value>
+  </data>
+  <data name="ByDefault" xml:space="preserve">
+    <value>По умолчанию</value>
+  </data>
+  <data name="CharactersPerSecond" xml:space="preserve">
+    <value>символов в секунду</value>
+  </data>
+  <data name="ChoosePlayerToAnswer" xml:space="preserve">
+    <value>Выберите игрока для ответа</value>
+  </data>
+  <data name="ChoosePlayerToStart" xml:space="preserve">
+    <value>Выберите игрока, начинающего игру</value>
+  </data>
+  <data name="ClearList" xml:space="preserve">
+    <value>Очистить список</value>
+  </data>
+  <data name="Comment" xml:space="preserve">
+    <value>Комментарий</value>
+  </data>
+  <data name="CommonAppError" xml:space="preserve">
+    <value>Произошла ошибка в приложении: {0}\r\n\r\nПриложение будет закрыто. Обратитесь к разработчику.</value>
+  </data>
+  <data name="ComponentsLicenses" xml:space="preserve">
+    <value>Лицензии используемых компонентов</value>
+  </data>
+  <data name="ComPortNumber" xml:space="preserve">
+    <value>Номер COM-порта</value>
+  </data>
+  <data name="Default" xml:space="preserve">
+    <value>(по умолчанию)</value>
+  </data>
+  <data name="Delete" xml:space="preserve">
+    <value>Удалить</value>
+  </data>
+  <data name="Design" xml:space="preserve">
+    <value>Внешний вид</value>
+  </data>
+  <data name="DiskFullError" xml:space="preserve">
+    <value>Закончилось место на диске</value>
+  </data>
+  <data name="DropStatsOnBack" xml:space="preserve">
+    <value>Откатывать статистику при шаге назад</value>
+  </data>
+  <data name="DropStatsOnBackHint" xml:space="preserve">
+    <value>Возвращать суммы игроков и число их верных и неверных ответов</value>
+  </data>
+  <data name="EndQuestionOnRightAnswer" xml:space="preserve">
+    <value>Завершать вопрос при правильном ответе</value>
+  </data>
+  <data name="ErrorCannotReproduce" xml:space="preserve">
+    <value>Эта ошибка не воспроизводится. Если вы можете её гарантированно воспроизвести, свяжитесь с автором, пожалуйста</value>
+  </data>
+  <data name="ErrorConnectionError" xml:space="preserve">
+    <value>Не удалось подключиться к серверу при отправке отчёта об ошибке. Отчёт будет отправлен позднее</value>
+  </data>
+  <data name="ErrorFixed" xml:space="preserve">
+    <value>Эта ошибка исправлена в новой версии программы. Обновитесь, пожалуйста</value>
+  </data>
+  <data name="ErrorSendConfirm" xml:space="preserve">
+    <value>Произошла ошибка в приложении: {0}
+
+Приложение будет закрыто. Отправить информацию разработчику?</value>
+  </data>
+  <data name="ExternalButtonsHint" xml:space="preserve">
+    <value>В данном режиме используются кнопки, не подключённые к программе (независимые устройства, хлопки и т.д.). Программа показывает рамку в момент, когда можно нажимать (при игре с фальстартами)</value>
+  </data>
+  <data name="FalseStartGame" xml:space="preserve">
+    <value>Игра с фальстартами</value>
+  </data>
+  <data name="FalseStartGameHint" xml:space="preserve">
+    <value>При игре с фальстартами:
+- на экране отображается текст вопросов;
+- при использовании кнопок для старта таймера вопроса требуется дополнительное нажатие на кнопку "Дальше", на экране при этом загорается цветная рамка</value>
+  </data>
+  <data name="FalseStartMultimedia" xml:space="preserve">
+    <value>Мультимедиа с фальстартами</value>
+  </data>
+  <data name="FalseStartMultimediaHint" xml:space="preserve">
+    <value>Запрещает нажимать на кнопку в процессе проигрывания мультимедиа-файла</value>
+  </data>
+  <data name="FileDeletionError" xml:space="preserve">
+    <value>Ошибка удаления файла: {0}</value>
+  </data>
+  <data name="FinalThinkingTime" xml:space="preserve">
+    <value>Время на размышление в финале (с)</value>
+  </data>
+  <data name="FinishGameQuestion" xml:space="preserve">
+    <value>Завершить игру?</value>
+  </data>
+  <data name="FontFamily" xml:space="preserve">
+    <value>Шрифт</value>
+  </data>
+  <data name="Game" xml:space="preserve">
+    <value>Игра</value>
+  </data>
+  <data name="GameButtons" xml:space="preserve">
+    <value>Игровые кнопки</value>
+  </data>
+  <data name="GameModes_Sport" xml:space="preserve">
+    <value>Упрощённая</value>
+  </data>
+  <data name="GameModes_Quiz" xml:space="preserve">
+    <value>Викторина</value>
+  </data>
+  <data name="GameModes_TurnTaking" xml:space="preserve">
+    <value>По очереди</value>
+  </data>
+  <data name="GameModes_Tv" xml:space="preserve">
+    <value>Классическая</value>
+  </data>
+  <data name="GamePackage" xml:space="preserve">
+    <value>Игровой пакет</value>
+  </data>
+  <data name="GameRules" xml:space="preserve">
+    <value>Правила игры</value>
+  </data>
+  <data name="GameType" xml:space="preserve">
+    <value>Тип игры</value>
+  </data>
+  <data name="GiveTurn" xml:space="preserve">
+    <value>Передать ход</value>
+  </data>
+  <data name="GridColor" xml:space="preserve">
+    <value>Цвет сетки</value>
+  </data>
+  <data name="Hide" xml:space="preserve">
+    <value>Скрыть</value>
+  </data>
+  <data name="HintBeforeStart" xml:space="preserve">
+    <value>Для управления ходом игры нажимайте кнопку "Дальше"</value>
+  </data>
+  <data name="HintGameThemes" xml:space="preserve">
+    <value>(Темы игры)</value>
+  </data>
+  <data name="HintIntro" xml:space="preserve">
+    <value>(Заставка)</value>
+  </data>
+  <data name="Html" xml:space="preserve">
+    <value>HTML</value>
+  </data>
+  <data name="Image" xml:space="preserve">
+    <value>Изображение</value>
+  </data>
+  <data name="IntroVideo" xml:space="preserve">
+    <value>Заставочный видеофайл</value>
+  </data>
+  <data name="KeyboardDetachError" xml:space="preserve">
+    <value>Ошибка завершения прослушивания клавиатуры</value>
+  </data>
+  <data name="KeyboardListeningError" xml:space="preserve">
+    <value>Ошибка прослушивания клавиатуры</value>
+  </data>
+  <data name="License" xml:space="preserve">
+    <value>Лицензия</value>
+  </data>
+  <data name="LicenseText" xml:space="preserve">
+    <value>Все исключительные авторские права на Программный продукт и документацию к нему в печатном и/или электронном виде принадлежат Автору.
+
+Программа распространяется бесплатно.
+
+Пользователь имеет право свободно использовать и распространять данную Программу, размещать её на сайтах и производить другие не запрещённые законодательством его страны действия с ней в течение сколь угодно длительного времени при условии сохранения авторских прав.
+
+Программа поставляется «как есть». Автор не даёт никаких гарантий, что работа Программы будет соответствовать ожиданиям Пользователя. Автор не обязан исправлять Программу при возникновении данного несоответствия. Автор не несёт ответственности за ущерб, причинённый использованием данной Программы.
+
+Устанавливая и используя Программу, вы автоматически принимаете данное Соглашение. Вы можете передать права на использование Программы третьему лицу при условии его согласия с данным Соглашением. Если вы не согласны с каким-либо условием данного Соглашения, вы не имеете права использовать данную Программу.</value>
+  </data>
+  <data name="LogsFolderNotFound" xml:space="preserve">
+    <value>Папка для записи логов "{0}" не найдена</value>
+  </data>
+  <data name="MainScreen" xml:space="preserve">
+    <value>Основной</value>
+  </data>
+  <data name="MakeStake" xml:space="preserve">
+    <value>Сделать ставку</value>
+  </data>
+  <data name="Name" xml:space="preserve">
+    <value>Имя</value>
+  </data>
+  <data name="NavigateToSiteError" xml:space="preserve">
+    <value>Возникла ошибка при переходе на сайт программы ({0}). Убедитесь, что у вас настроен браузер по умолчанию: {1}</value>
+  </data>
+  <data name="Next" xml:space="preserve">
+    <value>Дальше</value>
+  </data>
+  <data name="NotSelected" xml:space="preserve">
+    <value>Не выбран</value>
+  </data>
+  <data name="NotSet" xml:space="preserve">
+    <value>(не задано)</value>
+  </data>
+  <data name="OldVersion" xml:space="preserve">
+    <value>предыдущая версия</value>
+  </data>
+  <data name="Oral" xml:space="preserve">
+    <value>Устный текст</value>
+  </data>
+  <data name="OutOfMemoryError" xml:space="preserve">
+    <value>Недостаточно памяти для выполнения программы</value>
+  </data>
+  <data name="Pass" xml:space="preserve">
+    <value>Пас</value>
+  </data>
+  <data name="Pause" xml:space="preserve">
+    <value>Приостановить</value>
+  </data>
+  <data name="PlacementBackground" xml:space="preserve">
+    <value>Фон</value>
+  </data>
+  <data name="PlacementOral" xml:space="preserve">
+    <value>Реплика</value>
+  </data>
+  <data name="PlayContent" xml:space="preserve">
+    <value>Играть элемент</value>
+  </data>
+  <data name="Players" xml:space="preserve">
+    <value>Игроки</value>
+  </data>
+  <data name="PlayersTable" xml:space="preserve">
+    <value>Таблица игроков</value>
+  </data>
+  <data name="PlaySounds" xml:space="preserve">
+    <value>Играть звуки</value>
+  </data>
+  <data name="PlaySpecials" xml:space="preserve">
+    <value>Играть спецвопросы</value>
+  </data>
+  <data name="PresentationExitHint" xml:space="preserve">
+    <value>Для выхода нажмите Escape, правую кнопку мыши или немного надавите пальцем</value>
+  </data>
+  <data name="PresentationTitle" xml:space="preserve">
+    <value>Игровое табло</value>
+  </data>
+  <data name="PressButton" xml:space="preserve">
+    <value>Нажмите кнопку</value>
+  </data>
+  <data name="PreviewImage" xml:space="preserve">
+    <value>Изображение-заставка</value>
+  </data>
+  <data name="PreviousRound" xml:space="preserve">
+    <value>Предыдущий раунд</value>
+  </data>
+  <data name="Price" xml:space="preserve">
+    <value>Стоимость</value>
+  </data>
+  <data name="PriceFromToStep" xml:space="preserve">
+    <value>От {0} до {1} с шагом {2}</value>
+  </data>
+  <data name="PriceMinMaxRound" xml:space="preserve">
+    <value>Минимум или максимум в раунде</value>
+  </data>
+  <data name="PriceOr" xml:space="preserve">
+    <value>{0} или {1}</value>
+  </data>
+  <data name="Question" xml:space="preserve">
+    <value>Вопрос</value>
+  </data>
+  <data name="QuestionLibrary" xml:space="preserve">
+    <value>Библиотека вопросов</value>
+  </data>
+  <data name="QuestionLineSpacing" xml:space="preserve">
+    <value>Межстрочный интервал в вопросе</value>
+  </data>
+  <data name="QuestionReadingSpeed" xml:space="preserve">
+    <value>Скорость чтения вопроса</value>
+  </data>
+  <data name="QuestionTime" xml:space="preserve">
+    <value>Время на нажатие кнопки (c)</value>
+  </data>
+  <data name="QuestionTypeSecretNoQuestion" xml:space="preserve">
+    <value>Вопрос с секретом (деньги без вопроса)</value>
+  </data>
+  <data name="QuestionTypeSecretPublicPrice" xml:space="preserve">
+    <value>Вопрос с секретом (тема и стоимость известны до передачи вопроса)</value>
+  </data>
+  <data name="QuestionTypeSimple" xml:space="preserve">
+    <value>Простой</value>
+  </data>
+  <data name="RecentFiles" xml:space="preserve">
+    <value>Последние файлы</value>
+  </data>
+  <data name="RemovePlayer" xml:space="preserve">
+    <value>Удалить игрока</value>
+  </data>
+  <data name="ResetSums" xml:space="preserve">
+    <value>Удалить суммы и статистику</value>
+  </data>
+  <data name="Restriction" xml:space="preserve">
+    <value>Ограничение</value>
+  </data>
+  <data name="RightAnswers" xml:space="preserve">
+    <value>Верных</value>
+  </data>
+  <data name="Round" xml:space="preserve">
+    <value>Раунд</value>
+  </data>
+  <data name="RoundTime" xml:space="preserve">
+    <value>Время раунда (с)</value>
+  </data>
+  <data name="RoundTimeout" xml:space="preserve">
+    <value>Окончание времени раунда</value>
+  </data>
+  <data name="RuntimeBrokenError" xml:space="preserve">
+    <value>Не удалось создать главное окно программы. Похоже, на вашем компьютере повреждена среда выполнения программ: {0}</value>
+  </data>
+  <data name="SaveLogsToFolder" xml:space="preserve">
+    <value>Сохранять логи в папку</value>
+  </data>
+  <data name="SavingSettingsError" xml:space="preserve">
+    <value>Ошибка при сохранении настроек программы</value>
+  </data>
+  <data name="Screen" xml:space="preserve">
+    <value>Экран</value>
+  </data>
+  <data name="SecondaryScreen" xml:space="preserve">
+    <value>Дополнительный</value>
+  </data>
+  <data name="Select" xml:space="preserve">
+    <value>Выбрать</value>
+  </data>
+  <data name="SelectAny" xml:space="preserve">
+    <value>Кому угодно</value>
+  </data>
+  <data name="SelectAnyExceptCurrent" xml:space="preserve">
+    <value>Кому угодно, кроме себя</value>
+  </data>
+  <data name="SelectFile" xml:space="preserve">
+    <value>Файл…</value>
+  </data>
+  <data name="SelectHeader" xml:space="preserve">
+    <value>Выбрать…</value>
+  </data>
+  <data name="SelectionMode" xml:space="preserve">
+    <value>Можно отдать</value>
+  </data>
+  <data name="SelectLibrary" xml:space="preserve">
+    <value>Библиотека вопросов…</value>
+  </data>
+  <data name="SelectLogsFolder" xml:space="preserve">
+    <value>Выберите папку для записи логов</value>
+  </data>
+  <data name="SelectPackage" xml:space="preserve">
+    <value>Выбрать пакет</value>
+  </data>
+  <data name="SelectQuestionPackage" xml:space="preserve">
+    <value>Выберите пакет вопросов</value>
+  </data>
+  <data name="SeparateWindow" xml:space="preserve">
+    <value>В отдельном окне</value>
+  </data>
+  <data name="SetButton" xml:space="preserve">
+    <value>Задать кнопку</value>
+  </data>
+  <data name="Show" xml:space="preserve">
+    <value>Показать</value>
+  </data>
+  <data name="ShowLostButtonPlayers" xml:space="preserve">
+    <value>Показывать игроков, проигравших кнопку</value>
+  </data>
+  <data name="ShowPlayersList" xml:space="preserve">
+    <value>Показывать список игроков</value>
+  </data>
+  <data name="ShowQRCode" xml:space="preserve">
+    <value>Показать QR код</value>
+  </data>
+  <data name="ShowQuestionBorder" xml:space="preserve">
+    <value>Показывать рамку в момент, когда можно нажимать на кнопку</value>
+  </data>
+  <data name="ShowRightAnswers" xml:space="preserve">
+    <value>Показывать правильные ответы</value>
+  </data>
+  <data name="ShowTableCaption" xml:space="preserve">
+    <value>Показывать заголовок на игровом табло</value>
+  </data>
+  <data name="ShowTextNoFalseStartsHint" xml:space="preserve">
+    <value>Показывать текст вопросов при игре без фальстартов</value>
+  </data>
+  <data name="SignalsAfterTimerHint" xml:space="preserve">
+    <value>Принимать сигналы игроков после истечения времени на размышление</value>
+  </data>
+  <data name="SIQuestions" xml:space="preserve">
+    <value>Вопросы СИ</value>
+  </data>
+  <data name="SIStorageError" xml:space="preserve">
+    <value>Ошибка работы с библиотекой вопросов: {0}</value>
+  </data>
+  <data name="Sounds" xml:space="preserve">
+    <value>Звуки</value>
+  </data>
+  <data name="Source" xml:space="preserve">
+    <value>Источник</value>
+  </data>
+  <data name="SpecialQuestionsAliases" xml:space="preserve">
+    <value>Псевдонимы спецвопросов</value>
+  </data>
+  <data name="SpecialThinkingTime" xml:space="preserve">
+    <value>Время на размышление над спецвопросом (с)</value>
+  </data>
+  <data name="Stake" xml:space="preserve">
+    <value>Ставка</value>
+  </data>
+  <data name="Start" xml:space="preserve">
+    <value>Старт</value>
+  </data>
+  <data name="StartGame" xml:space="preserve">
+    <value>Старт</value>
+  </data>
+  <data name="Stop" xml:space="preserve">
+    <value>Завершить</value>
+  </data>
+  <data name="StopGame" xml:space="preserve">
+    <value>Завершить игру</value>
+  </data>
+  <data name="SubstractOnWrong" xml:space="preserve">
+    <value>Снимать очки за неверный ответ</value>
+  </data>
+  <data name="SubtractSum" xml:space="preserve">
+    <value>Вычесть сумму</value>
+  </data>
+  <data name="SubtractSumForActivePlayer" xml:space="preserve">
+    <value>Удалить у активного игрока</value>
+  </data>
+  <data name="Sum" xml:space="preserve">
+    <value>Сумма</value>
+  </data>
+  <data name="TableHotKeysHint" xml:space="preserve">
+    <value>Горячие клавиши игрового табло:
+Пробел (левая кнопка мыши) - перейти дальше
+Backspace - перейти назад
+Escape (правая кнопка мыши) - завершить игру</value>
+  </data>
+  <data name="TestPackage" xml:space="preserve">
+    <value>Пакет тест</value>
+  </data>
+  <data name="TextColor" xml:space="preserve">
+    <value>Цвет текста</value>
+  </data>
+  <data name="Theme" xml:space="preserve">
+    <value>Тема</value>
+  </data>
+  <data name="ThemeComments" xml:space="preserve">
+    <value>Комментарии темы</value>
+  </data>
+  <data name="Thinking" xml:space="preserve">
+    <value>Размышление</value>
+  </data>
+  <data name="ThinkingTime" xml:space="preserve">
+    <value>Время на размышление после нажатия кнопки (с)</value>
+  </data>
+  <data name="UnknownType" xml:space="preserve">
+    <value>Неизвестный тип</value>
+  </data>
+  <data name="UseKeysToSelectQuestions" xml:space="preserve">
+    <value>Использовать клавиатурный выбор на табло</value>
+  </data>
+  <data name="UseKeysToSelectQuestionsHint" xml:space="preserve">
+    <value>Позволяет выбирать вопросы на табло при помощи двух последовательных нажатий на цифровые кнопки (номер темы, номер вопроса/Escape для отмены) и убирать темы в финале при помощи одного нажатия</value>
+  </data>
+  <data name="Version" xml:space="preserve">
+    <value>Версия</value>
+  </data>
+  <data name="Video" xml:space="preserve">
+    <value>Видео</value>
+  </data>
+  <data name="WebButtonsConnectionString" xml:space="preserve">
+    <value>Адрес для подключения к игре: http://</value>
+  </data>
+  <data name="WebButtonsHint" xml:space="preserve">
+    <value>В данном режиме в качестве кнопок используются мобильные устройства участников (телефоны, планшеты и пр.). Перед началом игры производится регистрация этих устройств и их связывание с игроками.
+Для игры необходимо организовать локальную сеть</value>
+  </data>
+  <data name="WebButtonsPort" xml:space="preserve">
+    <value>Порт веб-доступа</value>
+  </data>
+  <data name="Website" xml:space="preserve">
+    <value>Сайт</value>
+  </data>
+  <data name="WebView" xml:space="preserve">
+    <value>Окно</value>
+  </data>
+  <data name="Window" xml:space="preserve">
+    <value>Окно (предыдущая версия)</value>
+  </data>
+  <data name="WrongAnswers" xml:space="preserve">
+    <value>Неверных</value>
+  </data>
+  <data name="KickPlayer" xml:space="preserve">
+    <value>Выгнать игрока</value>
+  </data>
+  <data name="Add" xml:space="preserve">
+    <value>Добавить</value>
+  </data>
+  <data name="Subtract" xml:space="preserve">
+    <value>Вычесть</value>
+  </data>
+  <data name="JoystickNotFound" xml:space="preserve">
+    <value>Джойстик не обнаружен!</value>
+  </data>
+  <data name="OralText" xml:space="preserve">
+    <value>Устный текст</value>
+  </data>
+  <data name="OralTextHint" xml:space="preserve">
+    <value>Текст читается ведущим и не показывается на экране</value>
+  </data>
+  <data name="Clear" xml:space="preserve">
+    <value>Очистить</value>
+  </data>
+  <data name="AttachContentToTable" xml:space="preserve">
+    <value>Добавлять комментарии темы и правильный ответ на табло</value>
+  </data>
+  <data name="QuestionPrice" xml:space="preserve">
+    <value>Цена вопроса</value>
+  </data>
+  <data name="UseSIGameEngine" xml:space="preserve">
+    <value>Использовать движок SIGame (экспериментальная функция)</value>
+  </data>
+  <data name="NextRound" xml:space="preserve">
+    <value>Следующий раунд</value>
+  </data>
+  <data name="ChoosePlayerToDelete" xml:space="preserve">
+    <value>Выберите игрока, удаляющего тему</value>
+  </data>
+  <data name="PartialText" xml:space="preserve">
+    <value>Частичный текст вопросов</value>
+  </data>
+  <data name="BrowserScreen" xml:space="preserve">
+    <value>Браузер</value>
+  </data>
+  <data name="BrowserBoardOpen" xml:space="preserve">
+    <value>Открыть табло</value>
+  </data>
+  <data name="BrowserBoardAlreadyOpened" xml:space="preserve">
+    <value>Табло уже открыто в другом окне браузера.</value>
+  </data>
+  <data name="BrowserBoardDisconnected" xml:space="preserve">
+    <value>Соединение с SImulator потеряно. Откройте табло заново из SImulator.</value>
+  </data>
+</root>

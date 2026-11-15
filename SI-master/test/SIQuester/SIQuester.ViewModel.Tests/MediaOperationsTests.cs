@@ -1,0 +1,253 @@
+using Microsoft.Extensions.DependencyInjection;
+using SIPackages;
+using SIPackages.Core;
+using SIQuester.ViewModel.Contracts;
+using SIQuester.ViewModel.Tests.Helpers;
+
+namespace SIQuester.ViewModel.Tests;
+
+/// <summary>
+/// Tests for media operations in QDocument ViewModel.
+/// Tests simulate user behavior by adding and using media files in questions.
+/// </summary>
+[TestFixture]
+internal sealed class MediaOperationsTests
+{
+    private IServiceProvider _serviceProvider = null!;
+    private IDocumentViewModelFactory _documentFactory = null!;
+
+    [SetUp]
+    public void Setup()
+    {
+        _serviceProvider = TestHelper.CreateServiceProvider();
+        _documentFactory = _serviceProvider.GetRequiredService<IDocumentViewModelFactory>();
+    }
+
+    [TearDown]
+    public void TearDown()
+    {
+        if (_serviceProvider is IDisposable disposable)
+        {
+            disposable.Dispose();
+        }
+    }
+
+    #region Adding Media Files
+
+    [Test]
+    public async Task AddImageToDocument_ShouldIncreaseImageCount()
+    {
+        // Arrange
+        var document = SIDocument.Create("Test Package", "Test Author");
+        _documentFactory.CreateViewModelFor(document, "Test Package");
+        
+        // Create a simple test image data (minimal PNG header)
+        var imageData = new byte[] { 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A };
+
+        // Act
+        using (var stream = new MemoryStream(imageData))
+        {
+            await document.Images.AddFileAsync("test_image.png", stream);
+        }
+
+        // Assert - verify the file was added to the document's image collection
+        Assert.That(document.Images, Does.Contain("test_image.png"));
+    }
+
+    [Test]
+    public async Task AddFile_NewItem_ShouldReportFileSize()
+    {
+        // Arrange
+        var document = SIDocument.Create("Test Package", "Test Author");
+        var qDocument = _documentFactory.CreateViewModelFor(document, "Test Package");
+
+        var tempDirectory = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+        Directory.CreateDirectory(tempDirectory);
+
+        try
+        {
+            var imageData = new byte[] { 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A, 0x01, 0x02, 0x03, 0x04 };
+            var imagePath = Path.Combine(tempDirectory, "new_image.png");
+            await File.WriteAllBytesAsync(imagePath, imageData);
+
+            // Act
+            var item = qDocument.Images.AddFile(imagePath);
+
+            // The size is loaded in the background: wait for it
+            var deadline = DateTime.UtcNow.AddSeconds(5);
+
+            while ((item.MediaSource?.StreamLength ?? -1) != imageData.Length && DateTime.UtcNow < deadline)
+            {
+                await Task.Delay(20);
+            }
+
+            // Assert - the side panel shows the real size of a file that is not saved into the package yet
+            Assert.That(item.MediaSource?.StreamLength, Is.EqualTo(imageData.Length));
+        }
+        finally
+        {
+            try
+            {
+                Directory.Delete(tempDirectory, true);
+            }
+            catch (IOException)
+            {
+                // The document may still hold the pending file open
+            }
+        }
+    }
+
+    [Test]
+    public async Task AddAudioToDocument_ShouldIncreaseAudioCount()
+    {
+        // Arrange
+        var document = SIDocument.Create("Test Package", "Test Author");
+        _documentFactory.CreateViewModelFor(document, "Test Package");
+        
+        // Create test audio data
+        var audioData = new byte[] { 0x01, 0x02, 0x03, 0x04 };
+
+        // Act
+        using (var stream = new MemoryStream(audioData))
+        {
+            await document.Audio.AddFileAsync("test_audio.mp3", stream);
+        }
+
+        // Assert - verify the file was added to the document's audio collection
+        Assert.That(document.Audio, Does.Contain("test_audio.mp3"));
+    }
+
+    [Test]
+    public async Task AddVideoToDocument_ShouldIncreaseVideoCount()
+    {
+        // Arrange
+        var document = SIDocument.Create("Test Package", "Test Author");
+        _documentFactory.CreateViewModelFor(document, "Test Package");
+        
+        // Create test video data
+        var videoData = new byte[] { 0x01, 0x02, 0x03, 0x04 };
+
+        // Act
+        using (var stream = new MemoryStream(videoData))
+        {
+            await document.Video.AddFileAsync("test_video.mp4", stream);
+        }
+
+        // Assert - verify the file was added to the document's video collection
+        Assert.That(document.Video, Does.Contain("test_video.mp4"));
+    }
+
+    #endregion
+
+    #region Using Media in Questions
+
+    [Test]
+    public async Task AddImageToQuestion_ShouldReferenceImage()
+    {
+        // Arrange
+        var document = TestHelper.CreateSimpleTestPackage();
+        var qDocument = _documentFactory.CreateViewModelFor(document, "Test Package");
+        var question = qDocument.Package.Rounds[0].Themes[0].Questions[0];
+        
+        // Add image to document
+        var imageData = new byte[] { 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A };
+        using (var stream = new MemoryStream(imageData))
+        {
+            await document.Images.AddFileAsync("question_image.png", stream);
+        }
+
+        // Act - Add image reference to question parameters (GetContent reads from Parameters)
+        question.Model.Parameters[QuestionParameterNames.Question] = new StepParameter
+        {
+            Type = StepParameterTypes.Content,
+            ContentValue = new List<ContentItem>
+            {
+                new() { Type = ContentTypes.Image, Value = "@question_image.png" }
+            }
+        };
+
+        // Assert
+        var content = question.Model.GetContent().ToList();
+        Assert.That(content.Any(c => c.Type == ContentTypes.Image), Is.True);
+        Assert.That(content.Last().Value, Is.EqualTo("@question_image.png"));
+    }
+
+    [Test]
+    public async Task AddAudioToQuestion_ShouldReferenceAudio()
+    {
+        // Arrange
+        var document = TestHelper.CreateSimpleTestPackage();
+        var qDocument = _documentFactory.CreateViewModelFor(document, "Test Package");
+        var question = qDocument.Package.Rounds[0].Themes[0].Questions[0];
+        
+        // Add audio to document
+        var audioData = new byte[] { 0x01, 0x02, 0x03, 0x04 };
+        using (var stream = new MemoryStream(audioData))
+        {
+            await document.Audio.AddFileAsync("question_audio.mp3", stream);
+        }
+
+        // Act - Add audio reference to question parameters (GetContent reads from Parameters)
+        question.Model.Parameters[QuestionParameterNames.Question] = new StepParameter
+        {
+            Type = StepParameterTypes.Content,
+            ContentValue = new List<ContentItem>
+            {
+                new() { Type = ContentTypes.Audio, Value = "@question_audio.mp3" }
+            }
+        };
+
+        // Assert
+        var content = question.Model.GetContent().ToList();
+        Assert.That(content.Any(c => c.Type == ContentTypes.Audio), Is.True);
+        Assert.That(content.Last().Value, Is.EqualTo("@question_audio.mp3"));
+    }
+
+    #endregion
+
+    #region Removing Media Files
+
+    [Test]
+    public async Task RemoveImage_ShouldDecreaseImageCount()
+    {
+        // Arrange
+        var document = SIDocument.Create("Test Package", "Test Author");
+        _documentFactory.CreateViewModelFor(document, "Test Package");
+        
+        // Add an image first
+        var imageData = new byte[] { 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A };
+        using (var stream = new MemoryStream(imageData))
+        {
+            await document.Images.AddFileAsync("removable_image.png", stream);
+        }
+
+        // Act
+        document.Images.RemoveFile("removable_image.png");
+
+        // Assert - verify the file was removed from the document's collection
+        Assert.That(document.Images, Does.Not.Contain("removable_image.png"));
+    }
+
+    [Test]
+    public async Task RemoveAudio_ShouldDecreaseAudioCount()
+    {
+        // Arrange
+        var document = SIDocument.Create("Test Package", "Test Author");
+        _documentFactory.CreateViewModelFor(document, "Test Package");
+        
+        // Add audio first
+        var audioData = new byte[] { 0x01, 0x02, 0x03, 0x04 };
+        using (var stream = new MemoryStream(audioData))
+        {
+            await document.Audio.AddFileAsync("removable_audio.mp3", stream);
+        }
+
+        // Act
+        document.Audio.RemoveFile("removable_audio.mp3");
+
+        // Assert - verify the file was removed from the document's collection
+        Assert.That(document.Audio, Does.Not.Contain("removable_audio.mp3"));
+    }
+
+    #endregion
+}

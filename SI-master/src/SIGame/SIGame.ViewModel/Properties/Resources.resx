@@ -1,0 +1,810 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="About_Version" xml:space="preserve">
+    <value>Version</value>
+  </data>
+  <data name="AlreadyExists" xml:space="preserve">
+    <value>A player with such name already exists</value>
+  </data>
+  <data name="Any" xml:space="preserve">
+    <value>Any</value>
+  </data>
+  <data name="App_Name" xml:space="preserve">
+    <value>SIGame</value>
+  </data>
+  <data name="BadPackage" xml:space="preserve">
+    <value>This pack can't be used to play on the server</value>
+  </data>
+  <data name="BirthDateRequired" xml:space="preserve">
+    <value>You have to set your date of birth</value>
+  </data>
+  <data name="ChangeAccount" xml:space="preserve">
+    <value>Account change</value>
+  </data>
+  <data name="CommentSiteError" xml:space="preserve">
+    <value>An error occured while visiting the web-site to comment. Make sure you have a default browser</value>
+  </data>
+  <data name="Create" xml:space="preserve">
+    <value>Create</value>
+  </data>
+  <data name="CreatedGameNotFound" xml:space="preserve">
+    <value>Can't fine a created game</value>
+  </data>
+  <data name="Creating" xml:space="preserve">
+    <value>Creating the game...</value>
+  </data>
+  <data name="DeleteConfirm" xml:space="preserve">
+    <value>Are you sure you want to remore the player '{0}'?</value>
+  </data>
+  <data name="ErrorMovingToSite" xml:space="preserve">
+    <value>An error occured while visiting the site {0}. Make sure you have a system default browser selected.</value>
+  </data>
+  <data name="ExportOk" xml:space="preserve">
+    <value>Export successfully completed</value>
+  </data>
+  <data name="FileTooLarge" xml:space="preserve">
+    <value>The file it too large</value>
+  </data>
+  <data name="GameClosedCauseEverybodyLeft" xml:space="preserve">
+    <value>Game closed due to the players disconnect</value>
+  </data>
+  <data name="GameConnectionTimeout" xml:space="preserve">
+    <value>Game connection timeout</value>
+  </data>
+  <data name="GameCreationError_BadPackage" xml:space="preserve">
+    <value>Bad pack</value>
+  </data>
+  <data name="GameCreationError_DuplicateName" xml:space="preserve">
+    <value>A game with such name already exists</value>
+  </data>
+  <data name="GameCreationError_NoPackage" xml:space="preserve">
+    <value>Can't create a game on the server due to absence of a pack</value>
+  </data>
+  <data name="GameCreationError_ObsoleteVersion" xml:space="preserve">
+    <value>Your client is outdated. Please, update the game.</value>
+  </data>
+  <data name="GameCreationError_ServerError" xml:space="preserve">
+    <value>Can't create a game on the server due to an error</value>
+  </data>
+  <data name="GameCreationError_ServerMaintainance" xml:space="preserve">
+    <value>The server is in the maintenance. Please, try to log in later. We apologize for any inconvenience caused</value>
+  </data>
+  <data name="GameCreationError_ServerNotReady" xml:space="preserve">
+    <value>The server is not ready to start the game</value>
+  </data>
+  <data name="GameCreationError_TooManyGames" xml:space="preserve">
+    <value>The maximal amount of games in the server is exceeded. Please, wait.</value>
+  </data>
+  <data name="GameCreationError_UnknownReason" xml:space="preserve">
+    <value>Can't creat a game due to an unknown error</value>
+  </data>
+  <data name="GameEngineError" xml:space="preserve">
+    <value>Game engine error</value>
+  </data>
+  <data name="GameEntering" xml:space="preserve">
+    <value>Entering the game...</value>
+  </data>
+  <data name="GameNameRequired" xml:space="preserve">
+    <value>Game name is required</value>
+  </data>
+  <data name="GamesFilter_All" xml:space="preserve">
+    <value>All</value>
+  </data>
+  <data name="GamesFilter_New" xml:space="preserve">
+    <value>New</value>
+  </data>
+  <data name="GamesFilter_NoPassword" xml:space="preserve">
+    <value>No password</value>
+  </data>
+  <data name="GamesFilter_Sport" xml:space="preserve">
+    <value>Sport</value>
+  </data>
+  <data name="GamesFilter_Tv" xml:space="preserve">
+    <value>TV</value>
+  </data>
+  <data name="ImportOk" xml:space="preserve">
+    <value>Import successfully completed</value>
+  </data>
+  <data name="IsDouble" xml:space="preserve">
+    <value>{0} is found at least twice</value>
+  </data>
+  <data name="LinkError" xml:space="preserve">
+    <value>An error occured while trying to follow the link. Please, make sure you have a default browser</value>
+  </data>
+  <data name="LoginForbidden" xml:space="preserve">
+    <value>This login is forbidden on the server</value>
+  </data>
+  <data name="LogsMovingError" xml:space="preserve">
+    <value>An error occured while moving logs</value>
+  </data>
+  <data name="LostConnection" xml:space="preserve">
+    <value>The connection is lost</value>
+  </data>
+  <data name="MainMenu_About" xml:space="preserve">
+    <value>About</value>
+  </data>
+  <data name="MainMenu_BestPlayers" xml:space="preserve">
+    <value>Best players</value>
+  </data>
+  <data name="MainMenu_Exit" xml:space="preserve">
+    <value>Exit</value>
+  </data>
+  <data name="MainMenu_NetworkGame" xml:space="preserve">
+    <value>Local game</value>
+  </data>
+  <data name="MainMenu_OnlineGame" xml:space="preserve">
+    <value>Online game</value>
+  </data>
+  <data name="MainMenu_SingleGame" xml:space="preserve">
+    <value>Single game</value>
+  </data>
+  <data name="NameRequired" xml:space="preserve">
+    <value>Player's name is required</value>
+  </data>
+  <data name="New" xml:space="preserve">
+    <value>New</value>
+  </data>
+  <data name="NewAccount" xml:space="preserve">
+    <value>New account</value>
+  </data>
+  <data name="NewGame" xml:space="preserve">
+    <value>New game</value>
+  </data>
+  <data name="NewPlayer" xml:space="preserve">
+    <value>New AI player</value>
+  </data>
+  <data name="NewShowman" xml:space="preserve">
+    <value>New Showman</value>
+  </data>
+  <data name="NoLogsFolder" xml:space="preserve">
+    <value>Log folder not found</value>
+  </data>
+  <data name="OnlineUserConflict" xml:space="preserve">
+    <value>A user with such name is already on the server</value>
+  </data>
+  <data name="OpenLogsError" xml:space="preserve">
+    <value>Log folder opening error: {0}</value>
+  </data>
+  <data name="PackageCheck" xml:space="preserve">
+    <value>Checking the pack...</value>
+  </data>
+  <data name="PlayerDeleteConfirm" xml:space="preserve">
+    <value>Do you really want to remove the AI player {0}?</value>
+  </data>
+  <data name="PlayerExists" xml:space="preserve">
+    <value>The player already exists</value>
+  </data>
+  <data name="PlayerNameRequired" xml:space="preserve">
+    <value>The player's name is required</value>
+  </data>
+  <data name="PortNumberRequired" xml:space="preserve">
+    <value>The port number is required</value>
+  </data>
+  <data name="Preparing" xml:space="preserve">
+    <value>Preparing...</value>
+  </data>
+  <data name="RejoinError" xml:space="preserve">
+    <value>Rejoin error</value>
+  </data>
+  <data name="Save" xml:space="preserve">
+    <value>Save</value>
+  </data>
+  <data name="SendingPackageToServer" xml:space="preserve">
+    <value>Sending the pack to the server</value>
+  </data>
+  <data name="SettingsReset" xml:space="preserve">
+    <value>The settings are set to default</value>
+  </data>
+  <data name="ShomanNameRequired" xml:space="preserve">
+    <value>Showman's name is required</value>
+  </data>
+  <data name="ShowmanDeleteConfirm" xml:space="preserve">
+    <value>Do you really want to remove the showman {0}?</value>
+  </data>
+  <data name="SIStorage" xml:space="preserve">
+    <value>Questions storage</value>
+  </data>
+  <data name="SIStorageCallError" xml:space="preserve">
+    <value>An error while accessing the storage</value>
+  </data>
+  <data name="SIStorageError" xml:space="preserve">
+    <value>An error while working the storage</value>
+  </data>
+  <data name="SiteNavigationError" xml:space="preserve">
+    <value>An error occured while following the web-site ({0}). Make sure you have a default browser</value>
+  </data>
+  <data name="TimeSettings_ChoosingFinalTheme" xml:space="preserve">
+    <value>Сhoosing a final round theme</value>
+  </data>
+  <data name="TimeSettings_ChoosingQuestion" xml:space="preserve">
+    <value>Choosing a question</value>
+  </data>
+  <data name="TimeSettings_FinalThinking" xml:space="preserve">
+    <value>Thinking on final question</value>
+  </data>
+  <data name="TimeSettings_GivingCat" xml:space="preserve">
+    <value>Giving the "Secret question"</value>
+  </data>
+  <data name="TimeSettings_MakingStake" xml:space="preserve">
+    <value>Making a bet in an "Stake question" and in a final question</value>
+  </data>
+  <data name="TimeSettings_PrintingAnswer" xml:space="preserve">
+    <value>Entering the answer after pressing the button</value>
+  </data>
+  <data name="TimeSettings_Round" xml:space="preserve">
+    <value>Round</value>
+  </data>
+  <data name="TimeSettings_ShowmanDecisions" xml:space="preserve">
+    <value>Making decisions and accepting answers by showman</value>
+  </data>
+  <data name="TimeSettings_ThinkingOnQuestion" xml:space="preserve">
+    <value>Thinking on a question</value>
+  </data>
+  <data name="TimeSettings_ThinkingOnSpecial" xml:space="preserve">
+    <value>Thinking on a special question</value>
+  </data>
+  <data name="UploadPackageTimeout" xml:space="preserve">
+    <value>The pack sending time is expired. Please, try again, or reduce the size of the file</value>
+  </data>
+  <data name="WrongAddressFormat" xml:space="preserve">
+    <value>Invalid address format</value>
+  </data>
+  <data name="ComputerPlayer" xml:space="preserve">
+    <value>Computer player</value>
+  </data>
+  <data name="VKThemesError" xml:space="preserve">
+    <value>An error occured while following the web-site ({0}). Make sure you have a default browser</value>
+  </data>
+  <data name="GameStage_Created" xml:space="preserve">
+    <value>Created</value>
+  </data>
+  <data name="GameStage_Final" xml:space="preserve">
+    <value>Final</value>
+  </data>
+  <data name="GameStage_Finished" xml:space="preserve">
+    <value>Finished</value>
+  </data>
+  <data name="GameStage_Round" xml:space="preserve">
+    <value>Round</value>
+  </data>
+  <data name="GameStage_Started" xml:space="preserve">
+    <value>Started</value>
+  </data>
+  <data name="Online_Login_Hint" xml:space="preserve">
+    <value>Try to disable firewall or antivirus. Maybe the problem is with VPN or proxy server</value>
+  </data>
+  <data name="Next" xml:space="preserve">
+    <value>Next</value>
+  </data>
+  <data name="RandomThemes" xml:space="preserve">
+    <value>Random themes set</value>
+  </data>
+  <data name="FeedbackLink" xml:space="preserve">
+    <value>https://vk.com/topic-135725718_56096135</value>
+  </data>
+  <data name="GroupLink" xml:space="preserve">
+    <value>https://vk.com/si_game</value>
+  </data>
+  <data name="ThemesLink" xml:space="preserve">
+    <value>https://vk.com/topic-135725718_34975471</value>
+  </data>
+  <data name="Error_SendingReport" xml:space="preserve">
+    <value>Cannot connect to server while uploading game report. The report will be sent later</value>
+  </data>
+  <data name="Error_UploadingAvatar" xml:space="preserve">
+    <value>Cannot upload avatar to address</value>
+  </data>
+  <data name="GameModes_Sport_Hint" xml:space="preserve">
+    <value>Questions are played sequentially</value>
+  </data>
+  <data name="GameModes_Tv_Hint" xml:space="preserve">
+    <value>Questions are selected by players</value>
+  </data>
+  <data name="OnlineGameAddress" xml:space="preserve">
+    <value>Game address</value>
+  </data>
+  <data name="RandomServerThemes" xml:space="preserve">
+    <value>Random server themes</value>
+  </data>
+  <data name="GameCreationError_JoinError" xml:space="preserve">
+    <value>Game join error</value>
+  </data>
+  <data name="GameCreationError_WrongSettings" xml:space="preserve">
+    <value>Wrong game settings</value>
+  </data>
+  <data name="TimeSettings_MediaDelay" xml:space="preserve">
+    <value>Pause while showing media</value>
+  </data>
+  <data name="TimeSettings_RightAnswer" xml:space="preserve">
+    <value>Showing right answer</value>
+  </data>
+  <data name="ServerConnectionError" xml:space="preserve">
+    <value>Server connection lost!</value>
+  </data>
+  <data name="Mixed" xml:space="preserve">
+    <value>Mixed</value>
+  </data>
+  <data name="RoundThemes" xml:space="preserve">
+    <value>The round themes are; Here are the themes of the round</value>
+  </data>
+  <data name="RoundTrailing" xml:space="preserve">
+    <value>Round {0}</value>
+  </data>
+  <data name="News" xml:space="preserve">
+    <value>News</value>
+  </data>
+  <data name="ReconnectedMessage" xml:space="preserve">
+    <value>Connection restored.</value>
+  </data>
+  <data name="ReconnectingMessage" xml:space="preserve">
+    <value>Connection lost, reconnecting...</value>
+  </data>
+  <data name="PackageNotSelected" xml:space="preserve">
+    <value>package not selected</value>
+  </data>
+  <data name="NoLicensesFolder" xml:space="preserve">
+    <value>Licenses folder not found</value>
+  </data>
+  <data name="OpenLicensesError" xml:space="preserve">
+    <value>Licenses folder opening error</value>
+  </data>
+  <data name="GameRule_IgnoreWrong" xml:space="preserve">
+    <value>ignore wrong</value>
+  </data>
+  <data name="GameRule_NoFalseStart" xml:space="preserve">
+    <value>no falstarts</value>
+  </data>
+  <data name="GameRule_Oral" xml:space="preserve">
+    <value>oral</value>
+  </data>
+  <data name="GameRule_Sport" xml:space="preserve">
+    <value>simplified</value>
+  </data>
+  <data name="UpdateVersionMessage" xml:space="preserve">
+    <value>Game update to version {0} found</value>
+  </data>
+  <data name="PortIsUsedError" xml:space="preserve">
+    <value>Multimedia port {0} is alreay used (another game running?). Try to set another port in settings</value>
+  </data>
+  <data name="TooManyGames" xml:space="preserve">
+    <value>You have created too many games!</value>
+  </data>
+  <data name="MaximumFileSize" xml:space="preserve">
+    <value>Maximum file size: {0} MB</value>
+  </data>
+  <data name="AvatarTooBig" xml:space="preserve">
+    <value>Your avatar is bigger than 1 MB. Other players will not see it</value>
+  </data>
+  <data name="InvalidAvatarData" xml:space="preserve">
+    <value>Invalid avatar data</value>
+  </data>
+  <data name="GameRule_Classic" xml:space="preserve">
+    <value>classic</value>
+  </data>
+  <data name="CannotJoinGame" xml:space="preserve">
+    <value>Cannot join game</value>
+  </data>
+  <data name="GameRule_PingPenalty" xml:space="preserve">
+    <value>ping penalty</value>
+  </data>
+  <data name="YouNeedToUpgradeClientToJoinGame" xml:space="preserve">
+    <value>You need to upgrade application to join this game</value>
+  </data>
+  <data name="CommonJoinError" xml:space="preserve">
+    <value>Common error</value>
+  </data>
+  <data name="GameNotFound" xml:space="preserve">
+    <value>Game not found</value>
+  </data>
+  <data name="InternalServerError" xml:space="preserve">
+    <value>Internal server error</value>
+  </data>
+  <data name="InvalidRole" xml:space="preserve">
+    <value>Invalid role</value>
+  </data>
+  <data name="JoinForbidden" xml:space="preserve">
+    <value>Forbidden to join (you are banned)</value>
+  </data>
+  <data name="UnknownError" xml:space="preserve">
+    <value>Unknown error</value>
+  </data>
+  <data name="TooMuchRandomPackages" xml:space="preserve">
+    <value>You created too much random pakages. Please try again later</value>
+  </data>
+  <data name="QuestionLibrary" xml:space="preserve">
+    <value>Online question library</value>
+  </data>
+  <data name="SetVideoAvatar" xml:space="preserve">
+    <value>Set video avatar (vdo.ninja)</value>
+  </data>
+  <data name="TimeSettings_PartialImageTime" xml:space="preserve">
+    <value>Partial image display</value>
+  </data>
+  <data name="HintSelectPlayerForSumChange" xml:space="preserve">
+    <value>Select a player to change his score</value>
+  </data>
+  <data name="HintChangeSum" xml:space="preserve">
+    <value>Change the sum</value>
+  </data>
+  <data name="HintSelectActivePlayer" xml:space="preserve">
+    <value>Select new active player</value>
+  </data>
+  <data name="CannotKickBots" xml:space="preserve">
+    <value>You can't kick bots</value>
+  </data>
+  <data name="CannotKickYouself" xml:space="preserve">
+    <value>You can't kick yourself</value>
+  </data>
+  <data name="CannotBanBots" xml:space="preserve">
+    <value>You can't ban bots</value>
+  </data>
+  <data name="CannotBanYourself" xml:space="preserve">
+    <value>You can't ban yourself</value>
+  </data>
+  <data name="CannotSetHostToBot" xml:space="preserve">
+    <value>Cannot set bot as host</value>
+  </data>
+  <data name="CannotSetHostToYourself" xml:space="preserve">
+    <value>Your are host already!</value>
+  </data>
+  <data name="CannotConnectToServer" xml:space="preserve">
+    <value>Cannot connect to server</value>
+  </data>
+  <data name="NetworkOpeningError" xml:space="preserve">
+    <value>Error while starting listening network: {0}. Network connections are unavailable.</value>
+  </data>
+  <data name="QuestionTypeForAll" xml:space="preserve">
+    <value>Question for all</value>
+  </data>
+  <data name="QuestionTypeStakeForAll" xml:space="preserve">
+    <value>Question for all with stake</value>
+  </data>
+  <data name="QuestionTypeWithButton" xml:space="preserve">
+    <value>Question with button</value>
+  </data>
+  <data name="GameClosedMessage" xml:space="preserve">
+    <value>Game closed by server due to inactivity </value>
+  </data>
+  <data name="ReportTip" xml:space="preserve">
+    <value>Your comment about game and questions:</value>
+  </data>
+  <data name="ReportTitle" xml:space="preserve">
+    <value>Game report</value>
+  </data>
+  <data name="HintSelectCatPlayer" xml:space="preserve">
+    <value>Select a player to give the question to</value>
+  </data>
+  <data name="HintSelectStarter" xml:space="preserve">
+    <value>Select a player who is starting the round</value>
+  </data>
+  <data name="HintThemeDeleter" xml:space="preserve">
+    <value>Select the player who is removing the theme</value>
+  </data>
+  <data name="HintSelectStaker" xml:space="preserve">
+    <value>Select a player who is making a bet</value>
+  </data>
+  <data name="HintSelectTheme" xml:space="preserve">
+    <value>Remove a theme on the board</value>
+  </data>
+  <data name="HintSelectQuestion" xml:space="preserve">
+    <value>Select a question on the board</value>
+  </data>
+  <data name="HintCheckAnswer" xml:space="preserve">
+    <value>Define if the answer is correct</value>
+  </data>
+  <data name="ErrorWritingLogToDisc" xml:space="preserve">
+    <value>Error while writing log to disc</value>
+  </data>
+  <data name="Label_Auction" xml:space="preserve">
+    <value>QUESTION WITH A STAKE</value>
+  </data>
+  <data name="Label_CatInBag" xml:space="preserve">
+    <value>QUESTION WITH A SECRET</value>
+  </data>
+  <data name="Label_Sponsored" xml:space="preserve">
+    <value>QUESTION FOR YOURSELF</value>
+  </data>
+  <data name="GameStarted" xml:space="preserve">
+    <value>The game has started</value>
+  </data>
+  <data name="Hint" xml:space="preserve">
+    <value>Hint: you can press the answer button at any point of the screen using right mouse button or {0} key</value>
+  </data>
+  <data name="PressButton" xml:space="preserve">
+    <value>Please, press the button right after the frame around the board appears</value>
+  </data>
+  <data name="HintMakeAStake" xml:space="preserve">
+    <value>Make a stake</value>
+  </data>
+  <data name="DisconnectMessage" xml:space="preserve">
+    <value>You have disconnected</value>
+  </data>
+  <data name="HostChanged" xml:space="preserve">
+    <value>Game host was set {0} to {1}</value>
+  </data>
+  <data name="MediaFileNotSupported" xml:space="preserve">
+    <value>Media file is not supported</value>
+  </data>
+  <data name="MediaLoadError" xml:space="preserve">
+    <value>Media load error</value>
+  </data>
+  <data name="FileLoadError" xml:space="preserve">
+    <value>File "{0}" loading error</value>
+  </data>
+  <data name="LogTitle" xml:space="preserve">
+    <value>SIGame log</value>
+  </data>
+  <data name="ExternalLink" xml:space="preserve">
+    <value>External link: {0} . External link download could be unsafe and is disabled</value>
+  </data>
+  <data name="Greeting" xml:space="preserve">
+    <value>Welcome to SIGame! The game will begin as soon as all the players and the showman press "Ready" button</value>
+  </data>
+  <data name="RightAnswer" xml:space="preserve">
+    <value>The right answer</value>
+  </data>
+  <data name="UserUnbanned" xml:space="preserve">
+    <value>User {0} was unbanned</value>
+  </data>
+  <data name="LocalGame" xml:space="preserve">
+    <value>Local game</value>
+  </data>
+  <data name="RandomPackageName" xml:space="preserve">
+    <value>Random themes</value>
+  </data>
+  <data name="GameName" xml:space="preserve">
+    <value>Game name</value>
+  </data>
+  <data name="PackageName" xml:space="preserve">
+    <value>Package name</value>
+  </data>
+  <data name="ContactUri" xml:space="preserve">
+    <value>Authors contact</value>
+  </data>
+  <data name="VoiceChatLink" xml:space="preserve">
+    <value>Voice chat (Discord)</value>
+  </data>
+  <data name="TimeSettings_ImageTime" xml:space="preserve">
+    <value>Image display</value>
+  </data>
+  <data name="ByGame" xml:space="preserve">
+    <value>by game</value>
+  </data>
+  <data name="DownloadFileError" xml:space="preserve">
+    <value>Downloading file error</value>
+  </data>
+  <data name="QuestionAuthors" xml:space="preserve">
+    <value>Question authors</value>
+  </data>
+  <data name="QuestionSources" xml:space="preserve">
+    <value>Question sources</value>
+  </data>
+  <data name="PackageAuthors" xml:space="preserve">
+    <value>Package authors</value>
+  </data>
+  <data name="PackageSources" xml:space="preserve">
+    <value>Package sources</value>
+  </data>
+  <data name="PackageComments" xml:space="preserve">
+    <value>Package comments</value>
+  </data>
+  <data name="RoundAuthors" xml:space="preserve">
+    <value>Round authors</value>
+  </data>
+  <data name="RoundSources" xml:space="preserve">
+    <value>Round sources</value>
+  </data>
+  <data name="RoundComments" xml:space="preserve">
+    <value>Round comments</value>
+  </data>
+  <data name="UnsupportedQuestion" xml:space="preserve">
+    <value>This question is not supported by your client</value>
+  </data>
+  <data name="EasyCat" xml:space="preserve">
+    <value>There's no question here! The money was just added to your score! Congratulations!</value>
+  </data>
+  <data name="Final" xml:space="preserve">
+    <value>Final</value>
+  </data>
+  <data name="GiveCat" xml:space="preserve">
+    <value>Who would you like to give the question to?</value>
+  </data>
+  <data name="ManuallyPlayedQuestion" xml:space="preserve">
+    <value>This question will be played manually (while pauses). The game will resume in 15 seconds</value>
+  </data>
+  <data name="NobodyInFinal" xml:space="preserve">
+    <value>We could have had the final round now, but none of the players reached it!</value>
+  </data>
+  <data name="VaBank" xml:space="preserve">
+    <value>ALL-IN!!!</value>
+  </data>
+  <data name="YourAnswer" xml:space="preserve">
+    <value>what's your answer?; your answer is..?;?;answer, please!;I'm waiting for your answer;please, answer the question</value>
+  </data>
+  <data name="YourStake" xml:space="preserve">
+    <value>what's your bet?;make your bet</value>
+  </data>
+  <data name="WrongAnswers" xml:space="preserve">
+    <value>Wrong answers</value>
+  </data>
+  <data name="Tables" xml:space="preserve">
+    <value>Tables</value>
+  </data>
+  <data name="ShowmanGreeting" xml:space="preserve">
+    <value>Greetings, ladies and gentlement, this is SIGame!</value>
+  </data>
+  <data name="SelectAnswerOption" xml:space="preserve">
+    <value>Select answer option on table</value>
+  </data>
+  <data name="Right" xml:space="preserve">
+    <value>Right!;You're right!;Yes, that's correct!;Yes!;Absolutely right!;That's it!;Of course!;For sure!;No doubt!; That's it!;Yes, you're correct!;You have given the correct answer!;Correct!</value>
+  </data>
+  <data name="DeleteTheme" xml:space="preserve">
+    <value>Remove a theme you don't like;remove one of the themes, please</value>
+  </data>
+  <data name="ChooseQuest" xml:space="preserve">
+    <value>Choose the question!;Please!;Choose!;Make a choice!;It's your choice;You're chosing the next question</value>
+  </data>
+  <data name="JoinRoleForbidden" xml:space="preserve">
+    <value>Join to this game under this role is forbidden</value>
+  </data>
+  <data name="WrongPassword" xml:space="preserve">
+    <value>Wrong password</value>
+  </data>
+  <data name="PersonWithSuchNameIsAlreadyInGame" xml:space="preserve">
+    <value>There already is a player with such nickname in the game</value>
+  </data>
+  <data name="PositionNotFoundByIndex" xml:space="preserve">
+    <value>Position with such number was not found</value>
+  </data>
+  <data name="PlaceIsOccupied" xml:space="preserve">
+    <value>The place is already occupied!</value>
+  </data>
+  <data name="NoFreePlaceForName" xml:space="preserve">
+    <value>There's no empty space for user with such name!</value>
+  </data>
+  <data name="InvalidUserName" xml:space="preserve">
+    <value>Invalid user name</value>
+  </data>
+  <data name="PriceMultiplication" xml:space="preserve">
+    <value>Question price is multiplied by {0}</value>
+  </data>
+  <data name="HiddenStakesMade" xml:space="preserve">
+    <value>All stakes are submitted. Your attention, please!</value>
+  </data>
+  <data name="Theme" xml:space="preserve">
+    <value>Theme: {0}</value>
+  </data>
+  <data name="AppellationFor" xml:space="preserve">
+    <value>{0} is appellating his own answer</value>
+  </data>
+  <data name="AppellationAgainst" xml:space="preserve">
+    <value>{0} is considering that the answer of {1} is wrong</value>
+  </data>
+  <data name="ThemeDeletes" xml:space="preserve">
+    <value>{0} will remove a theme</value>
+  </data>
+  <data name="Wrong" xml:space="preserve">
+    <value>None of a kind!;Incorrect!;I'm sorry, but that's not correct;Unfortunately that's not right;You have given an incorrect answer!;That's not right!;No;No, you're mistaken!;No, you're not right! Your answer is not correct</value>
+  </data>
+  <data name="LetsSee" xml:space="preserve">
+    <value>So, let's look at the players' answers;It's time to look at our players' answers</value>
+  </data>
+</root>

@@ -1,0 +1,87 @@
+﻿<UserControl
+    xmlns:my="clr-namespace:SIQuester"
+    x:Class="SIQuester.SpardEditorView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+    xmlns:lp="clr-namespace:SIQuester.Properties"
+    xmlns:lvm="clr-namespace:SIQuester.ViewModel;assembly=SIQuester.ViewModel"
+    d:DataContext="{d:DesignInstance lvm:SpardTemplateViewModel}"
+    mc:Ignorable="d"
+    d:DesignHeight="300"
+    d:DesignWidth="300">
+    <DockPanel>
+        <Menu DockPanel.Dock="Left" FocusManager.IsFocusScope="False">
+            <Menu.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <StackPanel Orientation="Vertical"/>
+                </ItemsPanelTemplate>
+            </Menu.ItemsPanel>
+
+            <MenuItem Header="&lt;&gt;" ItemsSource="{Binding Aliases}" ToolTip="{x:Static lp:Resources.Object}" FontSize="13" Height="25">
+                <MenuItem.ItemContainerStyle>
+                    <Style TargetType="MenuItem">
+                        <Setter Property="Command" Value="{Binding Path=DataContext.InsertAlias, RelativeSource={RelativeSource FindAncestor, AncestorType=Menu, AncestorLevel=1}}" />
+                        <Setter Property="CommandParameter" Value="{Binding Key}" />
+                    </Style>
+                </MenuItem.ItemContainerStyle>
+                
+                <MenuItem.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding Value.VisibleName}" />
+                    </DataTemplate>
+                </MenuItem.ItemTemplate>
+            </MenuItem>
+
+            <MenuItem Header="?" Command="{Binding InsertOptional}" ToolTip="{x:Static lp:Resources.OptionalFragment}" Height="25">
+                <MenuItem.HeaderTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding}" FontSize="18" Margin="5,0,0,0" HorizontalAlignment="Stretch" />
+                    </DataTemplate>
+                </MenuItem.HeaderTemplate>
+            </MenuItem>
+
+            <MenuItem Command="{Binding Cut}" ToolTip="{x:Static lp:Resources.CutTemplate}" Height="25">
+                <MenuItem.HeaderTemplate>
+                    <DataTemplate>
+                        <Path Stretch="Uniform" Fill="{StaticResource IconBrush}" Width="18" Margin="2" Data="{Binding Source={StaticResource app_cut},Path=Data}" />
+                    </DataTemplate>
+                </MenuItem.HeaderTemplate>
+            </MenuItem>
+
+            <MenuItem Command="{Binding Copy}" ToolTip="{x:Static lp:Resources.CopyTemplate}" Height="25">
+                <MenuItem.HeaderTemplate>
+                    <DataTemplate>
+                        <Path
+                            Stretch="Uniform"
+                            Fill="{StaticResource IconBrush}"
+                            Width="18"
+                            Margin="2"
+                            Data="{Binding Source={StaticResource app_copy},Path=Data}" />
+                    </DataTemplate>
+                </MenuItem.HeaderTemplate>
+            </MenuItem>
+
+            <MenuItem Command="{Binding Paste}" ToolTip="{x:Static lp:Resources.PasteTemplate}" Height="25">
+                <MenuItem.HeaderTemplate>
+                    <DataTemplate>
+                        <Path
+                            Stretch="Uniform"
+                            Fill="{StaticResource IconBrush}"
+                            Width="18"
+                            Margin="2"
+                            Data="{Binding Source={StaticResource app_paste},Path=Data}" />
+                    </DataTemplate>
+                </MenuItem.HeaderTemplate>
+            </MenuItem>
+        </Menu>
+        
+        <my:SimpleSpardEditor
+            ScrollViewer.VerticalScrollBarVisibility="Auto"
+            ContextMenu="{x:Null}"
+            UndoLimit="0"
+            Padding="2"
+            Spard="{Binding Transform, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+    </DockPanel>
+</UserControl>

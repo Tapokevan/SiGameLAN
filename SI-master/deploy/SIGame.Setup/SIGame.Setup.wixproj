@@ -1,0 +1,32 @@
+﻿<Project>
+  <Import Project="Sdk.props" Sdk="WixToolset.Sdk" Version="5.0.2" />
+  <PropertyGroup>
+    <ProductVersion>3.9</ProductVersion>
+    <OutputName>SIGame.$(Platform)</OutputName>
+    <DefineConstants>ProductVersion=$(MsiProductVersion)</DefineConstants>
+    <SuppressIces>ICE38;ICE57;ICE91</SuppressIces>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
+    <DefineConstants>Debug</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="WixToolset.Util.wixext" Version="5.0.2" />
+    <PackageReference Include="WixToolset.UI.wixext" Version="5.0.2" />
+    <PackageReference Include="WixToolset.NetFx.wixext" Version="5.0.2" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\SIGame\SIGame\SIGame.csproj">
+      <Name>SIGame</Name>
+      <Project>{a0d6e5f2-c486-465f-8b4b-368083e29b68}</Project>
+      <Private>True</Private>
+      <DoNotHarvest>True</DoNotHarvest>
+      <RefProjectOutputGroups>Binaries;Content;Satellites</RefProjectOutputGroups>
+      <RefTargetDir>INSTALLFOLDER</RefTargetDir>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="Sdk.targets" Sdk="WixToolset.Sdk" Version="5.0.2" />
+  <Target Name="AfterBuild">
+  </Target>
+</Project>

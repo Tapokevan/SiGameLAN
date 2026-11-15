@@ -1,0 +1,527 @@
+﻿using SICore.Network.Servers;
+using SIEngine;
+using SIEngine.Core;
+using SIEngine.Models;
+using SIEngine.Rules;
+using SImulator.ViewModel.Contracts;
+using SImulator.ViewModel.Model;
+using SImulator.ViewModel.Properties;
+using SIPackages;
+using SIPackages.Core;
+using SIUI.ViewModel;
+
+namespace SImulator.ViewModel.Controllers;
+
+/// <inheritdoc cref="IQuestionEnginePlayHandler" />
+internal sealed class GameEngineController : IQuestionEnginePlayHandler, ISIEnginePlayHandler
+{
+    public GameViewModel GameViewModel { get; set; } = null!;
+
+    public IPresentationController PresentationController => GameViewModel!.PresentationController;
+
+    private readonly IMediaProvider _mediaProvider;
+
+    private bool? _optionsShown = null;
+
+    private bool _isAnswer = false;
+    private bool _isAnswerSimple = false;
+
+    public GameEngineController(IMediaProvider mediaProvider) => _mediaProvider = mediaProvider;
+
+    public bool OnAnswerOptions(AnswerOption[] answerOptions, IReadOnlyList<ContentItem[]> screenContentSequence)
+    {
+        var options = new List<ItemViewModel>();
+
+        foreach (var (label, content) in answerOptions)
+        {
+            switch (content.Type)
+            {
+                case ContentTypes.Text:
+                    options.Add(new ItemViewModel { Label = label, Content = new ContentViewModel(ContentType.Text, content.Value) });
+                    break;
+
+                case ContentTypes.Image:
+                    var imageUri = TryGetMediaUri(content);
+
+                    if (imageUri != null)
+                    {
+                        options.Add(new ItemViewModel
+                        {
+                            Label = label, 
+                            Content = new ContentViewModel(ContentType.Image, imageUri)
+                        });
+                    }
+                    else
+                    {
+                        options.Add(new ItemViewModel { Label = label, Content = new ContentViewModel(ContentType.Void, "") });
+                    }
+                    break;
+
+                default:
+                    options.Add(new ItemViewModel { Label = label, Content = new ContentViewModel(ContentType.Void, "") });
+                    break;
+            }
+        }
+
+        var optionsArray = options.ToArray();
+
+        if (GameViewModel != null)
+        {
+            GameViewModel.LocalInfo.LayoutMode = LayoutMode.AnswerOptions;
+            GameViewModel.LocalInfo.AnswerOptions.Options = optionsArray;
+            _optionsShown = false;
+        }
+
+        PresentationController.SetAnswerOptions(optionsArray);
+        return false;
+    }
+
+    public bool OnAccept()
+    {
+        GameViewModel.Accept();
+        return false;
+    }
+
+    public void OnAskAnswer(string mode, int duration)
+    {
+        if (_optionsShown.HasValue && !_optionsShown.Value)
+        {
+            GameViewModel.Continuation = () =>
+            {
+                OnAskAnswer(mode, duration);
+                return true;
+            };
+
+            PresentationController.ShowAnswerOptions();
+            _optionsShown = true;
+            return;
+        }
+
+        GameViewModel.IsQuestionFinished = true;
+
+        // Disabled for run timer command so in false start mode when host enables buttons before media finishes it is still possible to control media being played
+        // Consider later will this lead to playing issues
+        if (GameViewModel.ActiveMediaCommand == GameViewModel.StopMediaTimer)
+        {
+            GameViewModel.ActiveMediaCommand = null;
+        }
+
+        switch (mode)
+        {
+            case StepParameterValues.AskAnswerMode_Button:
+                GameViewModel.StopThinkingTimer_Executed(0);
+                GameViewModel.StartQuestionTimer();
+                GameViewModel.AskAnswerButton();
+                break;
+
+            case StepParameterValues.AskAnswerMode_Direct:
+                GameViewModel.AskAnswerDirect();
+                GameViewModel.State = QuestionState.Thinking;
+                break;
+
+            default:
+                break;
+        }
+    }
+
+    public bool OnButtonPressStart()
+    {
+        if (_optionsShown.HasValue && !_optionsShown.Value)
+        {
+            PresentationController.ShowAnswerOptions();
+            _optionsShown = true;
+            return true;
+        }
+
+        GameViewModel.AskAnswerButton();
+        return false;
+    }
+
+    public void OnQuestionContent(IReadOnlyCollection<ContentItem> content, bool isLast)
+    {
+        var textToShow =
+            GameViewModel.Settings.Model.FalseStart
+            ? null
+            : $"{GameViewModel.CurrentTheme}\n{GameViewModel.Price}";
+
+        if (GameViewModel.Settings.Model.OralText)
+        {
+            // Make all text content items to be replicas
+            content = content.Select(item =>
+            {
+                if (item.Type == ContentTypes.Text)
+                {
+                    return new ContentItem
+                    {
+                        Type = ContentTypes.Text,
+                        Value = item.Value,
+                        Duration = item.Duration,
+                        WaitForFinish = item.WaitForFinish,
+                        Placement = ContentPlacements.Replic,
+                        IsRef = item.IsRef
+                    };
+                }
+
+                return item;
+            }).ToList();
+        }
+
+        foreach (var item in content)
+        {
+            if (item.Type == ContentTypes.Text)
+            {
+                GameViewModel.OnQuestionText(item.Value);
+            }
+        }
+
+        if (_isAnswerSimple)
+        {
+            PresentationController.OnSimpleRightAnswer(content.First().Value);
+        }
+
+        var hasMedia = PresentationController.OnQuestionContent(content, TryGetMediaUri, textToShow);
+
+        if (hasMedia)
+        {
+            GameViewModel.InitMedia();
+        }
+
+        GameViewModel.ActiveContent = content;
+
+        var moveToContent = GameViewModel.MoveToContent;
+        moveToContent.ExecutionContext.Clear();
+
+        var canMoveToContent = true;
+
+        foreach (var item in content)
+        {
+            if (canMoveToContent)
+            {
+                moveToContent.ExecutionContext.Add(item);
+            }
+
+            canMoveToContent = item.WaitForFinish;
+        }
+
+        moveToContent.OnCanBeExecutedChanged();
+    }
+
+    public bool OnSetAnswerer(string mode, string? select, string? stakeVisibility)
+    {
+        GameViewModel.IsCommonPrice = true;
+        GameViewModel.QuestionForAll = false;
+
+        switch (mode)
+        {
+            case StepParameterValues.SetAnswererMode_Stake
+                when select == StepParameterValues.SetAnswererSelect_Highest
+                    && stakeVisibility == StepParameterValues.SetAnswererStakeVisibility_Visible:
+                return GameViewModel.OnSetAnswererByHighestStake();
+            
+            case StepParameterValues.SetAnswererMode_Stake
+                when select == StepParameterValues.SetAnswererSelect_AllPossible
+                    && stakeVisibility == StepParameterValues.SetAnswererStakeVisibility_Hidden:
+                GameViewModel.IsCommonPrice = false;
+                GameViewModel.QuestionForAll = true;
+                return GameViewModel.OnAskHiddenStakes();
+            
+            case StepParameterValues.SetAnswererMode_ByCurrent:
+                GameViewModel.AddQuestionParameter(
+                    Resources.SelectionMode,
+                    select == StepParameterValues.SetAnswererSelect_Any
+                        ? Resources.SelectAny
+                        : Resources.SelectAnyExceptCurrent);
+                
+                return GameViewModel.OnSetAnswererDirectly(select == StepParameterValues.SetAnswererSelect_Any);
+            
+            case StepParameterValues.SetAnswererMode_Current:
+                return GameViewModel.OnSetAnswererAsCurrent();
+            
+            case StepParameterValues.SetAnswererMode_All:
+                GameViewModel.QuestionForAll = true;
+                break;
+        }
+
+        return false;
+    }
+
+    public bool OnAnnouncePrice(NumberSet availableRange) => false;
+
+    public bool OnSetPrice(string mode, NumberSet? availableRange)
+    {
+        switch (mode)
+        {
+            case StepParameterValues.SetPriceMode_Select:
+                if (availableRange != null)
+                {
+                    GameViewModel.AddQuestionParameter(Resources.Price, PrintNumberSet(availableRange));
+
+                    if (availableRange.Maximum == availableRange.Minimum && availableRange.Minimum > 0)
+                    {
+                        GameViewModel.Price = availableRange.Maximum;
+                    }
+                    else
+                    {
+                        GameViewModel.SelectStake(availableRange);
+                    }
+                    
+                    return true;
+                }
+                break;
+
+            case StepParameterValues.SetPriceMode_Multiply:
+                GameViewModel.OnSetMultiplyPrice();
+                break;
+
+            default:
+                // Do nothing
+                break;
+        }
+
+        return false;
+    }
+
+    private static string PrintNumberSet(NumberSet numberSet)
+    {
+        if (numberSet.Maximum == 0)
+        {
+            return Resources.PriceMinMaxRound;
+        }
+
+        if (numberSet.Maximum == numberSet.Minimum)
+        {
+            return numberSet.Maximum.ToString();
+        }
+
+        if (numberSet.Maximum - numberSet.Minimum == numberSet.Step)
+        {
+            return string.Format(Resources.PriceOr, numberSet.Minimum, numberSet.Maximum);
+        }
+
+        return string.Format(Resources.PriceFromToStep, numberSet.Minimum, numberSet.Maximum, numberSet.Step);
+    }
+
+    public bool OnSetTheme(string themeName)
+    {
+        GameViewModel.AddQuestionParameter(Resources.Theme, themeName);
+        GameViewModel.CurrentTheme = themeName;
+        return true;
+    }
+
+    private string? TryGetMediaUri(ContentItem contentItem)
+    {
+        var media = _mediaProvider.TryGetMedia(contentItem);
+        return media?.Uri?.OriginalString;
+    }
+
+    public void OnQuestionStart(bool buttonsRequired, ICollection<string> rightAnswers, Action skipQuestionCallback)
+    {
+        GameViewModel.OnQuestionStart();
+
+        if (buttonsRequired)
+        {
+            GameViewModel.StartButtons(); // Buttons are activated in advance for false starts to work
+        }
+
+        GameViewModel.IsQuestionFinished = false;
+        _optionsShown = null;
+        _isAnswerSimple = false;
+        _isAnswer = false;
+        _rightAnswer = rightAnswers.FirstOrDefault() ?? "";
+        GameViewModel.QuestionAnswers = rightAnswers.ToArray();
+        PresentationController.OnQuestionStart();
+    }
+
+    private string _rightAnswer = "";
+
+    public void OnAnswerStart()
+    {
+        _isAnswer = true;
+
+        GameViewModel.State = QuestionState.Normal;
+        GameViewModel.OnRightAnswer();
+        PresentationController.OnAnswerStart();
+    }
+
+    public bool OnRightAnswer()
+    {
+        if (_isAnswer && !_isAnswerSimple)
+        {
+            PresentationController.OnComplexRightAnswer(_rightAnswer);
+            _isAnswer = false;
+        }
+
+        return false;
+    }
+
+    public void OnContentStart(IReadOnlyList<ContentItem> contentItems, Action<int> moveToContentCallback)
+    {
+        GameViewModel.OnContentStart();
+        PresentationController.OnContentStart();
+
+        GameViewModel.ContentItems = contentItems;
+        GameViewModel.ActiveMediaCommand = null;
+        GameViewModel.DecisionMode = DecisionMode.None;
+        GameViewModel.MoveToContentCallback = moveToContentCallback;
+    }
+
+    public void OnSimpleRightAnswerStart()
+    {
+        _isAnswerSimple = true;
+        PresentationController.SetSimpleAnswer();
+        GameViewModel.OnRightAnswer();
+    }
+
+    public bool OnRightAnswerOption(string rightOptionLabel)
+    {
+        PresentationController.SetQuestionSound(false);
+        GameViewModel.OnRightAnswer();
+
+        var answerOptions = GameViewModel.LocalInfo.AnswerOptions.Options;
+
+        for (var answerIndex = 0; answerIndex < answerOptions.Length; answerIndex++)
+        {
+            if (answerOptions[answerIndex].Label == rightOptionLabel)
+            {
+                answerOptions[answerIndex].State = ItemState.Right;
+                PresentationController.SetAnswerState(answerIndex, ItemState.Right);
+                break;
+            }
+            else if (answerOptions[answerIndex].State == ItemState.Active)
+            {
+                answerOptions[answerIndex].State = ItemState.Normal;
+            }
+        }
+
+        return true;
+    }
+
+    public bool OnRightAnswerPoint(string rightAnswer) => false;
+
+    public bool ShouldPlayRoundWithRemovableThemes() => true;
+
+    public void OnRoundThemes(IReadOnlyList<Theme> themes, IRoundTableController tableController)
+    {
+        var roundThemes = new List<SIUI.Model.ThemeInfo>();
+        GameViewModel.ClearThemesComments();
+
+        foreach (var theme in themes) 
+        {
+            var themeInfo = new SIUI.Model.ThemeInfo
+            {
+                Name = theme.Name
+            };
+           
+            foreach (var question in theme.Questions)
+            {
+                themeInfo.Questions.Add(new SIUI.Model.QuestionInfo
+                {
+                    Price = question.Price
+                });
+            }
+            
+            roundThemes.Add(themeInfo);
+            GameViewModel.AddThemeComments(theme.Info.Comments.Text);
+        }
+
+        GameViewModel.OnRoundThemes(roundThemes.Select(t => t.Name).ToList());
+        GameViewModel.LoadTable(roundThemes);
+        GameViewModel.PlayThemes(roundThemes.Select(t => t.Name).ToList());
+    }
+
+    public void AskForQuestionSelection(IReadOnlyCollection<(int, int)> options, Action<int, int> selectCallback)
+    {
+        PresentationController.SelectionCallback = selectCallback;
+        PresentationController.SetRoundTable();
+        PresentationController.AskToSelectQuestion();
+        GameViewModel.LocalInfo.TStage = TableStage.RoundTable;
+    }
+
+    public void AskForThemeSelection(IReadOnlyCollection<int> options, Action<int> selectCallback) => selectCallback(options.Min());
+
+    public void OnQuestionSelected(int themeIndex, int questionIndex) => GameViewModel.OnQuestionSelected(themeIndex, questionIndex);
+
+    public void OnFinalThemes(IReadOnlyList<Theme> themes, bool willPlayAllThemes, bool isFirstPlay)
+    {
+        GameViewModel.OnFinalThemes(themes.Select(t => t.Name).ToList());
+        GameViewModel.ClearThemesComments();
+
+        foreach (var theme in themes)
+        {
+            GameViewModel.AddThemeComments(theme.Info.Comments.Text);
+        }
+    }
+
+    public void AskForThemeDelete(Action<int> deleteCallback) => PresentationController.DeletionCallback = deleteCallback;
+
+    public void OnThemeDeleted(int themeIndex) => GameViewModel.OnThemeDeleted(themeIndex);
+
+    public void OnThemeSelected(int themeIndex, int questionIndex) => GameViewModel.OnThemeSelected(themeIndex);
+
+    public void OnTheme(Theme theme) => GameViewModel.OnTheme(theme.Name, theme.Info.Comments.Text);
+
+    public void OnQuestion(Question question) => GameViewModel.OnQuestion(question.Price);
+
+    public void OnRound(Round round, QuestionSelectionStrategyType strategyType)
+    {
+        GameViewModel.OnRound(round.Name, strategyType);
+
+        if (round.Type == RoundTypes.Standart)
+        {
+            if (GameViewModel.RoundTimeMax > 0)
+            {
+                GameViewModel.RunRoundTimer.Execute(0);
+            }
+        }
+    }
+
+    public void OnRoundEnd(RoundEndReason reason)
+    {
+        GameViewModel.LogScore();
+
+        switch (reason)
+        {
+            case RoundEndReason.Timeout:
+                GameViewModel.OnEndRoundTimeout();
+                break;
+        }
+
+        GameViewModel.OnEndRound();
+    }
+
+    public void OnRoundSkip(QuestionSelectionStrategyType strategyType)
+    {
+        
+    }
+
+    public void OnQuestionRestored(int themeIndex, int questionIndex, int price)
+    {
+        GameViewModel.LocalInfo.RoundInfo[themeIndex].Questions[questionIndex].Price = price;
+        PresentationController.RestoreQuestion(themeIndex, questionIndex, price);
+    }
+
+    public void OnQuestionType(string typeName, bool isDefault) => GameViewModel.OnQuestionType(typeName, isDefault);
+
+    public bool OnQuestionEnd(string comments) => GameViewModel.OnQuestionEnd(comments);
+
+    public void OnQuestionAborted() { }
+
+    public void OnPackage(Package package)
+    {
+        var logo = package.LogoItem;
+        var media = logo != null ? _mediaProvider.TryGetMedia(logo) : null;
+
+        GameViewModel.OnPackage(package.Name, media);
+        GameViewModel.OnRoundNames(package.Rounds.Select(r => r.Name).ToArray());
+    }
+
+    public void OnPackageEnd() => GameViewModel.OnEndGame();
+
+    public void OnGameThemes(IEnumerable<string> themes) => GameViewModel.OnGameThemes(themes);
+
+    public bool OnNumericAnswerType(int deviation) => false;
+
+    public bool OnPointAnswerType(double deviation) => false;
+
+    public bool OnClientAnswerType() => false;
+}

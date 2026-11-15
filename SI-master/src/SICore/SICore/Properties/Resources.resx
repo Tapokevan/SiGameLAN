@@ -1,0 +1,291 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="And" xml:space="preserve">
+    <value>And</value>
+  </data>
+  <data name="Answer" xml:space="preserve">
+    <value>Answer</value>
+  </data>
+  <data name="ApellationAccepted" xml:space="preserve">
+    <value>Apellation was accepted</value>
+  </data>
+  <data name="ApellationDenied" xml:space="preserve">
+    <value>Apellation was denied</value>
+  </data>
+  <data name="Banned" xml:space="preserve">
+    <value>{0} has kicked and banned {1}</value>
+  </data>
+  <data name="CatIsYours" xml:space="preserve">
+    <value>You are getting this question</value>
+  </data>
+  <data name="Computer" xml:space="preserve">
+    <value>Computer</value>
+  </data>
+  <data name="GameBeginning" xml:space="preserve">
+    <value>Start of the game</value>
+  </data>
+  <data name="GameThemes" xml:space="preserve">
+    <value>Here are the themes of today's game; I offer these themes of today's game for your attention</value>
+  </data>
+  <data name="HeGave" xml:space="preserve">
+    <value>he gave</value>
+  </data>
+  <data name="Human" xml:space="preserve">
+    <value>A human</value>
+  </data>
+  <data name="IsApellating" xml:space="preserve">
+    <value>is apellating his own answer</value>
+  </data>
+  <data name="IsConsideringWrong" xml:space="preserve">
+    <value>is considering that the answer of {0} is wrong</value>
+  </data>
+  <data name="Kicked" xml:space="preserve">
+    <value>{0} kicked {1} from the game</value>
+  </data>
+  <data name="LetsSee" xml:space="preserve">
+    <value>So, let's look at the players' answers;It's time to look at our players' answers</value>
+  </data>
+  <data name="MakeStake" xml:space="preserve">
+    <value>Dear players, make your stakes, please;Ladies and gentlemen, make your stakes, please</value>
+  </data>
+  <data name="NoAnswer" xml:space="preserve">
+    <value>No answer</value>
+  </data>
+  <data name="NoFreePlaceForName" xml:space="preserve">
+    <value>There's no empty space for user with such name!</value>
+  </data>
+  <data name="NoWinner" xml:space="preserve">
+    <value>We have no winner today</value>
+  </data>
+  <data name="Pass" xml:space="preserve">
+    <value>Pass</value>
+  </data>
+  <data name="PersonWithSuchNameIsAlreadyInGame" xml:space="preserve">
+    <value>There already is a player with such nickname in the game</value>
+  </data>
+  <data name="PlaceIsOccupied" xml:space="preserve">
+    <value>The place is already occupied!</value>
+  </data>
+  <data name="PleaseCheckApellation" xml:space="preserve">
+    <value>Dear players, please, check whether the answer of {0} was correct</value>
+  </data>
+  <data name="PositionNotFoundByIndex" xml:space="preserve">
+    <value>Position with such number was not found</value>
+  </data>
+  <data name="Private" xml:space="preserve">
+    <value>privately</value>
+  </data>
+  <data name="RightAnswer" xml:space="preserve">
+    <value>The right answer</value>
+  </data>
+  <data name="Round" xml:space="preserve">
+    <value>Round</value>
+  </data>
+  <data name="RoundThemes" xml:space="preserve">
+    <value>Round themes are; Here are the themes of the round</value>
+  </data>
+  <data name="SheGave" xml:space="preserve">
+    <value>She gave</value>
+  </data>
+  <data name="StageFinished" xml:space="preserve">
+    <value>The game is over</value>
+  </data>
+  <data name="Stake" xml:space="preserve">
+    <value>Stake of</value>
+  </data>
+  <data name="StakeMakes" xml:space="preserve">
+    <value>Makes a stake</value>
+  </data>
+  <data name="ThemeDeletes" xml:space="preserve">
+    <value>Removes a theme</value>
+  </data>
+  <data name="To" xml:space="preserve">
+    <value>to</value>
+  </data>
+  <data name="ToMyself" xml:space="preserve">
+    <value>To myself</value>
+  </data>
+  <data name="Wrong" xml:space="preserve">
+    <value>None of a kind!;Incorrect!;I'm sorry, but that's not correct;Unfortunately that's not right;You have given an incorrect answer!;That's not right!;No;No, you're mistaken!;No, you're not right! Your answer is not correct</value>
+  </data>
+  <data name="WrongAnswer" xml:space="preserve">
+    <value>Shakespear;Oh, I have forgotten;Hm...</value>
+  </data>
+  <data name="WrongPassword" xml:space="preserve">
+    <value>Wrong password</value>
+  </data>
+  <data name="ApellatedAnswers" xml:space="preserve">
+    <value>Apellated answers</value>
+  </data>
+  <data name="Question" xml:space="preserve">
+    <value>Question</value>
+  </data>
+  <data name="MediaNotFound" xml:space="preserve">
+    <value>File {0} was not found in the game package!</value>
+  </data>
+  <data name="File" xml:space="preserve">
+    <value>File</value>
+  </data>
+  <data name="OversizedFile" xml:space="preserve">
+    <value>{0} in question {1} exceeds recommended size of {2} KB and could be loaded with delay</value>
+  </data>
+  <data name="PersonAlreadyExists" xml:space="preserve">
+    <value>Person {0} already exists in the game!</value>
+  </data>
+  <data name="LetsPlayNextTheme" xml:space="preserve">
+    <value>Let's play next theme</value>
+  </data>
+  <data name="WeWillPlayAllOfThem" xml:space="preserve">
+    <value>We will play all of them</value>
+  </data>
+  <data name="JoinForbidden" xml:space="preserve">
+    <value>Join to this game is forbidden</value>
+  </data>
+  <data name="JoinRoleForbidden" xml:space="preserve">
+    <value>Join to this game under this role is forbidden</value>
+  </data>
+  <data name="SetChooser" xml:space="preserve">
+    <value>{0} made {1} an active player</value>
+  </data>
+  <data name="GameStatistics" xml:space="preserve">
+    <value>Game statistics</value>
+  </data>
+  <data name="RightAnswers" xml:space="preserve">
+    <value>Right answers</value>
+  </data>
+  <data name="ExternalLinksForbidden" xml:space="preserve">
+    <value>Question contains external link which is forbidden and will not be loaded</value>
+  </data>
+  <data name="OversizedFileForbidden" xml:space="preserve">
+    <value>{0} in question {1} exceeds maximum size of {2} KB and will not be loaded</value>
+  </data>
+  <data name="InvalidFileExtension" xml:space="preserve">
+    <value>File {0} has invalid extension {1}</value>
+  </data>
+  <data name="PackageName" xml:space="preserve">
+    <value>Package name</value>
+  </data>
+  <data name="RandomPackageName" xml:space="preserve">
+    <value>Random themes</value>
+  </data>
+  <data name="UpTo" xml:space="preserve">
+    <value>to</value>
+  </data>
+</root>

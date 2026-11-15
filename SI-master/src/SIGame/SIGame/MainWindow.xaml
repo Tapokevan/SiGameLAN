@@ -1,0 +1,23 @@
+<Window
+    x:Class="SIGame.MainWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Height="450"
+    Width="600"
+    MinHeight="450"
+    MinWidth="1000"
+    SnapsToDevicePixels="True"
+    WindowState="Maximized"
+    xmlns:l="clr-namespace:SIGame"
+    xmlns:lvmp="clr-namespace:SIGame.ViewModel.Properties;assembly=SIGame.ViewModel"
+    Title="СИ • Домашняя игра" 
+    Icon="Resources\game.ico"
+    PreviewKeyDown="Window_KeyDown"
+    Closed="Window_Closed"
+    FontFamily="{StaticResource Font}">
+    <Window.CommandBindings>
+        <CommandBinding Command="ApplicationCommands.Close" Executed="Close_Executed" />
+    </Window.CommandBindings>
+    
+    <l:MainView />
+</Window>

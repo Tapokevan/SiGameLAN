@@ -1,0 +1,156 @@
+﻿using SICore.Network.Clients;
+using SIData;
+
+namespace SICore;
+
+/// <summary>
+/// Defines a showman message processor.
+/// </summary>
+public sealed class Showman(Client client, IPersonController controller, PersonActions actions, PersonState state)
+    : Viewer(client, controller, actions, state)
+{
+    public override GameRole Role => GameRole.Showman;
+
+    /// <inheritdoc />
+    protected override async ValueTask OnSystemMessageReceivedAsync(string[] mparams)
+    {
+        await base.OnSystemMessageReceivedAsync(mparams);
+
+        try
+        {
+            switch (mparams[0])
+            {
+                case Messages.Cancel:
+                    Controller.ClearSelections(true);
+                    break;
+
+                case Messages.AskSelectPlayer:
+                    OnAskSelectPlayer(mparams);
+                    break;
+
+                case Messages.AskValidate:
+                    if (mparams.Length < 3
+                        || !int.TryParse(mparams[1], out var playerIndex)
+                        || playerIndex < 0
+                        || playerIndex >= State.Players.Count)
+                    {
+                        break;
+                    }
+
+                    Controller.ValidateAnswer(playerIndex, mparams[2]);
+                    break;
+
+                case Messages.Validation2:
+                    OnValidation2(mparams);
+                    break;
+
+                case Messages.QuestionAnswers:
+                    OnQuestionAnswers(mparams);
+                    break;
+
+                case Messages.Stage:
+                    for (var i = 0; i < State.Players.Count; i++)
+                    {
+                        State.Players[i].CanBeSelected = false;
+                    }
+                    break;
+
+                // Oral game commands (showman performs actions announced by players)
+                case Messages.Choose:
+                    #region Choose
+
+                    if (mparams[1] == "1")
+                    {
+                        Controller.SelectQuestion();
+                    }
+                    else
+                    {
+                        Controller.DeleteTheme();
+                    }
+
+                    #endregion
+                    break;
+
+                case Messages.AskStake:
+                    OnAskStake(mparams);
+                    break;
+
+                case Messages.Answer:
+                    Controller.Answer();
+                    break;
+            }
+        }
+        catch (Exception exc)
+        {
+            throw new Exception(string.Join(Message.ArgsSeparator, mparams), exc);
+        }
+    }
+
+    private void OnQuestionAnswers(string[] mparams)
+    {
+        if (mparams.Length < 3)
+        {
+            return;
+        }
+
+        _ = int.TryParse(mparams[1], out var rightAnswersCount);
+        rightAnswersCount = Math.Min(rightAnswersCount, mparams.Length - 2);
+
+        var right = new List<string>();
+
+        for (var i = 0; i < rightAnswersCount; i++)
+        {
+            right.Add(mparams[2 + i]);
+        }
+
+        var wrong = new List<string>();
+
+        for (var i = 2 + rightAnswersCount; i < mparams.Length; i++)
+        {
+            wrong.Add(mparams[i]);
+        }
+
+        State.Right = right.ToArray();
+        State.Wrong = wrong.ToArray();
+
+        Controller.OnQuestionAnswers(State.Right, State.Wrong);
+    }
+
+    private void OnValidation2(string[] mparams)
+    {
+        if (mparams.Length < 6)
+        {
+            return;
+        }
+
+        _ = int.TryParse(mparams[5], out var rightAnswersCount);
+        rightAnswersCount = Math.Min(rightAnswersCount, mparams.Length - 6);
+
+        var right = new List<string>();
+
+        for (var i = 0; i < rightAnswersCount; i++)
+        {
+            right.Add(mparams[6 + i]);
+        }
+
+        var wrong = new List<string>();
+
+        for (var i = 6 + rightAnswersCount; i < mparams.Length; i++)
+        {
+            wrong.Add(mparams[i]);
+        }
+
+        State.Right = right.ToArray();
+        State.Wrong = wrong.ToArray();
+        State.ShowExtraRightButtons = mparams[4] == "+";
+
+        var me = (PersonAccount?)State.Me;
+
+        if (me != null)
+        {
+            me.IsDeciding = false;
+        }
+
+        Controller.IsRight(mparams[1], true, mparams[2]);
+    }
+}

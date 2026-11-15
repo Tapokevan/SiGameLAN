@@ -1,0 +1,43 @@
+name: Build All
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+  build:
+
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v2
+      with:
+        dotnet-version: 10.0.x
+    - name: Restore SIGame dependencies
+      run: dotnet restore SIGame.sln
+    - name: Build SIGame
+      run: dotnet build --no-restore SIGame.sln
+    - name: Restore SIQuester dependencies
+      run: dotnet restore SIQuester.sln
+    - name: Build SIQuester
+      run: dotnet build --no-restore SIQuester.sln
+    - name: Restore SImulator dependencies
+      run: dotnet restore SImulator.sln
+    - name: Build SImulator
+      run: dotnet build --no-restore SImulator.sln
+    - name: Run SIPackages tests
+      run: dotnet test test/Common/SIPackages.Tests/SIPackages.Tests.csproj --verbosity normal
+    - name: Run SIEngine.Core tests
+      run: dotnet test test/Common/SIEngine.Core.Tests/SIEngine.Core.Tests.csproj --verbosity normal
+    - name: Run SICore tests
+      run: dotnet test test/SICore/SICore.Tests/SICore.Tests.csproj --verbosity normal
+    - name: Run SIQuester.ViewModel tests
+      run: dotnet test test/SIQuester/SIQuester.ViewModel.Tests/SIQuester.ViewModel.Tests.csproj --verbosity normal
+    - name: Run SImulator.ViewModel tests
+      run: dotnet test test/SImulator/SImulator.ViewModel.Tests/SImulator.ViewModel.Tests.csproj --verbosity normal
+    - name: Run SIGame.ViewModel tests
+      run: dotnet test test/SIGame/SIGame.ViewModel.Tests/SIGame.ViewModel.Tests.csproj --verbosity normal

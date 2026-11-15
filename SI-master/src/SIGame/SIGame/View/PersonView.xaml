@@ -1,0 +1,260 @@
+<UserControl
+    x:Class="SIGame.PersonView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:lb="clr-namespace:SIGame.Behaviors"
+    xmlns:uib="clr-namespace:SIUI.Behaviors;assembly=SIUI"
+    xmlns:lp="clr-namespace:SIGame.Properties"
+    xmlns:l="clr-namespace:SIGame"
+    xmlns:sc="clr-namespace:SICore;assembly=SICore"
+    xmlns:wv2="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
+    xmlns:uwb="clr-namespace:Utils.Wpf.Behaviors;assembly=Utils.Wpf"
+    xmlns:vmm="clr-namespace:SIGame.ViewModel.Models;assembly=SIGame.ViewModel"
+    xmlns:lvm="clr-namespace:SIGame.ViewModel;assembly=SIGame.ViewModel"
+    mc:Ignorable="d"
+    Name="root"
+    d:DesignHeight="300"
+    d:DesignWidth="206"
+    d:DataContext="{d:DesignInstance lvm:PlayerViewModel}">
+    <UserControl.Resources>
+        <ControlTemplate x:Key="PersonArea" TargetType="{x:Type Button}">
+            <Border
+                Name="border"
+                BorderBrush="{TemplateBinding BorderBrush}"
+                BorderThickness="{TemplateBinding BorderThickness}"
+                HorizontalAlignment="Stretch"
+                VerticalAlignment="Stretch"
+                Cursor="{TemplateBinding Cursor}">
+                <Grid>
+                    <Image Name="image" lb:ImageLoader.ImageSource="{Binding Model}" Stretch="Uniform" />
+
+                    <ContentControl
+                        x:Name="video"
+                        Content="{Binding Model}"
+                        VerticalAlignment="Stretch"
+                        HorizontalAlignment="Stretch"
+                        VerticalContentAlignment="Stretch"
+                        HorizontalContentAlignment="Stretch">
+                        <ContentControl.Style>
+                            <Style TargetType="ContentControl">
+                                <Setter Property="ContentTemplate">
+                                    <Setter.Value>
+                                        <DataTemplate>
+                                            <wv2:WebView2
+                                                Source="{Binding Model.AvatarVideoUri}"
+                                                uwb:WebView2Behavior.IsAttached="True"
+                                                HorizontalAlignment="Stretch"
+                                                VerticalAlignment="Stretch" />
+                                        </DataTemplate>
+                                    </Setter.Value>
+                                </Setter>
+
+                                <Setter Property="Visibility" Value="Collapsed" />
+
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding Model.HasVideoAvatar}" Value="False">
+                                        <Setter Property="ContentTemplate">
+                                            <Setter.Value>
+                                                <DataTemplate />
+                                            </Setter.Value>
+                                        </Setter>
+                                    </DataTrigger>
+
+                                    <DataTrigger
+                                        Binding="{Binding DataContext.DialogMode, RelativeSource={RelativeSource AncestorType=l:Studia}}"
+                                        Value="{x:Static vmm:DialogModes.None}">
+                                        <Setter Property="Visibility" Value="Visible" />
+                                    </DataTrigger>
+
+                                    <DataTrigger
+                                        Binding="{Binding DataContext.UserSettings.GameSettings.AppSettings.ShowVideoAvatars, RelativeSource={RelativeSource AncestorType=l:Studia}}"
+                                        Value="False">
+                                        <Setter Property="Visibility" Value="Collapsed" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </ContentControl.Style>
+                    </ContentControl>
+
+                    <Border
+                        Width="25"
+                        Height="25"
+                        Margin="0,0,-10,-5"
+                        Background="#55000000"
+                        HorizontalAlignment="Right"
+                        VerticalAlignment="Bottom"
+                        Padding="3"
+                        Visibility="{Binding Model.IsChooser, Converter={StaticResource BooleanToVisibilityConverter1}}"
+                        ToolTip="{x:Static lp:Resources.HasMove}">
+                        <Image
+                            Source="/SIGame;component/Resources/active_player.png"
+                            RenderOptions.BitmapScalingMode="Fant" />
+                    </Border>
+
+                    <Rectangle
+                        Width="15"
+                        Height="15"
+                        Fill="LightGreen"
+                        Stroke="Black"
+                        Margin="0,0,-1,-1"
+                        HorizontalAlignment="Left"
+                        VerticalAlignment="Bottom"
+                        ToolTip="{x:Static lp:Resources.MediaLoaded}"
+                        Visibility="{Binding Model.MediaLoaded, Converter={StaticResource BooleanToVisibilityConverter1}}" />
+
+                    <ProgressBar
+                        VerticalAlignment="Top"
+                        HorizontalAlignment="Stretch"
+                        Margin="-1,-12,-1,0"
+                        Height="10"
+                        Foreground="#FF9B47"
+                        Minimum="0"
+                        Maximum="100"
+                        Value="{Binding Mode=OneWay, RelativeSource={RelativeSource AncestorType=l:Studia, AncestorLevel=1,Mode=FindAncestor}, Path=DataContext.Timers[2].Time, Converter={StaticResource ReverseTimeConverter}}"
+                        Visibility="{Binding Model.IsDeciding, Converter={StaticResource BooleanToVisibilityConverter1}, Delay=500}" />
+                </Grid>
+            </Border>
+
+            <ControlTemplate.Triggers>
+                <DataTrigger Binding="{Binding DataContext.UserSettings.GameSettings.AppSettings.ShowVideoAvatars, RelativeSource={RelativeSource AncestorType=l:Studia}}" Value="False">
+                    <Setter TargetName="border" Property="HorizontalAlignment" Value="Center" />
+                    <Setter TargetName="border" Property="VerticalAlignment" Value="Center" />
+                </DataTrigger>
+
+                <Trigger SourceName="image" Property="ActualWidth" Value="0">
+                    <Setter TargetName="border" Property="Background" Value="Transparent" />
+                    <Setter TargetName="border" Property="HorizontalAlignment" Value="Stretch" />
+                    <Setter TargetName="border" Property="VerticalAlignment" Value="Stretch" />
+                </Trigger>
+            </ControlTemplate.Triggers>
+        </ControlTemplate>
+
+        <Style x:Key="PersonAreaStyle" TargetType="Button">
+            <Setter Property="Command" Value="{Binding DataContext.SelectPlayer, RelativeSource={RelativeSource AncestorType=l:Studia}}" />
+            <Setter Property="CommandParameter" Value="{Binding}" />
+            <Setter Property="BorderBrush" Value="#FF111111" />
+            <Setter Property="BorderThickness" Value="2" />
+            <Setter Property="Template" Value="{StaticResource PersonArea}" />
+
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding Model.State}" Value="Answering">
+                    <Setter Property="BorderBrush" Value="Yellow" />
+                </DataTrigger>
+
+                <DataTrigger Binding="{Binding Model.State}" Value="Lost">
+                    <Setter Property="BorderBrush" Value="#FFF7820C" />
+                </DataTrigger>
+
+                <DataTrigger Binding="{Binding Model.State}" Value="Right">
+                    <Setter Property="BorderBrush" Value="Lime" />
+                </DataTrigger>
+
+                <DataTrigger Binding="{Binding Model.State}" Value="Wrong">
+                    <Setter Property="BorderBrush" Value="DarkRed" />
+                </DataTrigger>
+
+                <DataTrigger Binding="{Binding Model.State}" Value="HasAnswered">
+                    <Setter Property="BorderBrush" Value="DarkViolet" />
+                </DataTrigger>
+
+                <DataTrigger Binding="{Binding Model.State}" Value="Pass">
+                    <Setter Property="BorderBrush" Value="Gray" />
+                </DataTrigger>
+
+                <DataTrigger Binding="{Binding Model.CanBeSelected}" Value="False">
+                    <Setter Property="IsEnabled" Value="False" />
+                </DataTrigger>
+
+                <DataTrigger Binding="{Binding Model.CanBeSelected}" Value="True">
+                    <Setter Property="BorderBrush" Value="#FF9B47" />
+                    <Setter Property="Cursor" Value="Hand" />
+                </DataTrigger>
+
+                <MultiDataTrigger>
+                    <MultiDataTrigger.Conditions>
+                        <Condition Binding="{Binding Model.CanBeSelected}" Value="True" />
+                        <Condition Binding="{Binding RelativeSource={RelativeSource Self}, Path=IsMouseOver}" Value="True" />
+                    </MultiDataTrigger.Conditions>
+
+                    <Setter Property="BorderBrush" Value="Orange" />
+                </MultiDataTrigger>
+            </Style.Triggers>
+        </Style>
+    </UserControl.Resources>
+    
+    <Grid Style="{StaticResource area}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            
+            <RowDefinition Height="Auto" />
+            
+            <RowDefinition Height="Auto" />
+            
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="3" />
+            <ColumnDefinition Width="15*" />
+            <ColumnDefinition Width="3" />
+        </Grid.ColumnDefinitions>
+
+        <Button Grid.Column="1" Style="{StaticResource PersonAreaStyle}" />
+
+        <TextBlock
+            Grid.ColumnSpan="3"
+            Text="{Binding Model.Answer}"
+            Foreground="Orange"
+            FontSize="20"
+            FontWeight="SemiBold"
+            HorizontalAlignment="Stretch"
+            TextAlignment="Center"
+            VerticalAlignment="Bottom">
+            <TextBlock.Style>
+                <Style TargetType="TextBlock">
+                    <Setter Property="Background" Value="#AA000000" />
+                    
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding Model.Answer.Length}" Value="0">
+                            <Setter Property="Background" Value="{x:Null}" />
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </TextBlock.Style>
+        </TextBlock>
+
+        <Border Grid.Row="1" Grid.ColumnSpan="3" Background="#202020" Margin="3">
+            <TextBlock Style="{StaticResource PersonTextStyle}" Text="{Binding Model.Name}" FontSize="14"
+                       uib:FillManager.Fill="False" TextTrimming="CharacterEllipsis" ToolTip="{Binding Model.Name}" />
+        </Border>
+        
+        <Border
+            Grid.Row="2"
+            Grid.ColumnSpan="3"
+            Style="{StaticResource nonShowmanRev}"
+            Margin="3,2"
+            Visibility="{Binding Model.GameStarted, Converter={StaticResource ReadyConverter}, ConverterParameter=False}">
+            <TextBlock Style="{StaticResource sumTB}" Text="{Binding Model.Sum}" />
+        </Border>
+        
+        <Border
+            Grid.Row="2"
+            Grid.ColumnSpan="3"
+            Style="{StaticResource ReadyStyle}"
+            Margin="3,2"
+            Visibility="{Binding Model.GameStarted, Converter={StaticResource ReadyConverter}, ConverterParameter=True}">
+            <TextBlock
+                Style="{StaticResource PersonTextStyle}"
+                Text="{Binding Model.IsMale, ConverterParameter=Ready, Converter={StaticResource SexConverter}}"
+                uib:FillManager.Fill="True" />
+        </Border>
+
+        <Border Grid.Row="3" Grid.ColumnSpan="3" Style="{StaticResource stakeBorder}" Margin="3">
+            <TextBlock Style="{StaticResource stakeTB}" Text="{Binding Model.Stake, Converter={StaticResource AuctionStakes}}" />
+        </Border>
+        
+
+    </Grid>
+</UserControl>
