@@ -13,6 +13,20 @@ public partial class Studia : UserControl
 {
     public Studia() => InitializeComponent();
 
+    private void UpdateRoomLayout(object sender, RoutedEventArgs e)
+    {
+        var cardsRow = ((CheckBox)sender).IsChecked == true ? 3 : 1;
+        if (playerCards is null || Grid.GetRow(playerCards) == cardsRow)
+        {
+            return;
+        }
+
+        (upperRoomRow.Height, lowerRoomRow.Height) = (lowerRoomRow.Height, upperRoomRow.Height);
+        (upperRoomRow.MinHeight, lowerRoomRow.MinHeight) = (lowerRoomRow.MinHeight, upperRoomRow.MinHeight);
+        Grid.SetRow(playerCards, cardsRow);
+        Grid.SetRow(gameArea, cardsRow == 3 ? 1 : 3);
+    }
+
     // TODO: can Table call the command directly?
     private void Table_MediaEnded(object sender, RoutedEventArgs e)
     {

@@ -219,6 +219,26 @@ public sealed class AppSettings : AppSettingsCore
         }
     }
 
+    private bool _playerCardsBelowTable;
+
+    /// <summary>
+    /// Places the row of player cards below the game table.
+    /// </summary>
+    [XmlAttribute]
+    [DefaultValue(false)]
+    public bool PlayerCardsBelowTable
+    {
+        get => _playerCardsBelowTable;
+        set
+        {
+            if (_playerCardsBelowTable != value)
+            {
+                _playerCardsBelowTable = value;
+                OnPropertyChanged();
+            }
+        }
+    }
+
     public AppSettings()
     {
         MakeLogs = true;
@@ -234,6 +254,7 @@ public sealed class AppSettings : AppSettingsCore
         ShowBorderOnFalseStart = origin.ShowBorderOnFalseStart;
         BindNextButton = origin.BindNextButton;
         AttachContentToTable = origin.AttachContentToTable;
+        PlayerCardsBelowTable = origin.PlayerCardsBelowTable;
     }
 
     internal void Set(AppSettings settings)
@@ -246,6 +267,7 @@ public sealed class AppSettings : AppSettingsCore
         ShowBorderOnFalseStart = settings.ShowBorderOnFalseStart;
         BindNextButton = settings.BindNextButton;
         AttachContentToTable = settings.AttachContentToTable;
+        PlayerCardsBelowTable = settings.PlayerCardsBelowTable;
         // logsFolder is not changed
     }
 

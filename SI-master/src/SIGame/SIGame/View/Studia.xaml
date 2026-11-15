@@ -72,9 +72,9 @@
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="36" />
-                    <RowDefinition Height="160" MinHeight="76" />
-                    <RowDefinition Height="*" MinHeight="110" />
-                    <RowDefinition Height="Auto" />
+                    <RowDefinition x:Name="upperRoomRow" Height="160" MinHeight="76" />
+                    <RowDefinition Height="8" />
+                    <RowDefinition x:Name="lowerRoomRow" Height="*" MinHeight="154" />
                 </Grid.RowDefinitions>
 
                 <Grid Margin="0,0,0,8">
@@ -85,7 +85,7 @@
                                TextTrimming="CharacterEllipsis" VerticalAlignment="Top" />
                 </Grid>
 
-                <ItemsControl Grid.Row="1" ItemsSource="{Binding Players}" Margin="0,0,0,10">
+                <ItemsControl x:Name="playerCards" Grid.Row="1" ItemsSource="{Binding Players}">
                     <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>
                             <UniformGrid Rows="1" />
@@ -101,12 +101,17 @@
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
 
-                <GridSplitter Grid.Row="1" VerticalAlignment="Bottom" HorizontalAlignment="Stretch"
-                              Height="8" Background="#59412F" ResizeDirection="Rows" ResizeBehavior="CurrentAndNext"
+                <GridSplitter Grid.Row="2" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+                              Background="#59412F" ResizeDirection="Rows" ResizeBehavior="PreviousAndNext"
                               ShowsPreview="True" ToolTip="Потяните, чтобы изменить высоту карточек игроков"
                               AutomationProperties.Name="Высота карточек игроков"/>
 
-                <Border Grid.Row="2" Background="#181818" BorderBrush="#36312E" BorderThickness="1">
+                <Grid x:Name="gameArea" Grid.Row="3">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                <Border Background="#181818" BorderBrush="#36312E" BorderThickness="1">
                     <Grid ClipToBounds="True">
                         <ui:Table
                 x:Name="table"
@@ -217,7 +222,7 @@
                     </Grid>
                 </Border>
 
-                <Grid Grid.Row="3" Margin="0,8,0,0">
+                <Grid Grid.Row="1" Margin="0,8,0,0">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
@@ -280,6 +285,7 @@
                         </Button>
                     </StackPanel>
                 </Grid>
+                </Grid>
             </Grid>
 
             <GridSplitter Grid.Column="1" Width="6" HorizontalAlignment="Center" VerticalAlignment="Stretch"
@@ -328,6 +334,9 @@
                         Visibility="{Binding IsChecked, ElementName=roomMenu, Converter={StaticResource BooleanToVisibilityConverter1}}">
                     <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
                         <StackPanel Margin="8">
+                            <CheckBox Content="Аватары под табло" Foreground="#FAF5F0" FontSize="14" Margin="2,4,0,6"
+                                      IsChecked="{Binding UserSettings.GameSettings.AppSettings.PlayerCardsBelowTable}"
+                                      Checked="UpdateRoomLayout" Unchecked="UpdateRoomLayout"/>
                             <TextBlock Text="Громкость" Style="{StaticResource LanText}" FontSize="14"/>
                             <Slider Value="{Binding Volume}" Maximum="100" IsMoveToPointEnabled="True" Margin="0,0,0,6"/>
                             <Button Content="Камера VDO.Ninja…" Command="{Binding SetVideoAvatar}" Style="{StaticResource RoomMenuButton}"/>
