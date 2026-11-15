@@ -136,6 +136,39 @@ public sealed class GameSettingsViewModel : ViewModelWithNewAccount<GameSettings
         }
     }
 
+    public GameModes GameMode
+    {
+        get => _model.AppSettings.GameMode;
+        set
+        {
+            if (_model.AppSettings.GameMode == value)
+            {
+                return;
+            }
+
+            _model.AppSettings.GameMode = value;
+            OnPropertyChanged();
+        }
+    }
+
+    public int SimultaneousPressWindow
+    {
+        get => _model.AppSettings.TimeSettings.ButtonsAccepting;
+        set
+        {
+            if (_model.AppSettings.TimeSettings.ButtonsAccepting == value)
+            {
+                return;
+            }
+
+            _model.AppSettings.TimeSettings.ButtonsAccepting = value;
+            OnPropertyChanged();
+        }
+    }
+
+    public bool UsesRandomButtonOrder =>
+        (SI.Contracts.ButtonPressMode)_model.AppSettings.ButtonPressMode == SI.Contracts.ButtonPressMode.RandomWithinInterval;
+
     public int PlayersCount
     {
         get => _model.PlayersCount;

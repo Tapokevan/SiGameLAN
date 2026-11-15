@@ -1028,6 +1028,12 @@ public sealed class ViewerHumanLogic : IPersonController, IAsyncDisposable
         }
 
         TInfo.Content = groups;
+        if (TInfo.LayoutMode == LayoutMode.PointOnImage && !_isAnswer)
+        {
+            TInfo.PointAnswerImage = groups.SelectMany(group => group.Content)
+                .LastOrDefault(item => item.Type == ContentType.Image) ?? TInfo.PointAnswerImage;
+        }
+
         TInfo.QuestionContentType = QuestionContentType.Collection;
 
         if (_runTimer)
@@ -1168,6 +1174,22 @@ public sealed class ViewerHumanLogic : IPersonController, IAsyncDisposable
     {
         _isAnswer = true;
 
+        if (TInfo.LayoutMode == LayoutMode.PointOnImage)
+        {
+            ClearSelections(true);
+            var parts = answer.Split(',');
+            var culture = System.Globalization.CultureInfo.InvariantCulture;
+            if (parts.Length is 2 or 3
+                && double.TryParse(parts[0], System.Globalization.NumberStyles.Float, culture, out var x)
+                && double.TryParse(parts[1], System.Globalization.NumberStyles.Float, culture, out var y)
+                && x is >= 0 and <= 1 && y is >= 0 and <= 1)
+            {
+                TInfo.CorrectPoint = (x, y);
+            }
+
+            return;
+        }
+
         if (TInfo.LayoutMode == LayoutMode.Simple)
         {
             try
@@ -1218,6 +1240,12 @@ public sealed class ViewerHumanLogic : IPersonController, IAsyncDisposable
         _isAnswer = true;
         TInfo.AnimateText = false;
         TInfo.PartialText = false;
+        if (TInfo.LayoutMode == LayoutMode.PointOnImage)
+        {
+            TInfo.Sound = false;
+            return;
+        }
+
         TInfo.Content = Array.Empty<ContentGroup>();
         TInfo.QuestionContentType = QuestionContentType.Void;
         TInfo.Sound = false;
@@ -1330,6 +1358,8 @@ public sealed class ViewerHumanLogic : IPersonController, IAsyncDisposable
         TInfo.QuestionContentType = QuestionContentType.Text;
         TInfo.Sound = false;
         TInfo.LayoutMode = LayoutMode.Simple;
+        TInfo.PointAnswerImage = null;
+        TInfo.CorrectPoint = null;
         _isAnswer = false;
         TInfo.AnimateText = true;
         TInfo.PartialText = false;
@@ -2003,13 +2033,26 @@ public sealed class ViewerHumanLogic : IPersonController, IAsyncDisposable
 
     public void Answer()
     {
+        if (TInfo.LayoutMode == LayoutMode.PointOnImage && !_gameViewModel.IsPlayer
+            || TInfo.LayoutMode == LayoutMode.Simple && _state.Me is not PlayerAccount)
+        {
+            return;
+        }
+
         PlatformManager.Instance.Activate();
+
+        if (TInfo.LayoutMode == LayoutMode.PointOnImage)
+        {
+            _gameViewModel.Hint = "Нажмите на нужное место на изображении";
+            TInfo.SelectAnswer.CanBeExecuted = true;
+            return;
+        }
 
         if (TInfo.LayoutMode == LayoutMode.Simple)
         {
             _gameViewModel.Answer = "";
             _gameViewModel.DialogMode = DialogModes.Answer;
-            var me = (PlayerAccount?)_state.Me;
+            var me = _state.Me as PlayerAccount;
             
             if (me != null)
             {
@@ -2350,5 +2393,14 @@ public sealed class ViewerHumanLogic : IPersonController, IAsyncDisposable
         }
     }
 
-    public void OnLayout(string layoutType) => OnTableWarning(Resources.UnsupportedQuestion);
+    public void OnLayout(string layoutType)
+    {
+        if (layoutType == MessageParams.Layout_OverlayPoints)
+        {
+            TInfo.LayoutMode = LayoutMode.PointOnImage;
+            return;
+        }
+
+        OnTableWarning(Resources.UnsupportedQuestion);
+    }
 }

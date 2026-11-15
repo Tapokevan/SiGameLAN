@@ -513,10 +513,11 @@
                             </DataTemplate>
 
                             <DataTemplate x:Key="{x:Static vm:ContentType.Image}">
-                                <Image
+                                <local:PointAnswerImage
                                     Name="image"
                                     Stretch="Uniform"
                                     Source="{Binding Value, Converter={StaticResource UriConverter}}"
+                                    CorrectPoint="{Binding DataContext.CorrectPoint, RelativeSource={RelativeSource AncestorType=local:Table}}"
                                     lb:ImageController.LoadHandler="{Binding DataContext, RelativeSource={RelativeSource AncestorType=ItemsControl, AncestorLevel=2}}" />
 
                                 <DataTemplate.Triggers>

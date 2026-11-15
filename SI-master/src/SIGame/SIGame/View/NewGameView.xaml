@@ -1,4 +1,4 @@
-<UserControl x:Class="SIGame.NewGameView" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:lc="clr-namespace:SIGame.Converters" xmlns:ps="clr-namespace:SIGame.ViewModel.PackageSources;assembly=SIGame.ViewModel">
+<UserControl x:Class="SIGame.NewGameView" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:lc="clr-namespace:SIGame.Converters" xmlns:ps="clr-namespace:SIGame.ViewModel.PackageSources;assembly=SIGame.ViewModel" xmlns:si="clr-namespace:SIData;assembly=SIData">
  <UserControl.Resources><lc:AccountTypeToBooleanConverter x:Key="AccountTypeBoolean"/></UserControl.Resources>
  <Grid Background="#111111"><ScrollViewer VerticalScrollBarVisibility="Auto"><StackPanel Margin="35,20" MaxWidth="1000">
  <TextBlock Text="Комната ведущего" Style="{StaticResource LanText}" FontSize="34"/>
@@ -6,6 +6,27 @@
  <TextBlock Text="Пакет вопросов" Style="{StaticResource LanText}" Margin="0,20,0,4"/>
  <Button Content="Открыть файл .siq" Command="{Binding SelectPackage}" CommandParameter="{x:Static ps:PackageSourceTypes.Local}" Style="{StaticResource LanButton}" HorizontalAlignment="Left"/>
  <TextBlock Text="{Binding Package}" Style="{StaticResource LanText}" Foreground="#AAA39D"/>
+ <TextBlock Text="Режим игры" Style="{StaticResource LanText}" Margin="0,16,0,4"/>
+ <ComboBox SelectedValuePath="Tag" SelectedValue="{Binding GameMode}" HorizontalAlignment="Left"
+           MinWidth="245" FontSize="16" Padding="8" AutomationProperties.Name="Режим игры">
+  <ComboBoxItem Tag="{x:Static si:GameModes.Tv}">Классика · выбор на табло</ComboBoxItem>
+  <ComboBoxItem Tag="{x:Static si:GameModes.Sport}">Линейная игра · вопросы по порядку</ComboBoxItem>
+  <ComboBoxItem Tag="{x:Static si:GameModes.Quiz}">Квиз · вопросы для всех</ComboBoxItem>
+  <ComboBoxItem Tag="{x:Static si:GameModes.TurnTaking}">По очереди · ход переходит после вопроса</ComboBoxItem>
+ </ComboBox>
+ <StackPanel Margin="0,12,0,0"
+             Visibility="{Binding UsesRandomButtonOrder, Converter={StaticResource BooleanToVisibilityConverter1}}">
+  <TextBlock Text="Окно одновременных нажатий" Style="{StaticResource LanText}"/>
+  <StackPanel Orientation="Horizontal">
+   <Slider Minimum="100" Maximum="3000" TickFrequency="100" IsSnapToTickEnabled="True"
+           Value="{Binding SimultaneousPressWindow}" Width="245"
+           AutomationProperties.Name="Окно одновременных нажатий в миллисекундах"/>
+   <TextBlock Text="{Binding SimultaneousPressWindow, StringFormat={}{0} мс}"
+              Style="{StaticResource LanText}" Margin="12,0,0,0"/>
+  </StackPanel>
+  <TextBlock Text="Если несколько игроков успели нажать в это окно, отвечающий выбирается случайно."
+             Style="{StaticResource LanText}" Foreground="#AAA39D" FontSize="14"/>
+ </StackPanel>
  <StackPanel Orientation="Horizontal" Margin="0,20,0,15"><TextBlock Text="Мест для игроков" Style="{StaticResource LanText}"/><Slider Minimum="2" Maximum="10" TickFrequency="1" IsSnapToTickEnabled="True" Value="{Binding PlayersCount}" Width="260" Margin="20,0"/><TextBlock Text="{Binding PlayersCount}" Style="{StaticResource LanText}" FontWeight="Bold"/></StackPanel>
  <ItemsControl ItemsSource="{Binding Players}"><ItemsControl.ItemsPanel><ItemsPanelTemplate><UniformGrid Columns="2"/></ItemsPanelTemplate></ItemsControl.ItemsPanel><ItemsControl.ItemTemplate><DataTemplate>
  <Border Background="#202020" CornerRadius="10" Margin="5" Padding="12"><StackPanel>

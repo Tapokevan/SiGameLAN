@@ -14,4 +14,9 @@ public enum LayoutMode
     /// Content and answer options.
     /// </summary>
     AnswerOptions,
+
+    /// <summary>
+    /// Select a point on the question image.
+    /// </summary>
+    PointOnImage,
 }

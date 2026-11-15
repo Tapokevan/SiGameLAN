@@ -251,6 +251,20 @@ public sealed class TableInfoViewModel : ViewModelBase<TableInfo>
     /// </summary>
     public SimpleCommand SelectAnswer { get; private set; }
 
+    public ContentViewModel? PointAnswerImage { get; set; }
+
+    private (double X, double Y)? _correctPoint;
+
+    public (double X, double Y)? CorrectPoint
+    {
+        get => _correctPoint;
+        set
+        {
+            _correctPoint = value;
+            OnPropertyChanged();
+        }
+    }
+
     public event Action<QuestionInfoViewModel>? QuestionSelected;
     public event Action<ThemeInfoViewModel>? ThemeSelected;
     public event Action<QuestionInfoViewModel>? QuestionToggled;

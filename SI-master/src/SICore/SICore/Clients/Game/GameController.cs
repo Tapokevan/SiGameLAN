@@ -3415,7 +3415,11 @@ public sealed class GameController : ITaskRunHandler<Tasks>, IDisposable
         var useClientManagedAnswer = _state.QuestionPlay.AnswerType == AnswerType.Client;
         _state.IsOralNow = _state.IsOral && _state.Answerer.IsHuman;
 
-        if (useAnswerOptions || _state.QuestionPlay.AnswerType == AnswerType.Point)
+        if (_state.QuestionPlay.AnswerType == AnswerType.Point)
+        {
+            _actions.AskAnswer(_state.Answerer.Name, AnswerType.Point);
+        }
+        else if (useAnswerOptions)
         {
             if (_state.IsOralNow)
             {
