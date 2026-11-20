@@ -1,7 +1,7 @@
 [Setup]
 AppId={{FD01271C-30B2-4A69-93A2-5F18AFA22D71}
 AppName=СИ — Домашняя игра
-AppVersion=1.5.2
+AppVersion=1.5.3
 AppPublisher=SI LAN community build
 DefaultDirName={autopf}\SI-LAN
 DefaultGroupName=СИ — Домашняя игра
@@ -27,7 +27,9 @@ Name: "desktopicon"; Description: "Создать ярлык на рабочем
 Name: "lan"; Description: "Разрешить игре входящие подключения в домашней сети"
 
 [Files]
-Source: "publish\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs; Excludes: "log\*,*.pdb"
+Source: "publish\WinRT.Runtime.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "publish\Microsoft.Windows.SDK.NET.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "publish\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs; Excludes: "log\*,*.pdb,WinRT.Runtime.dll,Microsoft.Windows.SDK.NET.dll"
 Source: "MicrosoftEdgeWebView2RuntimeInstallerX64.exe"; DestDir: "{tmp}"; Flags: deleteafterinstall
 
 [Icons]
