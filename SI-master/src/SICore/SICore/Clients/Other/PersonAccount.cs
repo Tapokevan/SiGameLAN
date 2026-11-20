@@ -1,4 +1,4 @@
-﻿using SIData;
+using SIData;
 using System.ComponentModel;
 using System.Diagnostics;
 
@@ -52,6 +52,21 @@ public class PersonAccount : ViewerAccount
     {
         get { return _replic; }
         set { if (_replic != value) { _replic = value; OnPropertyChanged(); } }
+    }
+
+    private string _roundPreloadText = "";
+
+    public string RoundPreloadText
+    {
+        get => _roundPreloadText;
+        set
+        {
+            if (_roundPreloadText != value)
+            {
+                _roundPreloadText = value;
+                OnPropertyChanged();
+            }
+        }
     }
 
     public bool IsShowman { get; set; }

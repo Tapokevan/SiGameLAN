@@ -10,7 +10,6 @@
     xmlns:l="clr-namespace:SIGame"
     xmlns:sc="clr-namespace:SICore;assembly=SICore"
     xmlns:wv2="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
-    xmlns:uwb="clr-namespace:Utils.Wpf.Behaviors;assembly=Utils.Wpf"
     xmlns:vmm="clr-namespace:SIGame.ViewModel.Models;assembly=SIGame.ViewModel"
     xmlns:lvm="clr-namespace:SIGame.ViewModel;assembly=SIGame.ViewModel"
     mc:Ignorable="d"
@@ -19,14 +18,13 @@
     d:DesignWidth="206"
     d:DataContext="{d:DesignInstance lvm:PlayerViewModel}">
     <UserControl.Resources>
-        <ControlTemplate x:Key="PersonArea" TargetType="{x:Type Button}">
+        <ControlTemplate x:Key="PersonArea" TargetType="{x:Type ContentControl}">
             <Border
                 Name="border"
                 BorderBrush="{TemplateBinding BorderBrush}"
                 BorderThickness="{TemplateBinding BorderThickness}"
                 HorizontalAlignment="Stretch"
-                VerticalAlignment="Stretch"
-                Cursor="{TemplateBinding Cursor}">
+                VerticalAlignment="Stretch">
                 <Grid>
                     <Image Name="image" lb:ImageLoader.ImageSource="{Binding Model}" Stretch="Uniform" />
 
@@ -42,11 +40,17 @@
                                 <Setter Property="ContentTemplate">
                                     <Setter.Value>
                                         <DataTemplate>
-                                            <wv2:WebView2
+                                            <wv2:WebView2CompositionControl
                                                 Source="{Binding AvatarVideoUri}"
-                                                uwb:WebView2Behavior.IsAttached="True"
+                                                IsHitTestVisible="False"
+                                                Focusable="False"
                                                 HorizontalAlignment="Stretch"
-                                                VerticalAlignment="Stretch" />
+                                                VerticalAlignment="Stretch">
+                                                <wv2:WebView2CompositionControl.CreationProperties>
+                                                    <wv2:CoreWebView2CreationProperties
+                                                        AdditionalBrowserArguments="--autoplay-policy=no-user-gesture-required" />
+                                                </wv2:WebView2CompositionControl.CreationProperties>
+                                            </wv2:WebView2CompositionControl>
                                         </DataTemplate>
                                     </Setter.Value>
                                 </Setter>
@@ -131,9 +135,8 @@
             </ControlTemplate.Triggers>
         </ControlTemplate>
 
-        <Style x:Key="PersonAreaStyle" TargetType="Button">
-            <Setter Property="Command" Value="{Binding DataContext.SelectPlayer, RelativeSource={RelativeSource AncestorType=l:Studia}}" />
-            <Setter Property="CommandParameter" Value="{Binding}" />
+        <Style x:Key="PersonAreaStyle" TargetType="ContentControl">
+            <Setter Property="Focusable" Value="False" />
             <Setter Property="BorderBrush" Value="#FF111111" />
             <Setter Property="BorderThickness" Value="2" />
             <Setter Property="Template" Value="{StaticResource PersonArea}" />
@@ -163,23 +166,6 @@
                     <Setter Property="BorderBrush" Value="Gray" />
                 </DataTrigger>
 
-                <DataTrigger Binding="{Binding Model.CanBeSelected}" Value="False">
-                    <Setter Property="IsEnabled" Value="False" />
-                </DataTrigger>
-
-                <DataTrigger Binding="{Binding Model.CanBeSelected}" Value="True">
-                    <Setter Property="BorderBrush" Value="#FF9B47" />
-                    <Setter Property="Cursor" Value="Hand" />
-                </DataTrigger>
-
-                <MultiDataTrigger>
-                    <MultiDataTrigger.Conditions>
-                        <Condition Binding="{Binding Model.CanBeSelected}" Value="True" />
-                        <Condition Binding="{Binding RelativeSource={RelativeSource Self}, Path=IsMouseOver}" Value="True" />
-                    </MultiDataTrigger.Conditions>
-
-                    <Setter Property="BorderBrush" Value="Orange" />
-                </MultiDataTrigger>
             </Style.Triggers>
         </Style>
     </UserControl.Resources>
@@ -193,6 +179,7 @@
             <RowDefinition Height="Auto" />
             
             <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
         
         <Grid.ColumnDefinitions>
@@ -201,7 +188,7 @@
             <ColumnDefinition Width="3" />
         </Grid.ColumnDefinitions>
 
-        <Button Grid.Column="1" Style="{StaticResource PersonAreaStyle}" />
+        <ContentControl Grid.Column="1" Style="{StaticResource PersonAreaStyle}" />
 
         <TextBlock
             Grid.ColumnSpan="3"
@@ -254,7 +241,20 @@
         <Border Grid.Row="3" Grid.ColumnSpan="3" Style="{StaticResource stakeBorder}" Margin="3">
             <TextBlock Style="{StaticResource stakeTB}" Text="{Binding Model.Stake, Converter={StaticResource AuctionStakes}}" />
         </Border>
-        
+        <TextBlock Grid.Row="4" Grid.ColumnSpan="3" Text="{Binding Model.RoundPreloadText}"
+                   ToolTip="Вопросы раунда, медиа которых готовы к показу"
+                   Foreground="#D8C8B8" FontSize="11" TextAlignment="Center"
+                   HorizontalAlignment="Center" VerticalAlignment="Bottom" IsHitTestVisible="False">
+            <TextBlock.Style>
+                <Style TargetType="TextBlock">
+                    <Style.Triggers>
+                        <Trigger Property="Text" Value="">
+                            <Setter Property="Visibility" Value="Collapsed"/>
+                        </Trigger>
+                    </Style.Triggers>
+                </Style>
+            </TextBlock.Style>
+        </TextBlock>
 
     </Grid>
 </UserControl>

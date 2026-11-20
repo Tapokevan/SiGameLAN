@@ -1,4 +1,4 @@
-﻿using Notions;
+using Notions;
 using SICore.Models;
 using SICore.Network;
 using SICore.Network.Clients;
@@ -914,7 +914,11 @@ public class Viewer : MessageHandler, IViewerClient
 
     private void OnMediaPreloadProgress(string[] mparams)
     {
-        // TODO: display media preload progress
+        if (mparams.Length >= 4 && int.TryParse(mparams[2], out var loaded)
+            && int.TryParse(mparams[3], out var total) && loaded >= 0 && total >= loaded)
+        {
+            _controller.OnMediaPreloadProgress(mparams[1], loaded, total);
+        }
     }
 
     private void OnGameStatistics(string[] mparams)

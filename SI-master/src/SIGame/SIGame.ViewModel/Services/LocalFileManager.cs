@@ -1,5 +1,6 @@
-﻿using SIGame.ViewModel.Contracts;
+using SIGame.ViewModel.Contracts;
 using System.Diagnostics;
+using System.Collections.Concurrent;
 using System.Threading.Channels;
 using Utils;
 
@@ -15,9 +16,7 @@ internal sealed class LocalFileManager : ILocalFileManager
 
     private readonly string _rootFolder;
 
-    private readonly object _globalLock = new();
-
-    private readonly HashSet<string> _lockedFiles = new();
+    private readonly ConcurrentDictionary<Uri, Lazy<Task<string?>>> _downloads = new();
 
     private readonly Channel<FileTask> _processingQueue = Channel.CreateUnbounded<FileTask>(
         new UnboundedChannelOptions
@@ -43,8 +42,14 @@ internal sealed class LocalFileManager : ILocalFileManager
             {
                 while (_processingQueue.Reader.TryRead(out var fileTask))
                 {
-                    await ProcesFileAsync(fileTask, cancellationToken);
-                    await Task.Delay(1000, cancellationToken);
+                    if (cancellationToken.IsCancellationRequested)
+                    {
+                        return;
+                    }
+
+                    await GetFileAsync(fileTask.Uri);
+                    try { fileTask.OnCompleted?.Invoke(); }
+                    catch (Exception ex) { Trace.TraceError(ex.ToString()); }
                 }
             }
         }
@@ -54,94 +59,80 @@ internal sealed class LocalFileManager : ILocalFileManager
     public bool AddFile(Uri uri, Action? onCompleted = null) =>
         _processingQueue.Writer.TryWrite(new FileTask { Uri = uri, OnCompleted = onCompleted });
 
-    private async Task ProcesFileAsync(FileTask fileTask, CancellationToken cancellationToken)
+    public async Task<string?> GetFileAsync(Uri uri)
     {
-        var fileName = FilePathHelper.GetSafeFileName(fileTask.Uri);
-        var localFile = Path.Combine(_rootFolder, fileName);
+        if (!uri.IsAbsoluteUri || (uri.Scheme != Uri.UriSchemeHttp && uri.Scheme != Uri.UriSchemeHttps))
+        {
+            return null;
+        }
 
+        if (TryGetFile(uri) is { } cached)
+        {
+            return cached;
+        }
+
+        var download = _downloads.GetOrAdd(uri, key => new Lazy<Task<string?>>(() => DownloadAsync(key)));
         try
         {
-            if (File.Exists(localFile))
-            {
-                return;
-            }
-
-            lock (_globalLock)
-            {
-                if (_lockedFiles.Contains(localFile))
-                {
-                    return;
-                }
-
-                _lockedFiles.Add(localFile);
-            }
-
-            try
-            {
-                Directory.CreateDirectory(_rootFolder);
-
-                using var response = await _client.GetAsync(fileTask.Uri, cancellationToken);
-
-                if (!response.IsSuccessStatusCode)
-                {
-                    Error?.Invoke(
-                        fileTask.Uri,
-                        new Exception($"{SIGame.ViewModel.Properties.Resources.DownloadFileError}: {response.StatusCode} {await response.Content.ReadAsStringAsync(cancellationToken)}"));
-
-                    return;
-                }
-
-                using var responseStream = await response.Content.ReadAsStreamAsync(cancellationToken);
-                using var fileStream = File.Create(localFile);
-                await responseStream.CopyToAsync(fileStream, cancellationToken);
-            }
-            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested) { }
-            catch (Exception exc)
-            {
-                Error?.Invoke(fileTask.Uri, exc);
-
-                try
-                {
-                    if (File.Exists(localFile))
-                    {
-                        File.Delete(localFile);
-                    }
-                }
-                catch { }
-            }
-            finally
-            {
-                lock (_globalLock)
-                {
-                    _lockedFiles.Remove(localFile);
-                }
-            }
+            return await download.Value;
         }
         finally
         {
-            try { fileTask.OnCompleted?.Invoke(); } catch { /* Ignore */ }
+            _downloads.TryRemove(new KeyValuePair<Uri, Lazy<Task<string?>>>(uri, download));
+        }
+    }
+
+    private async Task<string?> DownloadAsync(Uri uri)
+    {
+        if (TryGetFile(uri) is { } cached)
+        {
+            return cached;
+        }
+
+        var cancellation = _cancellation.Token;
+        var destination = Path.Combine(_rootFolder, FilePathHelper.GetSafeFileName(uri));
+        var temporary = destination + ".part";
+        try
+        {
+            Directory.CreateDirectory(_rootFolder);
+            using var response = await _client.GetAsync(uri, HttpCompletionOption.ResponseHeadersRead, cancellation);
+            response.EnsureSuccessStatusCode();
+            await using var responseStream = await response.Content.ReadAsStreamAsync(cancellation);
+            await using (var output = File.Create(temporary))
+            {
+                await responseStream.CopyToAsync(output, cancellation);
+            }
+
+            File.Move(temporary, destination, overwrite: true);
+            return destination;
+        }
+        catch (OperationCanceledException) when (cancellation.IsCancellationRequested)
+        {
+            return null;
+        }
+        catch (Exception ex)
+        {
+            Error?.Invoke(uri, ex);
+            return null;
+        }
+        finally
+        {
+            if (File.Exists(temporary))
+            {
+                try { File.Delete(temporary); } catch (IOException) { }
+            }
         }
     }
 
     public string? TryGetFile(Uri uri)
     {
-        var fileName = FilePathHelper.GetSafeFileName(uri);
-        var localFile = Path.Combine(_rootFolder, fileName);
-
-        if (!File.Exists(localFile))
+        if (!uri.IsAbsoluteUri)
         {
             return null;
         }
 
-        lock (_globalLock)
-        {
-            if (_lockedFiles.Contains(localFile))
-            {
-                return null;
-            }
-        }
-
-        return localFile;
+        var path = Path.Combine(_rootFolder, FilePathHelper.GetSafeFileName(uri));
+        return File.Exists(path) ? path : null;
     }
 
     public async ValueTask DisposeAsync()
@@ -150,6 +141,7 @@ internal sealed class LocalFileManager : ILocalFileManager
         {
             _cancellation.Cancel();
             await _localFileManagerTask;
+            await Task.WhenAll(_downloads.Values.Where(task => task.IsValueCreated).Select(task => task.Value));
             _cancellation.Dispose();
 
             try

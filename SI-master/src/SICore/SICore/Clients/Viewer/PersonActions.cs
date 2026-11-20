@@ -45,7 +45,7 @@ public sealed class PersonActions
 
     public void RemoveTable(int index) => SendMessageWithArgs(Messages.Config, MessageParams.Config_DeleteTable, index);
 
-    public void ReportMediaPreloadProgress(int progress) => SendMessageWithArgs(Messages.MediaPreloadProgress, progress);
+    public void ReportMediaPreloadProgress(int loaded, int total) => SendMessageWithArgs(Messages.MediaPreloadProgress, loaded, total);
 
     public void SelectPlayer(int playerIndex) => SendMessage(Messages.SelectPlayer, playerIndex.ToString());
 

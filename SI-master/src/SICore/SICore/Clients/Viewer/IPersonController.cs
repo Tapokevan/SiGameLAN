@@ -1,4 +1,4 @@
-﻿using SICore.Models;
+using SICore.Models;
 using SIData;
 using SIEngine.Rules;
 using SIUI.Model;
@@ -160,6 +160,8 @@ public interface IPersonController
     void OnReplic(string personCode, string text);
 
     void OnRoundContent(string[] mparams) { }
+
+    void OnMediaPreloadProgress(string person, int loaded, int total) { }
 
     void OnRoundAuthors(IEnumerable<string> authors) { }
 

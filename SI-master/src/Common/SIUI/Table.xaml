@@ -545,12 +545,9 @@
                             </DataTemplate>
 
                             <DataTemplate x:Key="{x:Static vm:ContentType.Video}">
-                                <MediaElement
-                                    Source="{Binding Value}"
-                                    Stretch="Uniform"
-                                    lb:MediaController.ContentType="video"
-                                    lb:MediaController.ContentValue="{Binding OriginalValue}"
-                                    lb:MediaController.LoadHandler="{Binding DataContext, RelativeSource={RelativeSource AncestorType=ItemsControl, AncestorLevel=2}}" />
+                                <local:VideoPlaybackView
+                                    Address="{Binding Value}" OriginalAddress="{Binding OriginalValue}"
+                                    TableInfo="{Binding DataContext, RelativeSource={RelativeSource AncestorType=local:Table}}" />
                             </DataTemplate>
 
                             <DataTemplate x:Key="{x:Static vm:ContentType.Html}">
@@ -681,12 +678,8 @@
                             </DataTemplate>
                             
                             <DataTemplate x:Key="{x:Static vm:QuestionContentType.Video}">
-                                <MediaElement
-                                    Source="{Binding MediaSource.Uri}"
-                                    Stretch="Uniform"
-                                    lb:MediaController.ContentType="video"
-                                    lb:MediaController.ContentValue="{Binding MediaSource.Uri}"
-                                    lb:MediaController.LoadHandler="{Binding}" />
+                                <local:VideoPlaybackView Address="{Binding MediaSource.Uri}"
+                                    OriginalAddress="{Binding MediaSource.OriginalValue}" TableInfo="{Binding}" />
                             </DataTemplate>
                             
                             <DataTemplate x:Key="{x:Static vm:QuestionContentType.Html}">
@@ -1183,7 +1176,7 @@
                                                                 <DataTemplate>
                                                                     <Grid>
                                                                         <MediaElement
-                                                                            Source="{Binding SoundSource.Uri}"
+                                                                            lb:MediaController.PlaybackUri="{Binding SoundSource.Uri}"
                                                                             lb:MediaController.ContentType="audio"
                                                                             lb:MediaController.ContentValue="{Binding SoundSource.OriginalValue}"
                                                                             lb:MediaController.LoadHandler="{Binding}" />

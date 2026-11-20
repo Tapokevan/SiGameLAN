@@ -93,10 +93,53 @@
                     </ItemsControl.ItemsPanel>
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
-                            <Border Background="#1C1C1C" BorderBrush="#333333" BorderThickness="1"
-                                    CornerRadius="8" Margin="0,0,5,0" Padding="4" ClipToBounds="True">
-                                <local:PersonView />
-                            </Border>
+                            <Grid Margin="0,0,5,0">
+                                <Border x:Name="CardFrame" Background="#1C1C1C" BorderBrush="#333333" BorderThickness="3"
+                                        CornerRadius="8" Padding="3" ClipToBounds="True">
+                                    <local:PersonView />
+                                </Border>
+                                <Button Command="{Binding DataContext.SelectPlayer, RelativeSource={RelativeSource AncestorType=local:Studia}}"
+                                        CommandParameter="{Binding}"
+                                        Visibility="{Binding Model.CanBeSelected, Converter={StaticResource BooleanToVisibilityConverter1}}"
+                                        AutomationProperties.Name="{Binding Model.Name}"
+                                        ToolTip="Выбрать игрока" Cursor="Hand">
+                                    <Button.Template>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border x:Name="SelectionFrame" Background="Transparent" BorderBrush="#FF9B47"
+                                                    BorderThickness="3" CornerRadius="8" />
+                                            <ControlTemplate.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter TargetName="SelectionFrame" Property="BorderBrush" Value="#FFD477" />
+                                                </Trigger>
+                                                <Trigger Property="IsKeyboardFocused" Value="True">
+                                                    <Setter TargetName="SelectionFrame" Property="BorderBrush" Value="#FFD477" />
+                                                </Trigger>
+                                            </ControlTemplate.Triggers>
+                                        </ControlTemplate>
+                                    </Button.Template>
+                                </Button>
+                            </Grid>
+                            <DataTemplate.Triggers>
+                                <DataTrigger Binding="{Binding Model.State}" Value="Answering">
+                                    <DataTrigger.EnterActions>
+                                        <BeginStoryboard Name="AnswerPulse">
+                                            <Storyboard>
+                                                <ColorAnimation Storyboard.TargetName="CardFrame"
+                                                                Storyboard.TargetProperty="(Border.BorderBrush).(SolidColorBrush.Color)"
+                                                                From="#A86A1D" To="#FFD477" Duration="0:0:1.2"
+                                                                AutoReverse="True" RepeatBehavior="Forever">
+                                                    <ColorAnimation.EasingFunction>
+                                                        <SineEase EasingMode="EaseInOut"/>
+                                                    </ColorAnimation.EasingFunction>
+                                                </ColorAnimation>
+                                            </Storyboard>
+                                        </BeginStoryboard>
+                                    </DataTrigger.EnterActions>
+                                    <DataTrigger.ExitActions>
+                                        <RemoveStoryboard BeginStoryboardName="AnswerPulse"/>
+                                    </DataTrigger.ExitActions>
+                                </DataTrigger>
+                            </DataTemplate.Triggers>
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
@@ -307,6 +350,18 @@
                     <DockPanel>
                         <TextBlock DockPanel.Dock="Top" Text="ВЕДУЩИЙ" Foreground="#FF9B47"
                                    FontSize="12" FontWeight="Bold" Margin="0,0,0,4"/>
+                        <TextBlock DockPanel.Dock="Bottom" Text="{Binding Showman.Model.RoundPreloadText}"
+                                   Foreground="#D8C8B8" FontSize="11" HorizontalAlignment="Center">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Style.Triggers>
+                                        <Trigger Property="Text" Value="">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
                         <local:ShowmanView DataContext="{Binding Showman}"/>
                     </DockPanel>
                 </Border>
@@ -334,6 +389,9 @@
                         Visibility="{Binding IsChecked, ElementName=roomMenu, Converter={StaticResource BooleanToVisibilityConverter1}}">
                     <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
                         <StackPanel Margin="8">
+                            <Expander Header="Чат и участники" IsExpanded="True" Foreground="#FAF5F0" Margin="0,0,0,8">
+                                <local:GameChat Height="420" Margin="0,6,0,0"/>
+                            </Expander>
                             <CheckBox Content="Аватары под табло" Foreground="#FAF5F0" FontSize="14" Margin="2,4,0,6"
                                       IsChecked="{Binding UserSettings.GameSettings.AppSettings.PlayerCardsBelowTable}"
                                       Checked="UpdateRoomLayout" Unchecked="UpdateRoomLayout"/>
@@ -350,7 +408,6 @@
                                 <Button Content="Изменить счёт" Command="{Binding ChangeSums}" Style="{StaticResource RoomMenuButton}"/>
                             </StackPanel>
                             <Button Content="Выйти из комнаты…" Click="LeaveRoom_Click" Style="{StaticResource RoomMenuButton}"/>
-                            <local:GameChat Height="300" Margin="0,8,0,0"/>
                         </StackPanel>
                     </ScrollViewer>
                 </Border>

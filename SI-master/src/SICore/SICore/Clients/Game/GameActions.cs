@@ -1,4 +1,4 @@
-﻿using Notions;
+using Notions;
 using SICore.Clients;
 using SICore.Contracts;
 using SICore.Models;
@@ -343,36 +343,17 @@ public sealed class GameActions
             return;
         }
 
-        IEnumerable<string> persons;
-
-        if (person != NetworkConstants.Everybody)
-        {
-            if (Client.CurrentNode.Contains(person))
-            {
-                return; // local person does not need to preload anything
-            }
-
-            persons = new string[] { person };
-        }
-        else
-        {
-            // local persons do not need to preload anything
-            var personsList = _state.AllPersons.Keys.Where(name => !Client.CurrentNode.Contains(name)).ToList();
-
-            if (personsList.Count == 0)
-            {
-                return;
-            }
-
-            persons = personsList;
-        }
-
-        var contentUris = new HashSet<string>();
+        IEnumerable<string> persons = person == NetworkConstants.Everybody
+            ? _state.AllPersons.Keys.ToArray()
+            : [person];
+        var questions = new List<string[]>();
 
         foreach (var theme in _state.Round.Themes)
         {
             foreach (var question in theme.Questions)
             {
+                var contentUris = new HashSet<string>();
+
                 foreach (var contentItem in question.GetContent())
                 {
                     var contentType = contentItem.Type;
@@ -430,22 +411,16 @@ public sealed class GameActions
                             }
                     }
                 }
+
+                questions.Add(contentUris.ToArray());
             }
         }
 
-        if (contentUris.Count > 0)
+        var data = System.Text.Json.JsonSerializer.Serialize(questions);
+        var message = new MessageBuilder(Messages.RoundContent, "questions-v1", data).ToString();
+        foreach (var name in persons)
         {
-            var msg = new StringBuilder(Messages.RoundContent);
-
-            foreach (var uri in contentUris)
-            {
-                msg.Append(Message.ArgsSeparatorChar).Append(uri);
-            }
-
-            foreach (var name in persons)
-            {
-                SendMessage(msg.ToString(), name);
-            }
+            SendMessage(message, name);
         }
     }
 
@@ -581,7 +556,7 @@ public sealed class GameActions
     internal void OnRightAnswer(AnswerType answerType, string rightAnswer) =>
         SendVisualMessageWithArgs(Messages.RightAnswer, answerType.ToString().ToLowerInvariant(), rightAnswer);
 
-    internal void InformMediaPreloadProgress(string sender, int progress) => SendMessageWithArgs(Messages.MediaPreloadProgress, sender, progress);
+    internal void InformMediaPreloadProgress(string sender, int loaded, int total) => SendMessageWithArgs(Messages.MediaPreloadProgress, sender, loaded, total);
 
     internal void InformTimerGameStart(int automaticGameStartDuration, string person = NetworkConstants.Everybody)
     {

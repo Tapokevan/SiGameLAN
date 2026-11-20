@@ -10,4 +10,6 @@ internal interface ILocalFileManager : IAsyncDisposable
     bool AddFile(Uri mediaUri, Action? onCompleted = null);
 
     string? TryGetFile(Uri mediaUri);
+
+    Task<string?> GetFileAsync(Uri mediaUri);
 }

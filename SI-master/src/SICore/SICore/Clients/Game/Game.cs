@@ -1,4 +1,4 @@
-﻿using Notions;
+using Notions;
 using SI.Contracts;
 using SICore.Clients;
 using SICore.Contracts;
@@ -1153,12 +1153,13 @@ public sealed class Game : MessageHandler
 
     private void OnMediaPreloadProgress(Message message, string[] args)
     {
-        if (args.Length < 2 || !int.TryParse(args[1], out var progress) || progress < 0 || progress > 100 || _state.HiddenPersons)
+        if (args.Length < 3 || !int.TryParse(args[1], out var loaded) || !int.TryParse(args[2], out var total)
+            || loaded < 0 || total < loaded || _state.HiddenPersons || !_state.AllPersons.ContainsKey(message.Sender))
         {
             return;
         }
         
-        _actions.InformMediaPreloadProgress(message.Sender, progress);
+        _actions.InformMediaPreloadProgress(message.Sender, loaded, total);
     }
 
     private void OnToggle(Message message, string[] args)
@@ -1505,11 +1506,10 @@ public sealed class Game : MessageHandler
             _actions.InformRoundsNames(person);
         }
 
-        // To save traffic, do not send round content info on reconnection
-        //if ((ClientData.InformStages & InformStages.RoundContent) > 0)
-        //{
-        //    _gameActions.InformRoundContent(person);
-        //}
+        if (_state.Stage == GameStage.Round && (_state.InformStages & InformStages.RoundContent) != 0)
+        {
+            _actions.InformRoundContent(person);
+        }
 
         if ((_state.InformStages & InformStages.RoundThemesNames) > 0)
         {

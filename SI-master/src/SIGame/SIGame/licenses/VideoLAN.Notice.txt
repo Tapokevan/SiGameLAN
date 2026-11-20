@@ -1,0 +1,16 @@
+This game dynamically loads VideoLAN libraries for question video playback.
+
+VideoLAN.LibVLC.Windows 3.0.24
+Package: https://www.nuget.org/packages/VideoLAN.LibVLC.Windows/3.0.24
+Source: https://get.videolan.org/vlc/3.0.24/vlc-3.0.24.tar.xz
+Build recipes: https://code.videolan.org/videolan/libvlc-nuget
+
+LibVLCSharp and LibVLCSharp.WPF 3.10.2
+Packages: https://www.nuget.org/packages/LibVLCSharp/3.10.2
+          https://www.nuget.org/packages/LibVLCSharp.WPF/3.10.2
+Source: https://code.videolan.org/videolan/LibVLCSharp/-/tree/3082c09ca955131c705fc4767fde03e9c4a14999
+
+Copyright VideoLAN and contributors. The packages declare LGPL-2.1-or-later.
+The native libraries and plugins are separate files under libvlc/win-x64.
+See VideoLAN.LGPL-2.1.txt for the LGPL license and the VLC source archive
+for component licenses and source notices.

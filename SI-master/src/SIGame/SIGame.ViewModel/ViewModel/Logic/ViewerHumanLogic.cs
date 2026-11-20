@@ -121,6 +121,12 @@ public sealed class ViewerHumanLogic : IPersonController, IAsyncDisposable
         _gameViewModel.Disposed += GameViewModel_Disposed;
 
         TInfo = _gameViewModel.TInfo;
+        TInfo.ReportPlaybackCompleted = _gameViewModel.OnMediaContentCompleted;
+        TInfo.ResolvePlaybackUri = async uri =>
+        {
+            var cached = await _localFileManager.GetFileAsync(uri);
+            return cached is null ? null : new Uri(cached, UriKind.Absolute);
+        };
 
         TInfo.PropertyChanged += TInfo_PropertyChanged;
         TInfo.MediaLoad += TInfo_MediaLoad;
@@ -496,6 +502,12 @@ public sealed class ViewerHumanLogic : IPersonController, IAsyncDisposable
                 break;
 
             case GameStage.Round:
+                Interlocked.Increment(ref _preloadGeneration);
+                foreach (var participant in _state.AllPersons.Values.OfType<PersonAccount>())
+                {
+                    participant.RoundPreloadText = "";
+                }
+
                 if (stageIndex > -1 && stageIndex < _state.RoundNames.Length)
                 {
                     _gameViewModel.RoundIndex = stageIndex;
@@ -1775,57 +1787,91 @@ public sealed class ViewerHumanLogic : IPersonController, IAsyncDisposable
         _state.Players[playerIndex].State = PlayerState.Pass;
     }
 
+    private int _preloadGeneration;
+
     public void OnRoundContent(string[] mparams)
     {
-        // We do not start from 0 and increment it to avoid issues when the value could accidentally reach zero
-        // if the work is processed faster than it is queued
-        var fileCounter = mparams.Length - 1;
-        var initialCounter = fileCounter;
-        var lastReportedProgress = 0;
-
-        for (var i = 1; i < mparams.Length; i++)
+        if (mparams.Length != 3 || mparams[1] != "questions-v1")
         {
-            var uri = mparams[i];
+            return;
+        }
 
-            if (uri.Contains(Constants.GameHost))
+        string[][] questions;
+        try
+        {
+            questions = System.Text.Json.JsonSerializer.Deserialize<string[][]>(mparams[2]) ?? [];
+        }
+        catch (System.Text.Json.JsonException)
+        {
+            return;
+        }
+
+        var generation = Interlocked.Increment(ref _preloadGeneration);
+        var pending = new int[questions.Length];
+        var files = new Dictionary<Uri, List<int>>();
+        var loaded = 0;
+        for (var question = 0; question < questions.Length; question++)
+        {
+            foreach (var reference in questions[question].Distinct())
             {
-                if (!string.IsNullOrWhiteSpace(_serverAddress))
+                var address = PreprocessUri(ContentTypes.Image, reference);
+                pending[question]++;
+                if ((!address.StartsWith("http://localhost:", StringComparison.Ordinal)
+                        && !_userSettings.LoadExternalMedia && !ExternalUrlOk(address))
+                    || !Uri.TryCreate(address, UriKind.Absolute, out var uri)
+                    || (uri.Scheme != Uri.UriSchemeHttp && uri.Scheme != Uri.UriSchemeHttps))
                 {
-                    if (Uri.TryCreate(_serverAddress, UriKind.Absolute, out var hostUri))
+                    continue;
+                }
+
+                if (!files.TryGetValue(uri, out var users))
+                {
+                    users = [];
+                    files.Add(uri, users);
+                }
+
+                users.Add(question);
+            }
+
+            if (pending[question] == 0)
+            {
+                loaded++;
+            }
+        }
+
+        _actions.ReportMediaPreloadProgress(loaded, questions.Length);
+        foreach (var (uri, users) in files)
+        {
+            _localFileManager.AddFile(uri, () =>
+            {
+                if (generation != Volatile.Read(ref _preloadGeneration) || _localFileManager.TryGetFile(uri) is null)
+                {
+                    return;
+                }
+
+                var ready = 0;
+                foreach (var question in users)
+                {
+                    if (--pending[question] == 0)
                     {
-                        uri = uri.Replace(Constants.GameHost, hostUri.Host);
+                        ready++;
                     }
                 }
-            }
-            else if (uri.Contains(Constants.ServerHost))
-            {
-                uri = uri.Replace(Constants.ServerHost, _serverPublicUrl);
-            }
-            else if (!uri.StartsWith("http://localhost") && !_userSettings.LoadExternalMedia && !ExternalUrlOk(uri))
-            {
-                Interlocked.Decrement(ref fileCounter);
-                continue;
-            }
 
-            if (!Uri.TryCreate(uri, UriKind.RelativeOrAbsolute, out var mediaUri))
-            {
-                Interlocked.Decrement(ref fileCounter);
-                continue;
-            }
-            
-            _localFileManager.AddFile(mediaUri, () =>
-            {
-                var currentCounter = Interlocked.Decrement(ref fileCounter);
-
-                var currentProgress = (initialCounter - currentCounter) * 100 / initialCounter;
-                var currentProgressRounded = currentProgress / 10 * 10;
-
-                if (currentProgressRounded > lastReportedProgress)
+                if (ready > 0)
                 {
-                    lastReportedProgress = currentProgressRounded;
-                    _actions.ReportMediaPreloadProgress(currentProgressRounded);
+                    loaded += ready;
+                    _actions.ReportMediaPreloadProgress(loaded, questions.Length);
                 }
             });
+        }
+    }
+
+    public void OnMediaPreloadProgress(string person, int loaded, int total)
+    {
+        if (_state.AllPersons.TryGetValue(person, out var account) && account is PersonAccount participant)
+        {
+            participant.RoundPreloadText = $"Вопросы: {loaded}/{total}";
         }
     }
 

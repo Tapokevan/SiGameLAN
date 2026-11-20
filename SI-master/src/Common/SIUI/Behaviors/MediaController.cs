@@ -31,6 +31,55 @@ public static class MediaController
     private static readonly DependencyPropertyDescriptor SourceDescriptor =
         DependencyPropertyDescriptor.FromProperty(MediaElement.SourceProperty, typeof(MediaElement));
 
+    public static string? GetPlaybackUri(DependencyObject obj) => (string?)obj.GetValue(PlaybackUriProperty);
+
+    public static void SetPlaybackUri(DependencyObject obj, string? value) => obj.SetValue(PlaybackUriProperty, value);
+
+    public static readonly DependencyProperty PlaybackUriProperty = DependencyProperty.RegisterAttached(
+        "PlaybackUri", typeof(string), typeof(MediaController), new PropertyMetadata(null, OnPlaybackUriChanged));
+
+    private static void OnPlaybackUriChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+    {
+        if (d is MediaElement media && media.IsLoaded)
+        {
+            ResolvePlaybackSourceAsync(media, e.NewValue as string);
+        }
+    }
+
+    private static async void ResolvePlaybackSourceAsync(MediaElement media, string? address)
+    {
+        media.Source = null;
+        if (!Uri.TryCreate(address, UriKind.Absolute, out var uri))
+        {
+            return;
+        }
+
+        var table = (TableInfoViewModel?)media.GetValue(LoadHandlerProperty);
+        try
+        {
+            var resolver = table?.ResolvePlaybackUri;
+            var source = resolver is not null && (uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps)
+                ? await resolver(uri)
+                : uri;
+            if (media.IsLoaded && GetPlaybackUri(media) == address)
+            {
+                if (source is null)
+                {
+                    throw new InvalidOperationException("Не удалось получить локальную копию медиа.");
+                }
+
+                media.Source = source;
+            }
+        }
+        catch (Exception ex)
+        {
+            if (media.IsLoaded && GetPlaybackUri(media) == address)
+            {
+                table?.OnMediaLoadError(new MediaLoadException(address, ex));
+            }
+        }
+    }
+
     public static string GetContentType(DependencyObject obj) => (string)obj.GetValue(ContentTypeProperty);
 
     public static void SetContentType(DependencyObject obj, string value) => obj.SetValue(ContentTypeProperty, value);
@@ -75,7 +124,6 @@ public static class MediaController
             try
             {
                 mediaElement.Play();
-                tableInfo.OnMediaLoad();
             }
             catch (Exception exc)
             {
@@ -84,6 +132,13 @@ public static class MediaController
         }
 
         mediaElement.Loaded += loaded;
+        mediaElement.Loaded += (_, _) =>
+        {
+            if (GetPlaybackUri(mediaElement) is { } address)
+            {
+                ResolvePlaybackSourceAsync(mediaElement, address);
+            }
+        };
 
         SourceDescriptor.AddValueChanged(mediaElement, loaded);
 
@@ -112,6 +167,7 @@ public static class MediaController
 
         mediaElement.MediaOpened += (sender, e2) =>
         {
+            tableInfo.OnMediaLoad();
             mediaElement.ScrubbingEnabled = mediaElement.HasVideo;
             tableInfo.OnMediaStart();
 

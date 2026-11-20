@@ -251,6 +251,10 @@ public sealed class TableInfoViewModel : ViewModelBase<TableInfo>
     /// </summary>
     public SimpleCommand SelectAnswer { get; private set; }
 
+    public Func<Uri, Task<Uri?>>? ResolvePlaybackUri { get; set; }
+
+    public Action<string, string>? ReportPlaybackCompleted { get; set; }
+
     public ContentViewModel? PointAnswerImage { get; set; }
 
     private (double X, double Y)? _correctPoint;

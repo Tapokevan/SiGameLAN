@@ -5,14 +5,12 @@ namespace Utils;
 
 public static class FilePathHelper
 {
-    private static readonly MD5 Hash = MD5.Create();
-
     public static string GetSafeFileName(Uri uri) => GetSafeFileName(uri.LocalPath, uri.AbsoluteUri);
 
     public static string GetSafeFileName(string fileName, string? fileKey = null)
     {
         var extension = Path.GetExtension(fileName);
-        var hashedFileName = Hash.ComputeHash(Encoding.UTF8.GetBytes(fileKey ?? fileName));
+        var hashedFileName = MD5.HashData(Encoding.UTF8.GetBytes(fileKey ?? fileName));
 
         var base64String = Convert.ToBase64String(hashedFileName);
         var escapedFileName = ReplaceInvalidFileNameCharactersInBase64(base64String);
